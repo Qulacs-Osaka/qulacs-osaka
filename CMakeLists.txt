@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 
 project(qulacs)
 
@@ -65,6 +65,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 ##### set external projects #####
 include(ExternalProject)
 include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
+
+# Boost
+set(Boost_USE_STATIC_LIBS    ON)
+set(Boost_USE_MULTITHREADED  ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+find_package(Boost 1.36.0 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+if(NOT Boost_FOUND)
+        message(FATAL_ERROR "Boost not found. Please install boost.")
+endif()
+message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
+
 
 # Eigen
 set(EIGEN_BUILD_DIR   ${CMAKE_BINARY_DIR}/eigen)
@@ -137,13 +149,14 @@ endif()
 
 ##### set warnings #####
 if(NOT USE_GPU)
-	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+	set(WARNING_C "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
 	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
 	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -Wnested-externs -fdiagnostics-color=auto")
-	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+         # -Werror=undef is temporally removed
+	set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
 	 -Werror=missing-declarations -Werror=return-type \
 	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
@@ -185,9 +198,9 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# GCC>=8.0.0 requires C++14 for building python
 	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
@@ -232,7 +245,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# set pybind11 flags
 	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(PYBIND11_CPP_STANDARD -std=gnu++14)
+		set(PYBIND11_CPP_STANDARD -std=c++14)
 	endif()
 
 elseif(MSVC)
@@ -331,11 +344,9 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
 	endif()
