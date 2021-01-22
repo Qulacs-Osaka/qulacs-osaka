@@ -186,6 +186,44 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     return this->get_expectation_value(state) + mu;
 }
 
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
+    GeneralQuantumOperator& target) {
+    GeneralQuantumOperator res(_qubit_count);
+    for (auto pauli_operator : _operator_list) {
+        for (auto target_operator : target.get_terms()) {
+            if (pauli_operator->get_xbits() == target_operator->get_xbits() &&
+                pauli_operator->get_zbits() == target_operator->get_zbits()) {
+                PauliOperator tmp(pauli_operator->get_pauli_id_list(),
+                    pauli_operator->get_coef() + target_operator->get_coef());
+                res.add_operator(&tmp);
+            }
+        }
+    }
+    for (auto target_operator : target.get_terms()) {
+        for (auto pauli_operator : _operator_list) {
+            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
+                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+                break;
+            }
+            res.add_operator(target_operator);
+        }
+    }
+    return res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    GeneralQuantumOperator& target) {
+    GeneralQuantumOperator res(_qubit_count);
+    for (auto pauli_operator : _operator_list) {
+        for (auto target_operator : target.get_terms()) {
+            GeneralQuantumOperator tmp(_qubit_count);
+            tmp.add_operator(&(*pauli_operator * *target_operator));
+            res = res + tmp;
+        }
+    }
+    return res;
+}
+
 void GeneralQuantumOperator::apply_to_state(
     QuantumStateBase* state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
