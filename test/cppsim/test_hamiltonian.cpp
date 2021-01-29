@@ -404,3 +404,41 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
         }
     }
 }
+
+TEST(ObservableTest, CheckOperator) {
+    boost::dynamic_bitset<> x(1);
+    boost::dynamic_bitset<> z(1);
+    x.set(0);
+    PauliOperator generated_by_bits_x(x, z);
+    PauliOperator generated_by_strings_x("X 0");
+    ASSERT_EQ(
+        generated_by_strings_x.get_x_bits(), generated_by_bits_x.get_x_bits());
+    ASSERT_EQ(
+        generated_by_strings_x.get_z_bits(), generated_by_bits_x.get_z_bits());
+    z.set(0);
+    PauliOperator generated_by_bits_y(x, z);
+    PauliOperator generated_by_strings_y("Y 0");
+    ASSERT_EQ(
+        generated_by_strings_y.get_x_bits(), generated_by_bits_y.get_x_bits());
+    ASSERT_EQ(
+        generated_by_strings_y.get_z_bits(), generated_by_bits_y.get_z_bits());
+    x.reset(0);
+    PauliOperator generated_by_bits_z(x, z);
+    PauliOperator generated_by_strings_z("Y 0");
+    ASSERT_EQ(
+        generated_by_strings_z.get_x_bits(), generated_by_bits_z.get_x_bits());
+    ASSERT_EQ(
+        generated_by_strings_z.get_z_bits(), generated_by_bits_z.get_z_bits());
+    ASSERT_EQ(generated_by_strings_y.get_x_bits(),
+        (generated_by_bits_z * generated_by_bits_x).get_x_bits());
+    ASSERT_EQ(generated_by_strings_y.get_z_bits(),
+        (generated_by_bits_z * generated_by_bits_x).get_z_bits());
+    ASSERT_EQ(generated_by_strings_z.get_x_bits(),
+        (generated_by_bits_y * generated_by_bits_x).get_x_bits());
+    ASSERT_EQ(generated_by_strings_z.get_z_bits(),
+        (generated_by_bits_y * generated_by_bits_x).get_z_bits());
+    ASSERT_EQ(generated_by_strings_x.get_x_bits(),
+        (generated_by_bits_y * generated_by_bits_z).get_x_bits());
+    ASSERT_EQ(generated_by_strings_x.get_z_bits(),
+        (generated_by_bits_y * generated_by_bits_z).get_z_bits());
+}
