@@ -12,8 +12,13 @@
 #include <complex>
 #else
 #include <complex.h>
+// If this file is referred from C++, undef imaginary number extension
+#ifdef __cplusplus
+#ifdef I
+#undef I
 #endif
-
+#endif
+#endif
 //! size_t for gcc
 #include <stddef.h>
 
