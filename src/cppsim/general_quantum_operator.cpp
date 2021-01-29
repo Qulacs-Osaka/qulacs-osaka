@@ -191,8 +191,8 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
     GeneralQuantumOperator res(_qubit_count);
     for (auto pauli_operator : _operator_list) {
         for (auto target_operator : target.get_terms()) {
-            if (pauli_operator->get_xbits() == target_operator->get_xbits() &&
-                pauli_operator->get_zbits() == target_operator->get_zbits()) {
+            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
+                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
                 PauliOperator tmp(pauli_operator->get_pauli_id_list(),
                     pauli_operator->get_coef() + target_operator->get_coef());
                 res.add_operator(&tmp);
@@ -217,7 +217,8 @@ GeneralQuantumOperator GeneralQuantumOperator::operator*(
     for (auto pauli_operator : _operator_list) {
         for (auto target_operator : target.get_terms()) {
             GeneralQuantumOperator tmp(_qubit_count);
-            tmp.add_operator(&(*pauli_operator * *target_operator));
+            PauliOperator product = (*pauli_operator) * (*target_operator);
+            tmp.add_operator(&product);
             res = res + tmp;
         }
     }
@@ -232,7 +233,7 @@ void GeneralQuantumOperator::apply_to_state(
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         work_state.load(state_to_be_multiplied);
-        const auto term = this->get_term(i);
+        auto term = this->get_term(i);
         auto pauli_operator =
             gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
         pauli_operator->update_quantum_state(&work_state);

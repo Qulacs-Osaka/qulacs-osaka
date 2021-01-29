@@ -110,7 +110,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list,
 }
 
 PauliOperator::PauliOperator(const boost::dynamic_bitset<>& x,
-    const boost::dynamic_bitset<>& z, CPPCTYPE coef = 1.) {
+    const boost::dynamic_bitset<>& z, CPPCTYPE coef) {
     _x = x;
     _z = z;
     _coef = coef;
@@ -250,30 +250,32 @@ PauliOperator* PauliOperator::copy() const {
 }
 
 PauliOperator PauliOperator::operator*(PauliOperator& target) {
-    CPPCTYPE bits_coef = 1.;
+    CPPCTYPE bits_coef = 1.0;
+    CPPCTYPE I = 1.0i;
     auto target_x = target.get_x_bits();
     auto target_z = target.get_x_bits();
     for (int i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
-                bits_coef *= -1i;
+                bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {
-                bits_coef *= 1i;
+                bits_coef = bits_coef * I;
             }
         } else if (!_x[i] && _z[i]) {           // Z
             if (target_x[i] && !target_z[i]) {  // X
-                bits_coef *= -1i;
+                bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {  // Y
-                bits_coef *= 1i;
+                bits_coef = bits_coef * I;
             }
         } else if (_x[i] && _z[i]) {            // Y
             if (target_x[i] && !target_z[i]) {  // X
-                bits_coef *= 1i;
+                bits_coef = bits_coef * I;
             } else if (!target_x[i] && target_z[i]) {  // Z
-                bits_coef *= 1i;
+                bits_coef = bits_coef * I;
             }
         }
-        PauliOperator res(_x ^ target.get_x_bits(), _z ^ target.get_z_bits(),
-            _coef * target.get_coef() * bits_coef);
-        return res;
     }
+    PauliOperator res(_x ^ target.get_x_bits(), _z ^ target.get_z_bits(),
+        _coef * target.get_coef() * bits_coef);
+    return res;
+}
