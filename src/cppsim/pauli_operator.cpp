@@ -13,7 +13,9 @@
 
 #include "type.hpp"
 #include "utility.hpp"
-
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
 #endif
@@ -254,6 +256,7 @@ PauliOperator PauliOperator::operator*(PauliOperator& target) {
     CPPCTYPE I = 1.0i;
     auto target_x = target.get_x_bits();
     auto target_z = target.get_x_bits();
+#pragma omp parallel for
     for (int i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {

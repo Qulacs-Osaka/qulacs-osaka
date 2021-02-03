@@ -3,7 +3,9 @@
 
 #include "type.hpp"
 #include "utility.hpp"
-
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #ifndef _MSC_VER
 extern "C" {
 #include <csim/stat_ops.h>
@@ -189,6 +191,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     GeneralQuantumOperator& target) {
     GeneralQuantumOperator res(_qubit_count);
+#pragma omp parallel for
     for (auto pauli_operator : _operator_list) {
         for (auto target_operator : target.get_terms()) {
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
@@ -214,6 +217,7 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
     GeneralQuantumOperator& target) {
     GeneralQuantumOperator res(_qubit_count);
+#pragma omp parallel for
     for (auto pauli_operator : _operator_list) {
         for (auto target_operator : target.get_terms()) {
             GeneralQuantumOperator tmp(_qubit_count);
