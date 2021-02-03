@@ -192,8 +192,10 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
     GeneralQuantumOperator& target) {
     GeneralQuantumOperator res(_qubit_count);
 #pragma omp parallel for
-    for (auto pauli_operator : _operator_list) {
-        for (auto target_operator : target.get_terms()) {
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (int j = 0; j < target.get_terms().size(); j++) {
+            auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
                 PauliOperator tmp(pauli_operator->get_pauli_id_list(),
@@ -202,11 +204,13 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
             }
         }
     }
-    for (auto target_operator : target.get_terms()) {
-        for (auto pauli_operator : _operator_list) {
+    for (int i = 0; i < target.get_terms().size(); i++) {
+        auto target_operator = target.get_terms()[i];
+        for (int j = 0; j < _operator_list.size(); j++) {
+            auto pauli_operator = _operator_list[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
-                break;
+                continue;
             }
             res.add_operator(target_operator);
         }
@@ -218,8 +222,10 @@ GeneralQuantumOperator GeneralQuantumOperator::operator*(
     GeneralQuantumOperator& target) {
     GeneralQuantumOperator res(_qubit_count);
 #pragma omp parallel for
-    for (auto pauli_operator : _operator_list) {
-        for (auto target_operator : target.get_terms()) {
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (int j = 0; j < target.get_terms().size(); j++) {
+            auto target_operator = target.get_terms()[j];
             GeneralQuantumOperator tmp(_qubit_count);
             PauliOperator product = (*pauli_operator) * (*target_operator);
             tmp.add_operator(&product);
