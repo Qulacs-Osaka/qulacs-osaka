@@ -63,6 +63,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_expectation_value", &PauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
+        .def("set_bits", &PauliOperator::set_bits, "Set Xbit and Zbit from Pauli list")
+        .def("__mul__", &PauliOperator::operator*, "Overload mul operator")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -80,6 +82,9 @@ PYBIND11_MODULE(qulacs, m) {
         }, pybind11::return_value_policy::take_ownership, "Get Pauli term", py::arg("index"))
         .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
+        .def("__add__", &GeneralQuantumOperator::operator+, "Overload add operator")
+        .def("__mul__", &GeneralQuantumOperator::operator*, "Oveaload mul operator")
+
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
