@@ -257,5 +257,5 @@ public:
      */
     virtual PauliOperator* copy() const;
 
-    PauliOperator operator*(PauliOperator& target);
+    PauliOperator operator*(const PauliOperator& target) const;
 };

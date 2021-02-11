@@ -251,7 +251,7 @@ PauliOperator* PauliOperator::copy() const {
     return pauli;
 }
 
-PauliOperator PauliOperator::operator*(PauliOperator& target) {
+PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     CPPCTYPE bits_coef = 1.0;
     CPPCTYPE I = 1.0i;
     auto target_x = target.get_x_bits();

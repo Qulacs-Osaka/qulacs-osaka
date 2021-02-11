@@ -163,9 +163,11 @@ public:
     void apply_to_state(QuantumStateBase* state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
-    GeneralQuantumOperator operator+(GeneralQuantumOperator& target);
+    GeneralQuantumOperator operator+(
+        const GeneralQuantumOperator& target) const;
 
-    GeneralQuantumOperator operator*(GeneralQuantumOperator& target);
+    GeneralQuantumOperator operator*(
+        const GeneralQuantumOperator& target) const;
 
 private:
     /**

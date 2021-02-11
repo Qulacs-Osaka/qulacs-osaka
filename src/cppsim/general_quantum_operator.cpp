@@ -189,7 +189,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
-    GeneralQuantumOperator& target) {
+    const GeneralQuantumOperator& target) const {
     GeneralQuantumOperator res(_qubit_count);
 #pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
@@ -219,7 +219,7 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
-    GeneralQuantumOperator& target) {
+    const GeneralQuantumOperator& target) const {
     GeneralQuantumOperator res(_qubit_count);
 #pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
