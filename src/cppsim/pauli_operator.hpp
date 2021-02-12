@@ -224,13 +224,6 @@ public:
 
     /**
      * \~japanese-en
-     * xビットとzビットをセットする
-     *
-     */
-    virtual void set_bits();
-
-    /**
-     * \~japanese-en
      * 量子状態に対応するパウリ演算子の期待値を計算する
      *
      * @param[in] state 期待値をとるときの量子状態
