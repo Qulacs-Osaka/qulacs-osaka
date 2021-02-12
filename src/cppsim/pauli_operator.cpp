@@ -125,7 +125,7 @@ PauliOperator::PauliOperator(const boost::dynamic_bitset<>& x,
 
 void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
     this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
-    if (qubit_index + 1 > _x.size()) {
+    if (qubit_index >= _x.size()) {
         _x.resize(qubit_index + 1);
         _z.resize(qubit_index + 1);
     }
