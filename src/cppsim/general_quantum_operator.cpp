@@ -191,16 +191,16 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const GeneralQuantumOperator& target) const {
     GeneralQuantumOperator res(_qubit_count);
-#pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (int j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
-                PauliOperator tmp(pauli_operator->get_pauli_id_list(),
+                PauliOperator* tmp = new PauliOperator(
+                    pauli_operator->get_pauli_id_list(),
                     pauli_operator->get_coef() + target_operator->get_coef());
-                res.add_operator(&tmp);
+                res.add_operator(tmp);
             }
         }
     }
@@ -221,14 +221,14 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
     const GeneralQuantumOperator& target) const {
     GeneralQuantumOperator res(_qubit_count);
-#pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (int j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             GeneralQuantumOperator tmp(_qubit_count);
-            PauliOperator product = (*pauli_operator) * (*target_operator);
-            tmp.add_operator(&product);
+            PauliOperator* product = new PauliOperator;
+            product = &((*pauli_operator) * (*target_operator));
+            tmp.add_operator(product);
             res = res + tmp;
         }
     }
