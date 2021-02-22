@@ -13,7 +13,7 @@ private:
     bool _flag_save_log = false;
     std::string _reg_name = "";
 
-    QuantumGateWrapped(MapType map_type) : QuantumGateBase(map_type){};
+    explicit QuantumGateWrapped(MapType map_type) : QuantumGateBase(map_type){};
 
     void add_probabilistic_map(
         QuantumGateBase* gate, double prob, double eps = 1e-14) {
