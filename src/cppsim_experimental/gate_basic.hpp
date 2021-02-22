@@ -37,8 +37,16 @@ public:
         if (target_qubit_index.size() == 0) {
             throw std::invalid_argument("target_qubit_index.size() == 0");
         }
-        _target_qubit_index = target_qubit_index;
+        
+        //check if target_qubit_index have duplicated index
+        std::set<UINT> check_duplicate(target_qubit_index.begin(),target_qubit_index.end());
+        if(check_duplicate.size() != target_qubit_index.size()){
+            throw std::invalid_argument(
+                "target_qubit_index contains duplicated index"
+            );
+        }
 
+        _target_qubit_index = target_qubit_index;
         // set target_qubit_commutation
         if (target_qubit_commutation.size() == 0) {
             _target_qubit_commutation =

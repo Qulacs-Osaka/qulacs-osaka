@@ -44,4 +44,22 @@ DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob) {
         {gate::Identity(index), gate::Z(index)}, {1 - prob, prob}, true);
     return ptr;
 }
+DllExport QuantumGateWrapped* AmplitudeDampingNoise(UINT target_index, double prob) {
+    ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2, 2);
+    damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
+    damping_matrix_1 << 0, sqrt(prob), 0, 0;
+    auto gate0 = QuantumGateBasic::DenseMatrixGate({target_index}, damping_matrix_0);
+    auto gate1 = QuantumGateBasic::DenseMatrixGate({target_index}, damping_matrix_1);
+    auto new_gate = QuantumGateWrapped::CPTP({gate0, gate1});
+    delete gate0;
+    delete gate1;
+    return new_gate;
+}
+DllExport QuantumGateWrapped* CPTP(std::vector<QuantumGateBase*> gate_list) {
+    return QuantumGateWrapped::CPTP(gate_list);
+}
+DllExport QuantumGateWrapped* Probabilistic(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list) {
+    auto ptr = QuantumGateWrapped::ProbabilisticGate(gate_list,distribution,false);
+    return ptr;
+}
 }  // namespace gate

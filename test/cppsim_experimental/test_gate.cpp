@@ -364,7 +364,6 @@ TEST(GateTest, MergeTensorProduct) {
     delete y1;
     delete xy01;
 }
-
 TEST(GateTest, MergeMultiply) {
     UINT n = 1;
     ITYPE dim = 1ULL << n;
@@ -1148,7 +1147,7 @@ TEST(GateTest, RandomControlMergeLarge) {
                 << test_state_eigen << "\n";
     }
 }
-
+*/
 TEST(GateTest, ProbabilisticGate) {
     auto gate1 = gate::X(0);
     auto gate2 = gate::X(1);
@@ -1163,7 +1162,7 @@ TEST(GateTest, ProbabilisticGate) {
     delete gate3;
     delete prob_gate;
 }
-
+/*
 TEST(GateTest, CPTPGate) {
     auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
     auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
@@ -1268,8 +1267,10 @@ TEST(GateTest, ReversibleBooleanGate) {
     gate->update_quantum_state(&state);
     ASSERT_NEAR(abs(state.data_cpp()[0] - 1.), 0, eps);
 }
-
+*/
 TEST(GateTest, TestNoise) {
+    //TODO: implement measurement
+
     const UINT n = 10;
     StateVectorCpu state(n);
     Random random;
@@ -1278,43 +1279,41 @@ TEST(GateTest, TestNoise) {
     auto independetxz = gate::IndependentXZNoise(0, random.uniform());
     auto depolarizing = gate::DepolarizingNoise(0, random.uniform());
     auto amp_damp = gate::AmplitudeDampingNoise(0, random.uniform());
-    auto measurement = gate::Measurement(0, 0);
+    //auto measurement = gate::Measurement(0, 0);
     bitflip->update_quantum_state(&state);
     dephase->update_quantum_state(&state);
     independetxz->update_quantum_state(&state);
     depolarizing->update_quantum_state(&state);
     amp_damp->update_quantum_state(&state);
-    measurement->update_quantum_state(&state);
+    //measurement->update_quantum_state(&state);
     delete bitflip;
     delete dephase;
     delete independetxz;
     delete depolarizing;
     delete amp_damp;
-    delete measurement;
+    //delete measurement;
 }
-
 TEST(GateTest, DuplicateIndex) {
     {
         auto gate1 = gate::CNOT(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CNOT(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::CNOT(21, 21));
     }
     {
         auto gate1 = gate::CZ(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CZ(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::CZ(21, 21));
     }
     {
         auto gate1 = gate::SWAP(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SWAP(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::SWAP(21, 21));
     }
+    // TODO
+    /*
     {
         auto gate1 = gate::Pauli({2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0});
         EXPECT_TRUE(gate1 != NULL);
@@ -1362,12 +1361,11 @@ TEST(GateTest, DuplicateIndex) {
         auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
         ASSERT_EQ(NULL, gate2);
     }
+    */
     {
         auto gate1 = gate::TwoQubitDepolarizingNoise(10, 13, 0.1);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::TwoQubitDepolarizingNoise(21, 21, 0.1));
     }
 }
-*/
