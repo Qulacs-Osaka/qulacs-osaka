@@ -224,6 +224,8 @@ PauliOperator* PauliOperator::copy() const {
     return pauli;
 }
 
+void PauliOperator::change_coef(CPPCTYPE new_coef) { _coef = new_coef; }
+
 PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     CPPCTYPE bits_coef = 1.0;
     CPPCTYPE I = 1.0i;
@@ -254,4 +256,46 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     PauliOperator res(_x ^ target.get_x_bits(), _z ^ target.get_z_bits(),
         _coef * target.get_coef() * bits_coef);
     return res;
+}
+
+PauliOperator PauliOperator::operator*(CPPCTYPE target) const {
+    PauliOperator res(_x, _z, _coef * target);
+    return res;
+}
+
+PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
+    _coef *= target.get_coef();
+    CPPCTYPE I = 1.0i;
+    auto target_x = target.get_x_bits();
+    auto target_z = target.get_x_bits();
+#pragma omp parallel for
+    for (int i = 0; i < _x.size(); i++) {
+        if (_x[i] && !_z[i]) {  // X
+            if (!target_x[i] && target_z[i]) {
+                _coef *= -I;
+            } else if (target_x[i] && target_z[i]) {
+                _coef *= I;
+            }
+        } else if (!_x[i] && _z[i]) {           // Z
+            if (target_x[i] && !target_z[i]) {  // X
+                _coef *= -I;
+            } else if (target_x[i] && target_z[i]) {  // Y
+                _coef *= I;
+            }
+        } else if (_x[i] && _z[i]) {            // Y
+            if (target_x[i] && !target_z[i]) {  // X
+                _coef *= I;
+            } else if (!target_x[i] && target_z[i]) {  // Z
+                _coef *= I;
+            }
+        }
+    }
+    _x ^= target.get_x_bits();
+    _z ^= target.get_z_bits();
+    return *this;
+}
+
+PauliOperator& PauliOperator::operator*=(CPPCTYPE target) {
+    _coef *= target;
+    return *this;
 }

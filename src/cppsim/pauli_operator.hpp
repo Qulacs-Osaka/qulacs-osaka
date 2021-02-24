@@ -250,5 +250,13 @@ public:
      */
     virtual PauliOperator* copy() const;
 
+    virtual void change_coef(CPPCTYPE new_coef);
+
     PauliOperator operator*(const PauliOperator& target) const;
+
+    PauliOperator operator*(CPPCTYPE target) const;
+
+    PauliOperator& operator*=(const PauliOperator& target);
+
+    PauliOperator& operator*=(CPPCTYPE target);
 };
