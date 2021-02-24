@@ -188,51 +188,203 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     return this->get_expectation_value(state) + mu;
 }
 
+GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
+    auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
+    for (auto pauli : this->_operator_list) {
+        quantum_operator->add_operator(pauli->copy());
+    }
+    return quantum_operator;
+}
+
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const GeneralQuantumOperator& target) const {
-    GeneralQuantumOperator res(_qubit_count);
+    auto res = this->copy();
+    *res += target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res += target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
+    const GeneralQuantumOperator& target) {
+#pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (int j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
-                PauliOperator* tmp = new PauliOperator(
-                    pauli_operator->get_pauli_id_list(),
-                    pauli_operator->get_coef() + target_operator->get_coef());
-                res.add_operator(tmp);
+                _operator_list[i]->change_coef(_operator_list[i]->get_coef() +
+                                               target_operator->get_coef());
             }
         }
     }
-    for (int i = 0; i < target.get_terms().size(); i++) {
-        auto target_operator = target.get_terms()[i];
-        for (int j = 0; j < _operator_list.size(); j++) {
-            auto pauli_operator = _operator_list[j];
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (int j = 0; j < target.get_terms().size(); j++) {
+            auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
                 continue;
             }
-            res.add_operator(target_operator);
+            this->add_operator(target_operator->copy());
         }
     }
-    return res;
+    return *this;
 }
 
-GeneralQuantumOperator GeneralQuantumOperator::operator*(
+GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
+    const PauliOperator& target) {
+    bool flag = true;
+#pragma omp parallel for
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        if (pauli_operator->get_x_bits() == target.get_x_bits() &&
+            pauli_operator->get_z_bits() == target.get_z_bits()) {
+            _operator_list[i]->change_coef(
+                _operator_list[i]->get_coef() + target.get_coef());
+            flag = false;
+            break;
+        }
+    }
+    if (flag) {
+        this->add_operator(target.copy());
+    }
+    return *this;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator-(
     const GeneralQuantumOperator& target) const {
-    GeneralQuantumOperator res(_qubit_count);
+    auto res = this->copy();
+    *res -= target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator-(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res -= target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
+    const GeneralQuantumOperator& target) {
+#pragma omp parallel for
     for (int i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (int j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
-            GeneralQuantumOperator tmp(_qubit_count);
-            PauliOperator* product = new PauliOperator;
-            product = &((*pauli_operator) * (*target_operator));
-            tmp.add_operator(product);
-            res = res + tmp;
+            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
+                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+                _operator_list[i]->change_coef(_operator_list[i]->get_coef() -
+                                               target_operator->get_coef());
+            }
         }
     }
-    return res;
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (int j = 0; j < target.get_terms().size(); j++) {
+            auto target_operator = target.get_terms()[j];
+            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
+                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+                continue;
+            }
+            auto copy = target_operator->copy();
+            copy->change_coef(-copy->get_coef());
+            this->add_operator(copy);
+        }
+    }
+    return *this;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
+    const PauliOperator& target) {
+    bool flag = true;
+    for (int i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        if (pauli_operator->get_x_bits() == target.get_x_bits() &&
+            pauli_operator->get_z_bits() == target.get_z_bits()) {
+            _operator_list[i]->change_coef(
+                _operator_list[i]->get_coef() - target.get_coef());
+            flag = false;
+            break;
+        }
+    }
+    if (flag) {
+        auto copy = target.copy();
+        copy->change_coef(-copy->get_coef());
+        this->add_operator(copy);
+    }
+    return *this;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    const GeneralQuantumOperator& target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    CPPCTYPE target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
+    const GeneralQuantumOperator& target) {
+    auto copy = this->copy();
+    _operator_list.clear();
+#pragma omp parallel for
+    for (int i = 0; i < copy->get_terms().size(); i++) {
+        auto pauli_operator = copy->get_terms()[i];
+        for (int j = 0; j < target.get_terms().size(); j++) {
+            auto target_operator = target.get_terms()[j];
+            PauliOperator* product = new PauliOperator;
+            product = &((*pauli_operator) * (*target_operator));
+            *this += *product;
+        }
+    }
+    // これ必要？スコープ抜けたら消える気もする
+    delete copy;
+    return *this;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
+    const PauliOperator& target) {
+    auto copy = this->copy();
+    _operator_list.clear();
+#pragma omp parallel for
+    for (int i = 0; i < copy->get_terms().size(); i++) {
+        auto pauli_operator = copy->get_terms()[i];
+        PauliOperator* product = new PauliOperator;
+        product = &((*pauli_operator) * (target));
+        *this += *product;
+    }
+    // これ必要？スコープ抜けたら消える気もする
+    delete copy;
+    return *this;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
+    CPPCTYPE target) {
+#pragma omp parallel for
+    for (int i = 0; i < _operator_list.size(); i++) {
+        *_operator_list[i] *= target;
+    }
+    return *this;
 }
 
 void GeneralQuantumOperator::apply_to_state(

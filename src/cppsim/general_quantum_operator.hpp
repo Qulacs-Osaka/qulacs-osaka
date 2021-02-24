@@ -163,11 +163,38 @@ public:
     void apply_to_state(QuantumStateBase* state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
+    virtual GeneralQuantumOperator* copy() const;
+
     GeneralQuantumOperator operator+(
         const GeneralQuantumOperator& target) const;
 
+    GeneralQuantumOperator operator+(const PauliOperator& target) const;
+
+    GeneralQuantumOperator& operator+=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator+=(const PauliOperator& target);
+
+    GeneralQuantumOperator operator-(
+        const GeneralQuantumOperator& target) const;
+
+    GeneralQuantumOperator operator-(const PauliOperator& target) const;
+
+    GeneralQuantumOperator& operator-=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator-=(const PauliOperator& target);
+
     GeneralQuantumOperator operator*(
         const GeneralQuantumOperator& target) const;
+
+    GeneralQuantumOperator operator*(const PauliOperator& target) const;
+
+    GeneralQuantumOperator operator*(CPPCTYPE target) const;
+
+    GeneralQuantumOperator& operator*=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator*=(const PauliOperator& target);
+
+    GeneralQuantumOperator& operator*=(CPPCTYPE target);
 
 private:
     /**
