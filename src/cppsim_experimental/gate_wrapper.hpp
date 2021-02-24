@@ -123,7 +123,7 @@ public:
     }
 
     static QuantumGateWrapped* ProbabilisticGate(
-        std::vector<QuantumGateBase*> gates, const std::vector<double>& prob,
+        const std::vector<double>& prob, std::vector<QuantumGateBase*> gates,
         bool take_ownership = false) {
         auto ptr = new QuantumGateWrapped(Probabilistic);
         ptr->_prob_list.clear();
@@ -140,9 +140,9 @@ public:
     }
     static QuantumGateWrapped* CPTP(std::vector<QuantumGateBase*> gate_list) {
         auto ptr = new QuantumGateWrapped(MapType::CPTP);
-        ptr -> _gate_list.clear();
+        ptr->_gate_list.clear();
         std::transform(gate_list.cbegin(), gate_list.cend(),
-        std::back_inserter(ptr -> _gate_list),
+            std::back_inserter(ptr->_gate_list),
             [](auto gate) { return gate->copy(); });
         return ptr;
     };
@@ -206,7 +206,7 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        } else if(_map_type == MapType::CPTP){
+        } else if (_map_type == MapType::CPTP) {
             if (state->is_state_vector()) {
                 double r = random_state.uniform();
 
@@ -228,18 +228,20 @@ public:
                 }
                 delete buffer;
                 if (!(r < sum)) {
-                    throw std::invalid_argument("* Error : CPTP-map was not trace preserving. ");
+                    throw std::invalid_argument(
+                        "* Error : CPTP-map was not trace preserving. ");
                 }
             } else {
                 auto org_state = state->copy();
                 auto temp_state = state->copy();
                 for (UINT gate_index = 0; gate_index < _gate_list.size();
-                    ++gate_index) {
+                     ++gate_index) {
                     if (gate_index == 0) {
                         _gate_list[gate_index]->update_quantum_state(state);
                     } else if (gate_index + 1 < _gate_list.size()) {
                         temp_state->load(org_state);
-                        _gate_list[gate_index]->update_quantum_state(temp_state);
+                        _gate_list[gate_index]->update_quantum_state(
+                            temp_state);
                         state->add_state(temp_state);
                     } else {
                         _gate_list[gate_index]->update_quantum_state(org_state);
@@ -249,7 +251,7 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        }else {
+        } else {
             throw std::invalid_argument("Not implemented");
         }
     }
@@ -262,9 +264,11 @@ DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
 DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
-DllExport QuantumGateWrapped* AmplitudeDampingNoise(UINT target_index, double prob);
+DllExport QuantumGateWrapped* AmplitudeDampingNoise(
+    UINT target_index, double prob);
 DllExport QuantumGateWrapped* CPTP(std::vector<QuantumGateBase*> gate_list);
-DllExport QuantumGateWrapped* Probabilistic(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list);
+DllExport QuantumGateWrapped* Probabilistic(
+    std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list);
 };  // namespace gate
 
 // Cereal Type Registration

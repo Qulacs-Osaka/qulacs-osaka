@@ -37,13 +37,13 @@ public:
         if (target_qubit_index.size() == 0) {
             throw std::invalid_argument("target_qubit_index.size() == 0");
         }
-        
-        //check if target_qubit_index have duplicated index
-        std::set<UINT> check_duplicate(target_qubit_index.begin(),target_qubit_index.end());
-        if(check_duplicate.size() != target_qubit_index.size()){
+
+        // check if target_qubit_index have duplicated index
+        std::set<UINT> check_duplicate(
+            target_qubit_index.begin(), target_qubit_index.end());
+        if (check_duplicate.size() != target_qubit_index.size()) {
             throw std::invalid_argument(
-                "target_qubit_index contains duplicated index"
-            );
+                "target_qubit_index contains duplicated index");
         }
 
         _target_qubit_index = target_qubit_index;

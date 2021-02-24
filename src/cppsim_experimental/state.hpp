@@ -319,7 +319,8 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    explicit StateVectorCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true) {
+    explicit StateVectorCpu(UINT qubit_count_)
+        : QuantumStateBase(qubit_count_, true) {
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
         initialize_quantum_state(this->data_c(), _dim);

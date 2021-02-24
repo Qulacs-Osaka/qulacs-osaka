@@ -48,7 +48,7 @@ NoiseSimulator::NoiseSimulator(
             Kraus_list[q] = std::get<2>(dist_Kraus[q]);
         }
         QuantumGateWrapped* probgate =
-            QuantumGateWrapped::ProbabilisticGate(Kraus_list, distribution);
+            QuantumGateWrapped::ProbabilisticGate(distribution, Kraus_list);
         circuit->replace_gate(probgate, i);
     }
 }
