@@ -55,9 +55,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<std::string, std::complex<double>>(), "Constructor",
             py::arg("pauli_string"), py::arg("coef"))
         //.def(py::init<std::vector<unsigned int>&, std::string,
-        //std::complex<double>>(), "Constructor")
+        // std::complex<double>>(), "Constructor")
         //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&,
-        //std::complex<double>>(), "Constructor")
+        // std::complex<double>>(), "Constructor")
         //.def(py::init<std::vector<unsigned int>&, std::complex<double>>(),
         //"Constructor")
         .def("get_index_list", &PauliOperator::get_index_list,
@@ -78,10 +78,15 @@ PYBIND11_MODULE(qulacs, m) {
         .def("copy", &PauliOperator::copy,
             pybind11::return_value_policy::take_ownership,
             "Create copied instance of Pauli operator class")
+        .def("change_coef", &PauliOperator::change_coef, "change coefficient")
         .def(py::self * py::self)
-        //        .def("__mul__", &PauliOperator::operator*, "Overload mul
-        //        operator")
-        ;
+        .def("__mul__", [](const PauliOperator &a, CPPCTYPE b) {
+                return a * b;
+            }, py::is_operator())        
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](const PauliOperator &a, CPPCTYPE b) {
+                return a *= b;
+            }, py::is_operator())        
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
@@ -104,7 +109,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_term_count", &GeneralQuantumOperator::get_term_count,
             "Get count of Pauli terms")
         //.def("get_term", &GeneralQuantumOperator::get_term,
-        //pybind11::return_value_policy::take_ownership)
+        // pybind11::return_value_policy::take_ownership)
         .def(
             "get_term",
             [](const GeneralQuantumOperator& quantum_operator,
@@ -120,12 +125,40 @@ PYBIND11_MODULE(qulacs, m) {
             &GeneralQuantumOperator::get_transition_amplitude,
             "Get transition amplitude", py::arg("state_bra"),
             py::arg("state_ket"))
+        .def("copy", &GeneralQuantumOperator::copy,
+            pybind11::return_value_policy::take_ownership,
+            "Create copied instance of General Quantum operator class")
         .def(py::self + py::self)
+        .def("__add__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a + b;
+            }, py::is_operator())        
+        .def(py::self += py::self)
+        .def("__IADD__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a += b;
+            }, py::is_operator())        
+        .def(py::self - py::self)
+        .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a - b;
+            }, py::is_operator())        
+        .def(py::self -= py::self)
+        .def("__ISUB__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a -= b;
+            }, py::is_operator())        
         .def(py::self * py::self)
+        .def("__mul__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a * b;
+            }, py::is_operator())        
+        .def("__mul__", [](const GeneralQuantumOperator &a, CPPCTYPE b) {
+                return a * b;
+            }, py::is_operator())        
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+                return a *= b;
+            }, py::is_operator())        
+        .def("__IMUL__", [](const GeneralQuantumOperator &a, CPPCTYPE b) {
+                return a *= b;
+            }, py::is_operator())        
 
-        //        .def("__add__", &GeneralQuantumOperator::operator+, "Overload
-        //        add operator") .def("__mul__",
-        //        &GeneralQuantumOperator::operator*, "Oveaload mul operator")
 
         //.def_static("get_split_GeneralQuantumOperator",
         //&(GeneralQuantumOperator::get_split_observable));
@@ -163,7 +196,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_term_count", &HermitianQuantumOperator::get_term_count,
             "Get count of Pauli terms")
         //.def("get_term", &HermitianQuantumOperator::get_term,
-        //pybind11::return_value_policy::take_ownership)
+        // pybind11::return_value_policy::take_ownership)
         .def(
             "get_term",
             [](const HermitianQuantumOperator& quantum_operator,
@@ -216,7 +249,8 @@ PYBIND11_MODULE(qulacs, m) {
                 QuantumState::set_Haar_random_state,
             "Set Haar random state", py::arg("seed"))
         .def("get_zero_probability", &QuantumState::get_zero_probability,
-            "Get probability with which we obtain 0 when we measure a qubit",
+            "Get probability with which we obtain 0 when we measure a "
+            "qubit",
             py::arg("index"))
         .def("get_marginal_probability",
             &QuantumState::get_marginal_probability,
@@ -231,7 +265,7 @@ PYBIND11_MODULE(qulacs, m) {
             pybind11::return_value_policy::automatic_reference,
             "Allocate buffer with the same size")
         //.def("copy", &QuantumState::copy,
-        //pybind11::return_value_policy::automatic_reference)
+        // pybind11::return_value_policy::automatic_reference)
         .def("copy", &QuantumState::copy, "Create copied instance")
         .def("load",
             (void (QuantumState::*)(const QuantumStateBase*)) &
@@ -306,7 +340,8 @@ PYBIND11_MODULE(qulacs, m) {
                 DensityMatrix::set_Haar_random_state,
             "Set Haar random state", py::arg("seed"))
         .def("get_zero_probability", &DensityMatrix::get_zero_probability,
-            "Get probability with which we obtain 0 when we measure a qubit",
+            "Get probability with which we obtain 0 when we measure a "
+            "qubit",
             py::arg("index"))
         .def("get_marginal_probability",
             &DensityMatrix::get_marginal_probability,
@@ -405,7 +440,7 @@ PYBIND11_MODULE(qulacs, m) {
             pybind11::return_value_policy::automatic_reference,
             "Allocate buffer with the same size")
         //.def("copy", &QuantumStateGpu::copy,
-        //pybind11::return_value_policy::automatic_reference)
+        // pybind11::return_value_policy::automatic_reference)
         .def("copy", &QuantumStateGpu::copy, "Create copied insntace")
         .def("load",
             (void (QuantumStateGpu::*)(const QuantumStateBase*)) &
@@ -936,10 +971,10 @@ PYBIND11_MODULE(qulacs, m) {
         // python
         //.def("add_gate_consume", (void
         //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add
-        //gate and take ownership", py::arg("gate")) .def("add_gate_consume",
+        // gate and take ownership", py::arg("gate")) .def("add_gate_consume",
         //(void (QuantumCircuit::*)(QuantumGateBase*, unsigned
-        //int))&QuantumCircuit::add_gate, "Add gate and take ownership",
-        //py::arg("gate"), py::arg("position"))
+        // int))&QuantumCircuit::add_gate, "Add gate and take ownership",
+        // py::arg("gate"), py::arg("position"))
         .def("add_gate",
             (void (QuantumCircuit::*)(const QuantumGateBase*)) &
                 QuantumCircuit::add_gate_copy,
@@ -1192,7 +1227,7 @@ PYBIND11_MODULE(qulacs, m) {
             &QuantumCircuitSimulator::swap_state_and_buffer,
             "Swap state and buffer")
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr,
-        //pybind11::return_value_policy::automatic_reference, "Get state ptr")
+        // pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
     py::class_<Causal>(m, "Causal")
         .def(py::init<>(), "Constructor")
