@@ -151,15 +151,15 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count) {
 
     sort(rbegin(sampling_required_thisnode), rend(sampling_required_thisnode));
 
-    QuantumStateBase *Common_state,*Calculate_state;
+    QuantumStateBase *Common_state, *Calculate_state;
 #ifdef _USE_GPU
-    Common_state = new QuantumStateGpu(initial_state -> qubit_count);
-    Calculate_state = new QuantumStateGpu(initial_state -> qubit_count);
+    Common_state = new QuantumStateGpu(initial_state->qubit_count);
+    Calculate_state = new QuantumStateGpu(initial_state->qubit_count);
 #else
-    Common_state = new QuantumState(initial_state -> qubit_count);
-    Calculate_state = new QuantumState(initial_state -> qubit_count);
+    Common_state = new QuantumState(initial_state->qubit_count);
+    Calculate_state = new QuantumState(initial_state->qubit_count);
 #endif
-    Common_state -> load(initial_state);
+    Common_state->load(initial_state);
     std::vector<UINT> result(sample_count);
     auto result_itr = result.begin();
     UINT done_itr = 0;  // for gates i such that i < done_itr, gate i is already
@@ -179,10 +179,10 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count) {
             done_itr++;
         }
         // recalculate is required.
-        Calculate_state -> load(Common_state);
+        Calculate_state->load(Common_state);
         evaluate_gates(trial, Calculate_state, done_itr);
         std::vector<ITYPE> samples =
-            Calculate_state -> sampling(sampling_required_thisnode[i].second);
+            Calculate_state->sampling(sampling_required_thisnode[i].second);
         for (UINT q = 0; q < samples.size(); ++q) {
             *result_itr = samples[q];
             result_itr++;
