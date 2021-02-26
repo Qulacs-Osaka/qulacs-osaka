@@ -405,40 +405,95 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
     }
 }
 
-TEST(ObservableTest, CheckOperator) {
+TEST(ObservableTest, CheckOperatorForPauli) {
+    // check initilize bits
     boost::dynamic_bitset<> x(1);
     boost::dynamic_bitset<> z(1);
     x.set(0);
     PauliOperator generated_by_bits_x(x, z);
-    PauliOperator generated_by_strings_x("X 0");
+    PauliOperator generated_by_strings_x("X 0", 1.0);
     ASSERT_EQ(
         generated_by_strings_x.get_x_bits(), generated_by_bits_x.get_x_bits());
     ASSERT_EQ(
         generated_by_strings_x.get_z_bits(), generated_by_bits_x.get_z_bits());
     z.set(0);
     PauliOperator generated_by_bits_y(x, z);
-    PauliOperator generated_by_strings_y("Y 0");
+    PauliOperator generated_by_strings_y("Y 0", 1.0);
     ASSERT_EQ(
         generated_by_strings_y.get_x_bits(), generated_by_bits_y.get_x_bits());
     ASSERT_EQ(
         generated_by_strings_y.get_z_bits(), generated_by_bits_y.get_z_bits());
     x.reset(0);
     PauliOperator generated_by_bits_z(x, z);
-    PauliOperator generated_by_strings_z("Y 0");
+    PauliOperator generated_by_strings_z("Z 0", 1.0);
     ASSERT_EQ(
         generated_by_strings_z.get_x_bits(), generated_by_bits_z.get_x_bits());
     ASSERT_EQ(
         generated_by_strings_z.get_z_bits(), generated_by_bits_z.get_z_bits());
-    ASSERT_EQ(generated_by_strings_y.get_x_bits(),
-        (generated_by_bits_z * generated_by_bits_x).get_x_bits());
-    ASSERT_EQ(generated_by_strings_y.get_z_bits(),
-        (generated_by_bits_z * generated_by_bits_x).get_z_bits());
-    ASSERT_EQ(generated_by_strings_z.get_x_bits(),
-        (generated_by_bits_y * generated_by_bits_x).get_x_bits());
-    ASSERT_EQ(generated_by_strings_z.get_z_bits(),
-        (generated_by_bits_y * generated_by_bits_x).get_z_bits());
-    ASSERT_EQ(generated_by_strings_x.get_x_bits(),
-        (generated_by_bits_y * generated_by_bits_z).get_x_bits());
-    ASSERT_EQ(generated_by_strings_x.get_z_bits(),
-        (generated_by_bits_y * generated_by_bits_z).get_z_bits());
+
+    // check operator
+    PauliOperator pauli_x("X 0", 1.0);
+    PauliOperator pauli_y("Y 0", 1.0);
+    PauliOperator pauli_z("Z 0", 1.0);
+    ASSERT_EQ(pauli_y.get_x_bits(), (pauli_z * pauli_x).get_x_bits());
+    ASSERT_EQ(pauli_y.get_z_bits(), (pauli_z * pauli_x).get_z_bits());
+    ASSERT_EQ(pauli_z.get_x_bits(), (pauli_y * pauli_x).get_x_bits());
+    ASSERT_EQ(pauli_z.get_z_bits(), (pauli_y * pauli_x).get_z_bits());
+    ASSERT_EQ(pauli_x.get_x_bits(), (pauli_y * pauli_z).get_x_bits());
+    ASSERT_EQ(pauli_x.get_z_bits(), (pauli_y * pauli_z).get_z_bits());
+    pauli_x *= pauli_z;
+    ASSERT_EQ(pauli_y.get_x_bits(), pauli_x.get_x_bits());
+    ASSERT_EQ(pauli_y.get_z_bits(), pauli_x.get_z_bits());
+}
+
+TEST(ObservableTest, CheckOperator) {
+    PauliOperator x("X 0", 1.0);
+    PauliOperator y("Y 0", 1.0);
+    PauliOperator z("Z 0", 1.0);
+    // check copy
+    Observable origin(1);
+    origin.add_operator(1.0, "X 0");
+    auto copy = origin.copy();
+    ASSERT_EQ(
+        origin.get_terms()[0]->get_coef(), copy->get_terms()[0]->get_coef());
+    ASSERT_EQ(origin.get_terms()[0]->get_x_bits(),
+        copy->get_terms()[0]->get_x_bits());
+    ASSERT_EQ(origin.get_terms()[0]->get_z_bits(),
+        copy->get_terms()[0]->get_z_bits());
+    // IADD, ISUB, IMULを使ってadd, sub,mulを定義しているので
+    // 一方だけ確認すれば良い
+    // check IADD operator
+    Observable observable(1);
+    observable += x;
+    ASSERT_EQ(observable.get_terms()[0]->get_x_bits(), x.get_x_bits());
+    ASSERT_EQ(observable.get_terms()[0]->get_z_bits(), x.get_z_bits());
+    Observable observable_x(1);
+    observable_x += x;
+    Observable observable_y(1);
+    observable_y += y;
+    Observable observable_z(1);
+    observable_z += z;
+    // add same type operator
+    ASSERT_EQ((observable_x + observable_x).get_terms()[0]->get_coef(),
+        x.get_coef() + x.get_coef());
+    // add different type operator
+    ASSERT_EQ((observable_x + observable_y).get_terms()[1]->get_x_bits(),
+        y.get_x_bits());
+    ASSERT_EQ((observable_x + observable_y).get_terms()[1]->get_z_bits(),
+        y.get_z_bits());
+    // mul operator
+    ASSERT_EQ((observable_x * observable_z).get_terms()[0]->get_x_bits(),
+        y.get_x_bits());
+    ASSERT_EQ((observable_x * observable_z).get_terms()[0]->get_z_bits(),
+        y.get_z_bits());
+    // sub same type operator
+    ASSERT_EQ((observable_x - observable_x).get_terms()[0]->get_coef(),
+        x.get_coef() - x.get_coef());
+    // sub different type operator
+    ASSERT_EQ((observable_x - observable_y).get_terms()[1]->get_x_bits(),
+        y.get_x_bits());
+    ASSERT_EQ((observable_x - observable_y).get_terms()[1]->get_z_bits(),
+        y.get_z_bits());
+    ASSERT_EQ((observable_x - observable_y).get_terms()[1]->get_coef(),
+        -y.get_coef());
 }
