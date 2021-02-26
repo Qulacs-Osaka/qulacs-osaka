@@ -224,14 +224,17 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
     }
-    for (UINT i = 0; i < _operator_list.size(); i++) {
-        auto pauli_operator = _operator_list[i];
-        for (UINT j = 0; j < target.get_terms().size(); j++) {
-            auto target_operator = target.get_terms()[j];
+    for (UINT j = 0; j < target.get_terms().size(); j++) {
+        auto target_operator = target.get_terms()[j];
+        bool flag = true;
+        for (UINT i = 0; i < _operator_list.size(); i++) {
+            auto pauli_operator = _operator_list[i];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
-                continue;
+                flag = false;
             }
+        }
+        if (flag) {
             this->add_operator(target_operator->copy());
         }
     }
@@ -285,14 +288,17 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
             }
         }
     }
-    for (UINT i = 0; i < _operator_list.size(); i++) {
-        auto pauli_operator = _operator_list[i];
-        for (UINT j = 0; j < target.get_terms().size(); j++) {
-            auto target_operator = target.get_terms()[j];
+    for (UINT j = 0; j < target.get_terms().size(); j++) {
+        auto target_operator = target.get_terms()[j];
+        bool flag = true;
+        for (UINT i = 0; i < _operator_list.size(); i++) {
+            auto pauli_operator = _operator_list[i];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
-                continue;
+                flag = false;
             }
+        }
+        if (flag) {
             auto copy = target_operator->copy();
             copy->change_coef(-copy->get_coef());
             this->add_operator(copy);
@@ -355,8 +361,6 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
             *this += *product;
         }
     }
-    // これ必要？スコープ抜けたら消える気もする
-    delete copy;
     return *this;
 }
 
@@ -371,13 +375,10 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
         *product = (*pauli_operator) * (target);
         *this += *product;
     }
-    // これ必要？スコープ抜けたら消える気もする
-    delete copy;
     return *this;
 }
 
-GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
-    CPPCTYPE target) {
+GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
 #pragma omp parallel for
     for (UINT i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
