@@ -34,19 +34,6 @@ inline static double creal(CTYPE val) { return std::real(val); }
 inline static double cimag(CTYPE val) { return std::imag(val); }
 #else
 typedef double _Complex CTYPE;
-#if __GNUC__ >= 8
-#ifndef __APPLE__
-#ifdef __cplusplus
-inline static double creal(CTYPE val) { return __real__ val; }
-inline static double cimag(CTYPE val) { return __imag__ val; }
-inline static double cabs(CTYPE val) {
-    double re = __real__ val;
-    double im = __imag__ val;
-    return re * re + im * im;
-}
-#endif
-#endif
-#endif
 #endif
 
 //! dimension index
