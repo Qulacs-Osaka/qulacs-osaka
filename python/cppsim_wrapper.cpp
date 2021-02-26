@@ -84,9 +84,10 @@ PYBIND11_MODULE(qulacs, m) {
                 return a * b;
             }, py::is_operator())        
         .def(py::self *= py::self)
-        .def("__IMUL__", [](const PauliOperator &a, CPPCTYPE b) {
+        .def("__IMUL__", [](PauliOperator &a, CPPCTYPE b) {
                 return a *= b;
             }, py::is_operator())        
+            ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
@@ -133,7 +134,7 @@ PYBIND11_MODULE(qulacs, m) {
                 return a + b;
             }, py::is_operator())        
         .def(py::self += py::self)
-        .def("__IADD__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+        .def("__IADD__", [](GeneralQuantumOperator &a, const PauliOperator& b) {
                 return a += b;
             }, py::is_operator())        
         .def(py::self - py::self)
@@ -141,7 +142,7 @@ PYBIND11_MODULE(qulacs, m) {
                 return a - b;
             }, py::is_operator())        
         .def(py::self -= py::self)
-        .def("__ISUB__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+        .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) {
                 return a -= b;
             }, py::is_operator())        
         .def(py::self * py::self)
@@ -152,10 +153,10 @@ PYBIND11_MODULE(qulacs, m) {
                 return a * b;
             }, py::is_operator())        
         .def(py::self *= py::self)
-        .def("__IMUL__", [](const GeneralQuantumOperator &a, const PauliOperator& b) {
+        .def("__IMUL__", [](GeneralQuantumOperator &a, const PauliOperator& b) {
                 return a *= b;
             }, py::is_operator())        
-        .def("__IMUL__", [](const GeneralQuantumOperator &a, CPPCTYPE b) {
+        .def("__IMUL__", [](GeneralQuantumOperator &a, CPPCTYPE b) {
                 return a *= b;
             }, py::is_operator())        
 

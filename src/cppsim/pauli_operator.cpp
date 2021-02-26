@@ -232,7 +232,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     auto target_x = target.get_x_bits();
     auto target_z = target.get_x_bits();
 #pragma omp parallel for
-    for (int i = 0; i < _x.size(); i++) {
+    for (UINT i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 bits_coef = bits_coef * -I;
@@ -269,7 +269,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     auto target_x = target.get_x_bits();
     auto target_z = target.get_x_bits();
 #pragma omp parallel for
-    for (int i = 0; i < _x.size(); i++) {
+    for (UINT i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 _coef *= -I;

@@ -213,9 +213,9 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
 #pragma omp parallel for
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (int j = 0; j < target.get_terms().size(); j++) {
+        for (UINT j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -224,9 +224,9 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
     }
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (int j = 0; j < target.get_terms().size(); j++) {
+        for (UINT j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -242,14 +242,13 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
 #pragma omp parallel for
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         if (pauli_operator->get_x_bits() == target.get_x_bits() &&
             pauli_operator->get_z_bits() == target.get_z_bits()) {
             _operator_list[i]->change_coef(
                 _operator_list[i]->get_coef() + target.get_coef());
             flag = false;
-            break;
         }
     }
     if (flag) {
@@ -275,9 +274,9 @@ GeneralQuantumOperator GeneralQuantumOperator::operator-(
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
 #pragma omp parallel for
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (int j = 0; j < target.get_terms().size(); j++) {
+        for (UINT j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -286,9 +285,9 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
             }
         }
     }
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (int j = 0; j < target.get_terms().size(); j++) {
+        for (UINT j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -305,14 +304,13 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const PauliOperator& target) {
     bool flag = true;
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         if (pauli_operator->get_x_bits() == target.get_x_bits() &&
             pauli_operator->get_z_bits() == target.get_z_bits()) {
             _operator_list[i]->change_coef(
                 _operator_list[i]->get_coef() - target.get_coef());
             flag = false;
-            break;
         }
     }
     if (flag) {
@@ -348,12 +346,12 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto copy = this->copy();
     _operator_list.clear();
 #pragma omp parallel for
-    for (int i = 0; i < copy->get_terms().size(); i++) {
+    for (UINT i = 0; i < copy->get_terms().size(); i++) {
         auto pauli_operator = copy->get_terms()[i];
-        for (int j = 0; j < target.get_terms().size(); j++) {
+        for (UINT j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             PauliOperator* product = new PauliOperator;
-            product = &((*pauli_operator) * (*target_operator));
+            *product = (*pauli_operator) * (*target_operator);
             *this += *product;
         }
     }
@@ -367,10 +365,10 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto copy = this->copy();
     _operator_list.clear();
 #pragma omp parallel for
-    for (int i = 0; i < copy->get_terms().size(); i++) {
+    for (UINT i = 0; i < copy->get_terms().size(); i++) {
         auto pauli_operator = copy->get_terms()[i];
         PauliOperator* product = new PauliOperator;
-        product = &((*pauli_operator) * (target));
+        *product = (*pauli_operator) * (target);
         *this += *product;
     }
     // これ必要？スコープ抜けたら消える気もする
@@ -381,7 +379,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     CPPCTYPE target) {
 #pragma omp parallel for
-    for (int i = 0; i < _operator_list.size(); i++) {
+    for (UINT i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
     return *this;
