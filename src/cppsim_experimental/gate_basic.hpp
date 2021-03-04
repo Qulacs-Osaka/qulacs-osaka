@@ -163,12 +163,16 @@ public:
     virtual const std::vector<UINT> get_control_index_list() const override {
         return _control_qubit_index;
     };
+    virtual const std::vector<UINT> get_control_value_list() const override {
+        return _control_qubit_value;
+    };
     virtual const std::vector<UINT> get_qubit_index_list() const override {
         std::vector<UINT> res = _target_qubit_index;
         for (auto val : _control_qubit_index) res.push_back(val);
         return res;
-    }
-
+    };
+    virtual UINT get_property_value() const override { return _gate_property; };
+    virtual void set_gate_property(UINT val) override { _gate_property = val; };
     static QuantumGateBasic* DenseMatrixGate(
         const std::vector<UINT>& target_qubit, const ComplexMatrix& matrix,
         const std::vector<UINT>& target_commute = {}) {
@@ -407,6 +411,8 @@ DllExport QuantumGateBasic* Toffoli(
     UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
 DllExport QuantumGateBasic* Fredkin(
     UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* merge(
+    const QuantumGateBase* gate_first, const QuantumGateBase* gate_second);
 };  // namespace gate
 
 // Cereal Type Registration

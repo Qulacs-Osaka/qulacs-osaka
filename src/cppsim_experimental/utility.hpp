@@ -15,6 +15,11 @@
 
 #include "type.hpp"
 
+inline static ITYPE insert_zero_to_basis_index(
+    ITYPE basis_index, ITYPE basis_mask, UINT qubit_index) {
+    ITYPE temp_basis = (basis_index >> qubit_index) << (qubit_index + 1);
+    return temp_basis + basis_index % basis_mask;
+}
 /**
  * \~japanese-en 1になっているビットの数を数える
  *

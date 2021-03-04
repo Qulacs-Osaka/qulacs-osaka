@@ -110,6 +110,15 @@ public:
     virtual const std::vector<UINT> get_control_index_list() const override {
         return {};
     }
+    virtual const std::vector<UINT> get_control_value_list() const override {
+        return {};
+    };
+    virtual UINT get_property_value() const override {
+        throw std::runtime_error("Not Implemented");
+    }
+    virtual void set_gate_property(UINT) override {
+        throw std::runtime_error("Not Implemented");
+    }
     virtual const std::vector<QuantumGateBase*>& get_kraus_list()
         const override {
         return _gate_list;

@@ -101,9 +101,11 @@ public:
     virtual const std::vector<UINT> get_qubit_index_list() const = 0;
     virtual const std::vector<UINT> get_target_index_list() const = 0;
     virtual const std::vector<UINT> get_control_index_list() const = 0;
+    virtual const std::vector<UINT> get_control_value_list() const = 0;
     virtual void reset_qubit_index_list(
         const std::vector<UINT>& src, const std::vector<UINT>& dst) = 0;
-
+    virtual UINT get_property_value() const = 0;
+    virtual void set_gate_property(UINT val) = 0;
     // map function
     virtual void update_quantum_state(QuantumStateBase*) = 0;
     virtual MapType get_map_type() const { return _map_type; }
