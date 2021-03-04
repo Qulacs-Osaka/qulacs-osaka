@@ -287,7 +287,7 @@ void get_new_qubit_list(const QuantumGateBase* gate_first,
     std::vector<UINT> gate_first_target_index =
         gate_first->get_target_index_list();
     std::vector<UINT> gate_first_target_commutation =
-        gate_first->get_target_index_list();
+        gate_first->get_target_commutation_list();
     std::vector<UINT> gate_first_control_index =
         gate_first->get_control_index_list();
     std::vector<UINT> gate_first_control_value =
@@ -295,7 +295,7 @@ void get_new_qubit_list(const QuantumGateBase* gate_first,
     std::vector<UINT> gate_second_target_index =
         gate_second->get_target_index_list();
     std::vector<UINT> gate_second_target_commutation =
-        gate_second->get_target_index_list();
+        gate_second->get_target_commutation_list();
     std::vector<UINT> gate_second_control_index =
         gate_second->get_control_index_list();
     std::vector<UINT> gate_second_control_value =
@@ -345,7 +345,7 @@ void get_new_qubit_list(const QuantumGateBase* gate_first,
     for (UINT i = 0; i < gate_first_control_index.size(); ++i) {
         // case 3 : qubit belongs to first control and second target -> second
         // property is merged with Z, goto new_target_set
-        UINT gate_first_control_qubit = gate_first_target_index[i];
+        UINT gate_first_control_qubit = gate_first_control_index[i];
         auto ite_target = std::find_if(gate_second_target_index.begin(),
             gate_second_target_index.end(),
             [&gate_first_control_qubit](UINT gate_second_target_qubit) {
@@ -371,9 +371,8 @@ void get_new_qubit_list(const QuantumGateBase* gate_first,
         if (ite_control != gate_second_control_index.end()) {
             UINT gate_first_list_index = i;
             UINT gate_second_list_index =
-                std::distance(ite_control, gate_second_control_index.begin());
+                std::distance(gate_second_control_index.begin(), ite_control);
 
-            // TODO: Add property
             if (gate_first_control_value[gate_first_list_index] ==
                 gate_second_control_value[gate_second_list_index]) {
                 new_control_index_list.push_back(gate_first_control_qubit);
@@ -624,16 +623,28 @@ DllExport QuantumGateBasic* merge(
     get_new_qubit_list(gate_first, gate_second, new_target_index_list,
         new_target_commutation_list, new_control_index_list,
         new_control_value_list);
-    /*
-    std::sort(new_target_list.begin(), new_target_list.end(),
-        [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
-            return a.index() < b.index();
-        });
-    std::sort(new_control_list.begin(), new_control_list.end(),
-        [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
-            return a.index() < b.index();
-        });
-    */
+
+    // sort by index
+    std::vector<std::pair<UINT, UINT>> new_target_qubit_list,
+        new_control_qubit_list;
+    for (UINT i = 0; i < new_target_index_list.size(); ++i) {
+        new_target_qubit_list.push_back(std::pair<UINT, UINT>(
+            new_target_index_list[i], new_target_commutation_list[i]));
+    }
+    for (UINT i = 0; i < new_control_index_list.size(); ++i) {
+        new_control_qubit_list.push_back(std::pair<UINT, UINT>(
+            new_control_index_list[i], new_control_value_list[i]));
+    }
+    std::sort(new_target_qubit_list.begin(), new_target_qubit_list.end());
+    std::sort(new_control_qubit_list.begin(), new_control_qubit_list.end());
+    for (UINT i = 0; i < new_target_qubit_list.size(); ++i) {
+        new_target_index_list[i] = new_target_qubit_list[i].first;
+        new_target_commutation_list[i] = new_target_qubit_list[i].second;
+    }
+    for (UINT i = 0; i < new_control_qubit_list.size(); ++i) {
+        new_control_index_list[i] = new_control_qubit_list[i].first;
+        new_control_value_list[i] = new_control_qubit_list[i].second;
+    }
     // extend gate matrix to whole qubit list
     ComplexMatrix matrix_first, matrix_second;
     get_extended_matrix(gate_first, new_target_index_list,
@@ -641,13 +652,17 @@ DllExport QuantumGateBasic* merge(
     get_extended_matrix(gate_second, new_target_index_list,
         new_control_index_list, matrix_second);
 
+    /*
     ComplexMatrix orgmat1, orgmat2;
     gate_first->get_matrix(orgmat1);
     gate_second->get_matrix(orgmat2);
-    // std::cout << "first gate is extended from \n" << orgmat1 << " \nto\n" <<
-    // matrix_first << "\n\n"; std::cout << "second gate is extended from \n" <<
-    // orgmat2 << " \nto\n" << matrix_second << "\n\n";
-
+    std::cout << "first gate is extended from \n"
+              << orgmat1 << " \nto\n"
+              << matrix_first << "\n\n";
+    std::cout << "second gate is extended from \n"
+              << orgmat2 << " \nto\n"
+              << matrix_second << "\n\n";
+    */
     ComplexMatrix new_matrix = matrix_second * matrix_first;
 
     // generate new matrix gate

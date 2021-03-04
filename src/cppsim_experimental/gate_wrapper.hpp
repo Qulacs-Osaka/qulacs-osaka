@@ -107,6 +107,11 @@ public:
     virtual const std::vector<UINT> get_target_index_list() const override {
         return get_qubit_index_list();
     }
+    virtual const std::vector<UINT> get_target_commutation_list()
+        const override {
+        // TODO
+        return std::vector<UINT>(0, _qubit_index_list.size());
+    }
     virtual const std::vector<UINT> get_control_index_list() const override {
         return {};
     }

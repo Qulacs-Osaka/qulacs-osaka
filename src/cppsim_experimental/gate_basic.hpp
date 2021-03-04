@@ -160,6 +160,10 @@ public:
     virtual const std::vector<UINT> get_target_index_list() const override {
         return _target_qubit_index;
     };
+    virtual const std::vector<UINT> get_target_commutation_list()
+        const override {
+        return _target_qubit_commutation;
+    }
     virtual const std::vector<UINT> get_control_index_list() const override {
         return _control_qubit_index;
     };

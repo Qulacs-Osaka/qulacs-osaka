@@ -100,6 +100,7 @@ public:
     virtual UINT get_qubit_count() const = 0;
     virtual const std::vector<UINT> get_qubit_index_list() const = 0;
     virtual const std::vector<UINT> get_target_index_list() const = 0;
+    virtual const std::vector<UINT> get_target_commutation_list() const = 0;
     virtual const std::vector<UINT> get_control_index_list() const = 0;
     virtual const std::vector<UINT> get_control_value_list() const = 0;
     virtual void reset_qubit_index_list(

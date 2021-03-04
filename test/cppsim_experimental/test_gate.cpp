@@ -476,7 +476,7 @@ TEST(GateTest, RandomPauliMerge) {
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             // pick random pauli
-            UINT new_pauli_id = random.int32() % 4;
+            UINT new_pauli_id = random.int32() % 2;
             UINT target = random.int32() % n;
             // UINT new_pauli_id = new_pauli_ids[gate_index];
             // UINT target = targets[gate_index];
@@ -518,7 +518,7 @@ TEST(GateTest, RandomPauliMerge) {
                     for (ITYPE y = 0; y < dim; ++y) {
                         ASSERT_NEAR(
                             abs(total_matrix(x, y) - check_mat(x, y)), 0, eps)
-                            << (QuantumGateBase*)merged_gate << std::endl
+                            << (QuantumGateBasic)*merged_gate << std::endl
                             << "current eigen matrix : \n"
                             << total_matrix << std::endl;
                     }
@@ -539,6 +539,7 @@ TEST(GateTest, RandomPauliMerge) {
         merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
+
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
         for (ITYPE i = 0; i < dim; ++i)
