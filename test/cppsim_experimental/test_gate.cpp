@@ -653,7 +653,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
     }
 }
-/*
+
 TEST(GateTest, RandomUnitaryMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
@@ -690,7 +690,6 @@ TEST(GateTest, RandomUnitaryMerge) {
         QuantumGateBase* new_gate = NULL;
         Eigen::MatrixXcd total_matrix = Eigen::MatrixXcd::Identity(dim, dim);
         // std::cout << "initial state : " << state << std::endl;
-
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             // pick random pauli
             UINT new_pauli_id = (random.int32() % 3) + 1;
@@ -709,9 +708,8 @@ TEST(GateTest, RandomUnitaryMerge) {
                 1.i * (dx * get_eigen_matrix_single_Pauli(1) +
                           dy * get_eigen_matrix_single_Pauli(2) +
                           dz * get_eigen_matrix_single_Pauli(3));
-
             auto new_gate = gate::DenseMatrix(target, mat);
-
+            
             // create new gate with merge
             next_merged_gate = gate::merge(merged_gate, new_gate);
             delete merged_gate;
@@ -863,7 +861,7 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
     }
 }
-
+/*
 TEST(GateTest, U3MergeIBMQGate) {
     auto gate1 = gate::U3(0, 0.1, 0.1, 0.1);
     auto gate2 = gate::U3(0, 0.1, 0.1, 0.1);

@@ -886,4 +886,16 @@ DllExport QuantumGateBasic* Fredkin(
     ptr->add_control_qubit(control_qubit, 1);
     return ptr;
 }
+
+DllExport QuantumGateBasic* DenseMatrix(UINT target_index, ComplexMatrix matrix) {
+    std::vector<UINT> target_list(1, target_index);
+    return QuantumGateBasic::DenseMatrixGate(target_list, matrix);
+}
+DllExport QuantumGateBasic* DenseMatrix(
+    std::vector<UINT> target_list, ComplexMatrix matrix){
+    if (!check_is_unique_index_list(target_list)) {
+        throw std::invalid_argument("target list contains duplicated values.");
+    }
+    return QuantumGateBasic::DenseMatrixGate(target_list, matrix);
+}
 }  // namespace gate

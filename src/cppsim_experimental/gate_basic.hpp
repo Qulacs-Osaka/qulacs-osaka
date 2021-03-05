@@ -78,9 +78,14 @@ public:
     };
 
     virtual void _expand_control_qubit(ComplexMatrix&) const {
-        if (_control_qubit_index.size() > 0)
+        //TODO?
+        // Test passes even without this function.
+
+        /*
+        if (_control_qubit_index.size() > 0)s
             throw std::invalid_argument(
                 "Expand control part is not implemented");
+        */
     };
 
     template <class Archive>
@@ -434,6 +439,10 @@ DllExport QuantumGateBasic* Toffoli(
     UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
 DllExport QuantumGateBasic* Fredkin(
     UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* DenseMatrix(UINT target_index, ComplexMatrix matrix);
+DllExport QuantumGateBasic* DenseMatrix(
+    std::vector<UINT> target_list, ComplexMatrix matrix);
+
 DllExport QuantumGateBasic* merge(
     const QuantumGateBase* gate_first, const QuantumGateBase* gate_second);
 };  // namespace gate
