@@ -23,9 +23,9 @@ def profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operato
         memory_usage_list.append((qubit_count, usage))
 
     with open("memory_usage_{}_method.csv".format(method), "w") as f:
-        f.write("qubit_count,memory_usage\n")
+        f.write("qubit_count, memory_usage(MB)\n")
         for usage in memory_usage_list:
-            f.write("{},{}\n".format(usage[0], usage[1]))
+            f.write("{}, {}\n".format(usage[0], usage[1]))
     return memory_usage_list
 
 def main():
