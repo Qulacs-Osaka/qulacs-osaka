@@ -137,10 +137,8 @@ public:
 
     /**
      * \~japanese-en
-     * ランダムなパウリ演算子をもつ observable を生成する
-     * @param [in] observable パウリ演算子を追加する observable
+     * ランダムなパウリ演算子を observable に追加する
      * @param [in] operator_count observable に追加するパウリ演算子数
-     * @return ランダムなパウリ演算子を operator_count 個もつ　observable
      */
     void add_random_operator(const UINT operator_count);
 
