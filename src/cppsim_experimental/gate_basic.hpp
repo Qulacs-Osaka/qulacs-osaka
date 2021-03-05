@@ -324,6 +324,25 @@ public:
     }
 
     virtual void get_target_matrix(ComplexMatrix& matrix) const {
+        if (_special_func_type == SpecialFuncType::GateRX) {
+            matrix = ComplexMatrix::Zero(2, 2);
+            matrix << cos(-_rotation_angle / 2.0),
+                sin(-_rotation_angle / 2.0) * 1.i,
+                sin(-_rotation_angle / 2.0) * 1.i, cos(-_rotation_angle / 2.0);
+            return;
+        } else if (_special_func_type == SpecialFuncType::GateRY) {
+            matrix = ComplexMatrix::Zero(2, 2);
+            matrix << cos(-_rotation_angle / 2.0), sin(-_rotation_angle / 2.0),
+                -sin(-_rotation_angle / 2.0), cos(-_rotation_angle / 2.0);
+            return;
+        } else if (_special_func_type == SpecialFuncType::GateRZ) {
+            matrix = ComplexMatrix::Zero(2, 2);
+            matrix << cos(-_rotation_angle / 2.0) +
+                          1.i * sin(-_rotation_angle / 2.0),
+                0, 0,
+                cos(-_rotation_angle / 2.0) - 1.i * sin(-_rotation_angle / 2.0);
+            return;
+        }
         if (_matrix_type == DenseMatrix) {
             matrix = this->_dense_matrix_element;
         } else if (_matrix_type == SparseMatrix) {

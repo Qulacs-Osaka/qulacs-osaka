@@ -587,7 +587,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             // pick random pauli
-            UINT new_pauli_id = (random.int32() % 3) + 1;
+            UINT new_pauli_id = (random.int32() % 1) + 1;
             UINT target = random.int32() % n;
             double angle = random.uniform() * 3.14159;
             // UINT new_pauli_id = new_pauli_ids[gate_index];
@@ -618,8 +618,8 @@ TEST(GateTest, RandomPauliRotationMerge) {
             // update eigen state with matrix mul
             auto new_gate_matrix =
                 get_expanded_eigen_matrix_with_identity(target,
-                    cos(angle / 2) * ComplexMatrix::Identity(2, 2) +
-                        1.i * sin(angle / 2) *
+                    cos(-angle / 2) * ComplexMatrix::Identity(2, 2) +
+                        1.i * sin(-angle / 2) *
                             get_eigen_matrix_single_Pauli(new_pauli_id),
                     n);
             total_matrix = new_gate_matrix * total_matrix;
@@ -632,7 +632,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
                     for (ITYPE y = 0; y < dim; ++y) {
                         ASSERT_NEAR(
                             abs(total_matrix(x, y) - check_mat(x, y)), 0, eps)
-                            << (QuantumGateBasic*)merged_gate << std::endl
+                            << (QuantumGateBasic)*merged_gate << std::endl
                             << "current eigen matrix : \n"
                             << total_matrix << std::endl;
                     }
@@ -645,6 +645,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
         merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
+
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
         for (ITYPE i = 0; i < dim; ++i)
