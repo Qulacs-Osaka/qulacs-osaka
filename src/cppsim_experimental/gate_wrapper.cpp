@@ -76,15 +76,13 @@ DllExport QuantumGateWrapped* Instrument(
     return ptr;
 }
 DllExport QuantumGateWrapped* Measurement(
-    UINT target_index, std::string classical_register_address){
-
-        auto gate0 = P0(target_index);
-        auto gate1 = P1(target_index);
-        auto new_gate =
-            QuantumGateWrapped::Instrument({gate0, gate1}, classical_register_address);
-        delete gate0;
-        delete gate1;
-        return new_gate;
-    };
-
+    UINT target_index, std::string classical_register_address) {
+    auto gate0 = P0(target_index);
+    auto gate1 = P1(target_index);
+    auto new_gate = QuantumGateWrapped::Instrument(
+        {gate0, gate1}, classical_register_address);
+    delete gate0;
+    delete gate1;
+    return new_gate;
+};
 }  // namespace gate

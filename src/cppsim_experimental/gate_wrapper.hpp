@@ -160,14 +160,14 @@ public:
             [](auto gate) { return gate->copy(); });
         return ptr;
     };
-    static QuantumGateWrapped* Instrument(std::vector<QuantumGateBase*> gate_list,
-        std::string reg_name) {
+    static QuantumGateWrapped* Instrument(
+        std::vector<QuantumGateBase*> gate_list, std::string reg_name) {
         auto ptr = new QuantumGateWrapped(MapType::Instrument);
-        ptr -> _gate_list.clear();
+        ptr->_gate_list.clear();
         std::transform(gate_list.cbegin(), gate_list.cend(),
-            std::back_inserter(ptr -> _gate_list),
+            std::back_inserter(ptr->_gate_list),
             [](auto gate) { return gate->copy(); });
-        ptr -> _reg_name = reg_name;
+        ptr->_reg_name = reg_name;
         return ptr;
     };
     virtual void reset_qubit_index_list(
@@ -275,8 +275,8 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        } else if(_map_type == MapType::Instrument){
-            double r = 0;//random.uniform();
+        } else if (_map_type == MapType::Instrument) {
+            double r = 0;  // random.uniform();
 
             double sum = 0.;
             double org_norm = state->get_squared_norm();
@@ -297,12 +297,13 @@ public:
                 }
             }
             if (!(r < sum)) {
-                throw std::invalid_argument("Instrument-map was not trace preserving. ");
+                throw std::invalid_argument(
+                    "Instrument-map was not trace preserving. ");
             }
             delete buffer;
 
             state->set_classical_value(_reg_name, index);
-        }else{
+        } else {
             throw std::invalid_argument("Not implemented");
         }
     }

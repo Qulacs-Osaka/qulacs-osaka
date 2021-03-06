@@ -447,6 +447,7 @@ DllExport QuantumGateBasic* SparseMatrix(
     UINT target_list, SparseComplexMatrix matrix);
 DllExport QuantumGateBasic* SparseMatrix(
     std::vector<UINT> target_list, SparseComplexMatrix matrix);
+DllExport QuantumGateBasic* RandomUnitary(std::vector<UINT> target_list);
 DllExport QuantumGateBasic* merge(
     const QuantumGateBase* gate_first, const QuantumGateBase* gate_second);
 DllExport QuantumGateBasic* add(

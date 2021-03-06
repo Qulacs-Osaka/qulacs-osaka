@@ -1,6 +1,10 @@
 
 #include "gate_basic.hpp"
 
+#include <Eigen/QR>
+
+#include "type.hpp"
+
 void QuantumGateBasic::_update_state_vector_cpu_special(
     QuantumStateBase* state) const {
     if (_special_func_type == GateI) {
@@ -976,5 +980,32 @@ DllExport QuantumGateBasic* SparseMatrix(
         throw std::invalid_argument("target list contains duplicated values.");
     }
     return QuantumGateBasic::SparseMatrixGate(target_list, matrix);
+}
+
+DllExport QuantumGateBasic* RandomUnitary(std::vector<UINT> target_list) {
+    if (!check_is_unique_index_list(target_list)) {
+        throw std::invalid_argument("target list contains duplicated values.");
+    }
+    Random random;
+    UINT qubit_count = (UINT)target_list.size();
+    ITYPE dim = 1ULL << qubit_count;
+    ComplexMatrix matrix(dim, dim);
+    for (ITYPE i = 0; i < dim; ++i) {
+        for (ITYPE j = 0; j < dim; ++j) {
+            matrix(i, j) = (random.normal() + 1.i * random.normal()) / sqrt(2.);
+        }
+    }
+    Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
+
+    ComplexMatrix Q = qr_solver.householderQ();
+    // actual R matrix is upper-right triangle of matrixQR
+    auto R = qr_solver.matrixQR();
+    for (ITYPE i = 0; i < dim; ++i) {
+        CPPCTYPE phase = R(i, i) / abs(R(i, i));
+        for (ITYPE j = 0; j < dim; ++j) {
+            Q(j, i) *= phase;
+        }
+    }
+    return QuantumGateBasic::DenseMatrixGate(target_list, Q);
 }
 }  // namespace gate

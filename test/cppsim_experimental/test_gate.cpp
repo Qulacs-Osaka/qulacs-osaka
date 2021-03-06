@@ -1221,7 +1221,6 @@ TEST(GateTest, GateAdd) {
         gate::merge(gate::P1(0), gate::P1(1)));
     // TODO assert matrix element
 }
-/*
 TEST(GateTest, RandomUnitaryGate) {
     double eps = 1e-14;
     for (UINT qubit_count = 1; qubit_count < 5; ++qubit_count) {
@@ -1245,7 +1244,7 @@ TEST(GateTest, RandomUnitaryGate) {
         }
     }
 }
-
+/*
 TEST(GateTest, ReversibleBooleanGate) {
     const double eps = 1e-14;
     std::function<ITYPE(ITYPE, ITYPE)> func =
@@ -1341,14 +1340,13 @@ TEST(GateTest, DuplicateIndex) {
         delete gate1;
         ASSERT_ANY_THROW(gate::SparseMatrix({21, 21}, matrix));
     }
-    /*
     {
         auto gate1 = gate::RandomUnitary({10, 13});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::RandomUnitary({21, 21});
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::RandomUnitary({21, 21}));
     }
+    /*
     {
         auto ident = [](ITYPE a, ITYPE dim) { return a; };
         auto gate1 = gate::ReversibleBoolean({10, 13}, ident);
