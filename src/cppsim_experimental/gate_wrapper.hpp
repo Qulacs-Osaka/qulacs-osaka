@@ -160,6 +160,16 @@ public:
             [](auto gate) { return gate->copy(); });
         return ptr;
     };
+    static QuantumGateWrapped* Instrument(std::vector<QuantumGateBase*> gate_list,
+        std::string reg_name) {
+        auto ptr = new QuantumGateWrapped(MapType::Instrument);
+        ptr -> _gate_list.clear();
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(ptr -> _gate_list),
+            [](auto gate) { return gate->copy(); });
+        ptr -> _reg_name = reg_name;
+        return ptr;
+    };
     virtual void reset_qubit_index_list(
         const std::vector<UINT>& src, const std::vector<UINT>& dst) {
         for (auto gate : _gate_list) {
@@ -265,7 +275,34 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        } else {
+        } else if(_map_type == MapType::Instrument){
+            double r = 0;//random.uniform();
+
+            double sum = 0.;
+            double org_norm = state->get_squared_norm();
+
+            auto buffer = state->copy();
+            UINT index = 0;
+            for (auto gate : _gate_list) {
+                gate->update_quantum_state(buffer);
+                auto norm = buffer->get_squared_norm() / org_norm;
+                sum += norm;
+                if (r < sum) {
+                    state->load(buffer);
+                    state->normalize(norm);
+                    break;
+                } else {
+                    buffer->load(state);
+                    index++;
+                }
+            }
+            if (!(r < sum)) {
+                throw std::invalid_argument("Instrument-map was not trace preserving. ");
+            }
+            delete buffer;
+
+            state->set_classical_value(_reg_name, index);
+        }else{
             throw std::invalid_argument("Not implemented");
         }
     }
@@ -283,6 +320,11 @@ DllExport QuantumGateWrapped* AmplitudeDampingNoise(
 DllExport QuantumGateWrapped* CPTP(std::vector<QuantumGateBase*> gate_list);
 DllExport QuantumGateWrapped* Probabilistic(
     std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list);
+DllExport QuantumGateWrapped* Instrument(
+    std::vector<QuantumGateBase*> gate_list, std::string reg_name);
+DllExport QuantumGateWrapped* Measurement(
+    UINT target_index, std::string classical_register_address);
+
 };  // namespace gate
 
 // Cereal Type Registration

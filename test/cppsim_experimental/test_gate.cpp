@@ -709,7 +709,7 @@ TEST(GateTest, RandomUnitaryMerge) {
                           dy * get_eigen_matrix_single_Pauli(2) +
                           dz * get_eigen_matrix_single_Pauli(3));
             auto new_gate = gate::DenseMatrix(target, mat);
-            
+
             // create new gate with merge
             next_merged_gate = gate::merge(merged_gate, new_gate);
             delete merged_gate;
@@ -1174,25 +1174,25 @@ TEST(GateTest, CPTPGate) {
     CPTP->update_quantum_state(&s);
     delete CPTP;
 }
-/*
+
 TEST(GateTest, InstrumentGate) {
     auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
     auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
     auto gate3 = gate::merge(gate::P1(0), gate::P0(1));
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
-    auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
+    auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, "1");
     StateVectorCpu s(3);
     s.set_computational_basis(0);
     Inst->update_quantum_state(&s);
-    UINT res1 = s.get_classical_value(1);
+    UINT res1 = s.get_classical_value("1");
     ASSERT_EQ(res1, 2);
     s.set_Haar_random_state();
     Inst->update_quantum_state(&s);
-    UINT res2 = s.get_classical_value(1);
+    UINT res2 = s.get_classical_value("1");
     delete Inst;
 }
-
+/*
 TEST(GateTest, AdaptiveGate) {
     auto x = gate::X(0);
     auto adaptive = gate::Adaptive(
@@ -1205,7 +1205,7 @@ TEST(GateTest, AdaptiveGate) {
     adaptive->update_quantum_state(&s);
     delete adaptive;
 }
-
+*/
 TEST(GateTest, GateAdd) {
     auto g1 = gate::X(0);
     auto g2 = gate::X(0);
@@ -1221,7 +1221,7 @@ TEST(GateTest, GateAdd) {
         gate::merge(gate::P1(0), gate::P1(1)));
     // TODO assert matrix element
 }
-
+/*
 TEST(GateTest, RandomUnitaryGate) {
     double eps = 1e-14;
     for (UINT qubit_count = 1; qubit_count < 5; ++qubit_count) {
@@ -1266,8 +1266,6 @@ TEST(GateTest, ReversibleBooleanGate) {
 }
 */
 TEST(GateTest, TestNoise) {
-    // TODO: implement measurement
-
     const UINT n = 10;
     StateVectorCpu state(n);
     Random random;
@@ -1276,19 +1274,19 @@ TEST(GateTest, TestNoise) {
     auto independetxz = gate::IndependentXZNoise(0, random.uniform());
     auto depolarizing = gate::DepolarizingNoise(0, random.uniform());
     auto amp_damp = gate::AmplitudeDampingNoise(0, random.uniform());
-    // auto measurement = gate::Measurement(0, 0);
+    auto measurement = gate::Measurement(0, "0");
     bitflip->update_quantum_state(&state);
     dephase->update_quantum_state(&state);
     independetxz->update_quantum_state(&state);
     depolarizing->update_quantum_state(&state);
     amp_damp->update_quantum_state(&state);
-    // measurement->update_quantum_state(&state);
+    measurement->update_quantum_state(&state);
     delete bitflip;
     delete dephase;
     delete independetxz;
     delete depolarizing;
     delete amp_damp;
-    // delete measurement;
+    delete measurement;
 }
 TEST(GateTest, DuplicateIndex) {
     {
@@ -1327,12 +1325,13 @@ TEST(GateTest, DuplicateIndex) {
             {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
         ASSERT_EQ(NULL, gate2);
     }
+    */
     {
         auto gate1 = gate::DenseMatrix({10, 13}, ComplexMatrix::Identity(4, 4));
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4));
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(
+            gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4)));
     }
     {
         auto matrix = SparseComplexMatrix(4, 4);
@@ -1340,9 +1339,9 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::SparseMatrix({10, 13}, matrix);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SparseMatrix({21, 21}, matrix);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_ANY_THROW(gate::SparseMatrix({21, 21}, matrix));
     }
+    /*
     {
         auto gate1 = gate::RandomUnitary({10, 13});
         EXPECT_TRUE(gate1 != NULL);

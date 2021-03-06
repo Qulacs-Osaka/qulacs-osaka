@@ -69,4 +69,22 @@ DllExport QuantumGateWrapped* Probabilistic(
         QuantumGateWrapped::ProbabilisticGate(distribution, gate_list, false);
     return ptr;
 }
+
+DllExport QuantumGateWrapped* Instrument(
+    std::vector<QuantumGateBase*> gate_list, std::string reg_name) {
+    auto ptr = QuantumGateWrapped::Instrument(gate_list, reg_name);
+    return ptr;
+}
+DllExport QuantumGateWrapped* Measurement(
+    UINT target_index, std::string classical_register_address){
+
+        auto gate0 = P0(target_index);
+        auto gate1 = P1(target_index);
+        auto new_gate =
+            QuantumGateWrapped::Instrument({gate0, gate1}, classical_register_address);
+        delete gate0;
+        delete gate1;
+        return new_gate;
+    };
+
 }  // namespace gate

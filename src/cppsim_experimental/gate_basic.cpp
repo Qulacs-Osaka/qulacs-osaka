@@ -678,6 +678,72 @@ DllExport QuantumGateBasic* merge(
     // std::cout << "result matrix is " << new_gate << "\n\n";
     return new_gate;
 }
+
+// TODO: code is almost common with merge except * or +
+DllExport QuantumGateBasic* add(
+    const QuantumGateBase* gate_first, const QuantumGateBase* gate_second) {
+    // obtain updated qubit information
+    std::vector<UINT> new_target_index_list, new_target_commutation_list,
+        new_control_index_list, new_control_value_list;
+    get_new_qubit_list(gate_first, gate_second, new_target_index_list,
+        new_target_commutation_list, new_control_index_list,
+        new_control_value_list);
+
+    // sort by index
+    std::vector<std::pair<UINT, UINT>> new_target_qubit_list,
+        new_control_qubit_list;
+    for (UINT i = 0; i < new_target_index_list.size(); ++i) {
+        new_target_qubit_list.push_back(std::pair<UINT, UINT>(
+            new_target_index_list[i], new_target_commutation_list[i]));
+    }
+    for (UINT i = 0; i < new_control_index_list.size(); ++i) {
+        new_control_qubit_list.push_back(std::pair<UINT, UINT>(
+            new_control_index_list[i], new_control_value_list[i]));
+    }
+    std::sort(new_target_qubit_list.begin(), new_target_qubit_list.end());
+    std::sort(new_control_qubit_list.begin(), new_control_qubit_list.end());
+    for (UINT i = 0; i < new_target_qubit_list.size(); ++i) {
+        new_target_index_list[i] = new_target_qubit_list[i].first;
+        new_target_commutation_list[i] = new_target_qubit_list[i].second;
+    }
+    for (UINT i = 0; i < new_control_qubit_list.size(); ++i) {
+        new_control_index_list[i] = new_control_qubit_list[i].first;
+        new_control_value_list[i] = new_control_qubit_list[i].second;
+    }
+    // extend gate matrix to whole qubit list
+    ComplexMatrix matrix_first, matrix_second;
+    get_extended_matrix(gate_first, new_target_index_list,
+        new_control_index_list, matrix_first);
+    get_extended_matrix(gate_second, new_target_index_list,
+        new_control_index_list, matrix_second);
+
+    /*
+    ComplexMatrix orgmat1, orgmat2;
+    gate_first->get_matrix(orgmat1);
+    gate_second->get_matrix(orgmat2);
+    std::cout << "first gate is extended from \n"
+              << orgmat1 << " \nto\n"
+              << matrix_first << "\n\n";
+    std::cout << "second gate is extended from \n"
+              << orgmat2 << " \nto\n"
+              << matrix_second << "\n\n";
+    */
+    ComplexMatrix new_matrix = matrix_second + matrix_first;
+
+    // generate new matrix gate
+    QuantumGateBasic* new_gate = QuantumGateBasic::DenseMatrixGate(
+        new_target_index_list, new_matrix, new_target_commutation_list);
+    for (UINT i = 0; i < new_control_index_list.size(); ++i) {
+        new_gate->add_control_qubit(
+            new_control_index_list[i], new_control_value_list[i]);
+    }
+    new_gate->set_gate_property(
+        gate_first->get_property_value() & gate_second->get_property_value());
+
+    // std::cout << "result matrix is " << new_gate << "\n\n";
+    return new_gate;
+}
+
 DllExport QuantumGateBasic* Identity(UINT target_qubit) {
     ComplexMatrix mat = ComplexMatrix::Identity(2, 2);
     auto ptr = QuantumGateBasic::DenseMatrixGate({target_qubit}, mat,
@@ -887,15 +953,28 @@ DllExport QuantumGateBasic* Fredkin(
     return ptr;
 }
 
-DllExport QuantumGateBasic* DenseMatrix(UINT target_index, ComplexMatrix matrix) {
+DllExport QuantumGateBasic* DenseMatrix(
+    UINT target_index, ComplexMatrix matrix) {
     std::vector<UINT> target_list(1, target_index);
     return QuantumGateBasic::DenseMatrixGate(target_list, matrix);
 }
 DllExport QuantumGateBasic* DenseMatrix(
-    std::vector<UINT> target_list, ComplexMatrix matrix){
+    std::vector<UINT> target_list, ComplexMatrix matrix) {
     if (!check_is_unique_index_list(target_list)) {
         throw std::invalid_argument("target list contains duplicated values.");
     }
     return QuantumGateBasic::DenseMatrixGate(target_list, matrix);
+}
+DllExport QuantumGateBasic* SparseMatrix(
+    UINT target_index, SparseComplexMatrix matrix) {
+    std::vector<UINT> target_list(1, target_index);
+    return QuantumGateBasic::SparseMatrixGate(target_list, matrix);
+}
+DllExport QuantumGateBasic* SparseMatrix(
+    std::vector<UINT> target_list, SparseComplexMatrix matrix) {
+    if (!check_is_unique_index_list(target_list)) {
+        throw std::invalid_argument("target list contains duplicated values.");
+    }
+    return QuantumGateBasic::SparseMatrixGate(target_list, matrix);
 }
 }  // namespace gate

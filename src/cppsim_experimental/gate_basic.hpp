@@ -78,7 +78,7 @@ public:
     };
 
     virtual void _expand_control_qubit(ComplexMatrix&) const {
-        //TODO?
+        // TODO?
         // Test passes even without this function.
 
         /*
@@ -439,12 +439,18 @@ DllExport QuantumGateBasic* Toffoli(
     UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
 DllExport QuantumGateBasic* Fredkin(
     UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
-DllExport QuantumGateBasic* DenseMatrix(UINT target_index, ComplexMatrix matrix);
+DllExport QuantumGateBasic* DenseMatrix(
+    UINT target_index, ComplexMatrix matrix);
 DllExport QuantumGateBasic* DenseMatrix(
     std::vector<UINT> target_list, ComplexMatrix matrix);
-
+DllExport QuantumGateBasic* SparseMatrix(
+    UINT target_list, SparseComplexMatrix matrix);
+DllExport QuantumGateBasic* SparseMatrix(
+    std::vector<UINT> target_list, SparseComplexMatrix matrix);
 DllExport QuantumGateBasic* merge(
     const QuantumGateBase* gate_first, const QuantumGateBase* gate_second);
+DllExport QuantumGateBasic* add(
+    const QuantumGateBase* gate1, const QuantumGateBase* gate2);
 };  // namespace gate
 
 // Cereal Type Registration
