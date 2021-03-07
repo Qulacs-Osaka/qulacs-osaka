@@ -8,6 +8,7 @@ file(GLOB CPPSIM_SRC
 add_library(cppsim_exp_static STATIC ${CPPSIM_SRC})
 target_link_libraries(cppsim_exp_static csim_static)
 add_dependencies(cppsim_exp_static eigen)
+add_dependencies(cppsim_exp_static Cereal)
 
 if (USE_GPU)
     target_link_libraries(cppsim_exp_static gpusim_static)

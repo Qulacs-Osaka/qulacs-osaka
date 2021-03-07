@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <csim/update_ops.h>
+#include <csim/update_ops.hpp>
 
 #include <cmath>
 #include <cppsim_experimental/gate.hpp>
