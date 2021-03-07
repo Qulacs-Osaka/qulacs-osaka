@@ -10,7 +10,7 @@
 #include <cppsim_experimental/utility.hpp>
 #include <fstream>
 
-#include "../util/util.hpp"
+#include "../util/util.h"
 
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
     const UINT n = 4;

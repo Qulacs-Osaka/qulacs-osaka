@@ -38,23 +38,23 @@ DllExport void multi_qubit_sparse_matrix_gate_eigen(
  * Apply reversible boolean function as a unitary gate. Boolean function is
  * given as a pointer of int -> int function.
  *
- * @param[in] target_qubit_index_list ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚ÌƒŠƒXƒg
- * @param[in] target_qubit_index_count ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚Ì”
- * @param[in] matrix “Y‚¦š‚¨‚æ‚Ñ‘ÎÛƒrƒbƒg‚ÌŸŒ³‚ğó‚¯æ‚é‚Æ“Y‚¦š‚ğ•Ô‚·ŠÖ”
- * @param[in,out] state —Êqó‘Ô
- * @param[in] dim ŸŒ³
+ * @param[in] target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Êqï¿½rï¿½bï¿½gï¿½Ìƒï¿½ï¿½Xï¿½g
+ * @param[in] target_qubit_index_count ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½
+ * @param[in] matrix ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ‘ÎÛƒrï¿½bï¿½gï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½Æ“Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½Öï¿½
+ * @param[in,out] state ï¿½Êqï¿½ï¿½ï¿½
+ * @param[in] dim ï¿½ï¿½ï¿½ï¿½
  *
  *
  * \~japanese-en
- * ‰Â‹t‰ñ˜HŠÖ”‚ğƒ†ƒjƒ^ƒŠƒQ[ƒg‚Æ‚µ‚Äì—p‚·‚é
+ * ï¿½Â‹tï¿½ï¿½Hï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½jï¿½^ï¿½ï¿½ï¿½Qï¿½[ï¿½gï¿½Æ‚ï¿½ï¿½Äï¿½pï¿½ï¿½ï¿½ï¿½
  *
- *  ‰Â‹t‰ñ˜HŠÖ”‚ğƒ†ƒjƒ^ƒŠƒQ[ƒg‚Æ‚µ‚Äì—p‚·‚éB‰Â‹t‰ñ˜HŠÖ”‚Í“Y‚¦š‚ğ—^‚¦‚é‚ÆŒ‹‰Ê‚Ì“Y‚¦š‚ğ•Ô‚·ŠÖ”B
+ *  ï¿½Â‹tï¿½ï¿½Hï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½jï¿½^ï¿½ï¿½ï¿½Qï¿½[ï¿½gï¿½Æ‚ï¿½ï¿½Äï¿½pï¿½ï¿½ï¿½ï¿½Bï¿½Â‹tï¿½ï¿½Hï¿½Öï¿½ï¿½Í“Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½ï¿½ÆŒï¿½ï¿½Ê‚Ì“Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½Öï¿½ï¿½B
  *
- * @param[in] target_qubit_index_list ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚ÌƒŠƒXƒg
- * @param[in] target_qubit_index_count ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚Ì”
- * @param[in] matrix “Y‚¦š‚¨‚æ‚Ñ‘ÎÛƒrƒbƒg‚ÌŸŒ³‚ğó‚¯æ‚é‚Æ“Y‚¦š‚ğ•Ô‚·ŠÖ”
- * @param[in,out] state —Êqó‘Ô
- * @param[in] dim ŸŒ³
+ * @param[in] target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Êqï¿½rï¿½bï¿½gï¿½Ìƒï¿½ï¿½Xï¿½g
+ * @param[in] target_qubit_index_count ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½
+ * @param[in] matrix ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ‘ÎÛƒrï¿½bï¿½gï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½Æ“Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½Öï¿½
+ * @param[in,out] state ï¿½Êqï¿½ï¿½ï¿½
+ * @param[in] dim ï¿½ï¿½ï¿½ï¿½
  *
  */
 DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list,

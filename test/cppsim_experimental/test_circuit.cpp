@@ -11,7 +11,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 
-#include "../util/util.hpp"
+#include "../util/util.h"
 
 TEST(CircuitTest, CircuitBasic) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),
