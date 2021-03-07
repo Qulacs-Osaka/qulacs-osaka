@@ -9,10 +9,6 @@
 #include <cppsim/state.hpp>
 #include <cppsim/utility.hpp>
 
-#ifndef _MSC_VER
-#include <complex.h>
-#endif
-
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>
 #endif

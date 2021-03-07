@@ -1,13 +1,7 @@
 
-#ifndef _MSC_VER
-#include "update_ops_cpp.hpp"
-extern "C" {
-#include "utility.hpp"
-}
-#else
 #include "update_ops_cpp.hpp"
 #include "utility.hpp"
-#endif
+
 #include <Eigen/Core>
 #include <functional>
 

@@ -25,25 +25,6 @@ transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
     ITYPE state_index;
 
-#ifndef _MSC_VER
-    CTYPE sum = 0.;
-#ifdef _OPENMP
-#pragma omp parallel for reduction(+ : sum)
-#endif
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE basis_0 = insert_zero_to_basis_index(
-            state_index, pivot_mask, pivot_qubit_index);
-        ITYPE basis_1 = basis_0 ^ bit_flip_mask;
-        UINT sign_0 = count_population(basis_0 & phase_flip_mask) % 2;
-        sum += state_ket[basis_0] * conj(state_bra[basis_1]) *
-               PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4];
-
-        UINT sign_1 = count_population(basis_1 & phase_flip_mask) % 2;
-        sum += state_ket[basis_1] * conj(state_bra[basis_0]) *
-               PHASE_90ROT[(global_phase_90rot_count + sign_1 * 2) % 4];
-    }
-
-#else
     double sum_real = 0.;
     double sum_imag = 0.;
 #ifdef _OPENMP
@@ -65,7 +46,6 @@ transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
         sum_imag += _cimag(val2);
     }
     CTYPE sum(sum_real, sum_imag);
-#endif
     return sum;
 }
 
@@ -74,20 +54,6 @@ transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask,
     const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     const ITYPE loop_dim = dim;
     ITYPE state_index;
-
-#ifndef _MSC_VER
-    CTYPE sum = 0.;
-#ifdef _OPENMP
-#pragma omp parallel for reduction(+ : sum)
-#endif
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        int bit_parity = count_population(state_index & phase_flip_mask) % 2;
-        double sign = 1 - 2 * bit_parity;
-        sum += sign * state_ket[state_index] * conj(state_bra[state_index]);
-    }
-    return sum;
-
-#else
 
     double sum_real = 0.;
     double sum_imag = 0.;
@@ -103,7 +69,6 @@ transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask,
         sum_imag += _cimag(val);
     }
     CTYPE sum(sum_real, sum_imag);
-#endif
     return sum;
 }
 

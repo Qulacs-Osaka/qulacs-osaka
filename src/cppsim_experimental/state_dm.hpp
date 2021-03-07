@@ -349,12 +349,7 @@ public:
      * \~japanese-en 複素数をかける
      */
     virtual void multiply_coef(CPPCTYPE coef) override {
-#ifdef _MSC_VER
         dm_state_multiply(coef, this->data_c(), this->dim);
-#else
-        CTYPE c_coef = {coef.real(), coef.imag()};
-        dm_state_multiply(c_coef, this->data_c(), this->dim);
-#endif
     }
 
     virtual void multiply_elementwise_function(

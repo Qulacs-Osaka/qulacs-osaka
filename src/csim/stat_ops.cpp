@@ -24,18 +24,6 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
 // calculate inner product of two state vector
 CTYPE
 state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
-#ifndef _MSC_VER
-    CTYPE value = 0;
-    ITYPE index;
-#ifdef _OPENMP
-#pragma omp parallel for reduction(+ : value)
-#endif
-    for (index = 0; index < dim; ++index) {
-        value += conj(state_bra[index]) * state_ket[index];
-    }
-    return value;
-#else
-
     double real_sum = 0.;
     double imag_sum = 0.;
     ITYPE index;
@@ -49,7 +37,6 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
         imag_sum += _cimag(value);
     }
     return real_sum + 1.i * imag_sum;
-#endif
 }
 
 void state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
