@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+jobs:   
+  gcc8-build:
+    name: GCC8 build
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+        os: ["ubuntu-self-hosted"]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+      BOOST_ROOT: "C:/boost_1_75_0"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install Python dependencies
+        run: pip install -U --only-binary=numpy,scipy numpy scipy
+
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc.sh
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
+      - name: Install qulacs Python module
+        run: python setup.py install
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make test
+          make pythontest
+          cd ../
+      
+      - name: import benchmark_qulacs
+        uses: actions/checkout@v2
+        with:
+          repository: 'qulacs/benchmark-qulacs'
+          path: 'benchmark_qulacs'
+      
+      - name: Run Benchmark
+        run: |
+          cd ./benchmark-qulacs/benchmark/multithread
+          bash ./exec.sh qulacs
