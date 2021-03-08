@@ -1,4 +1,4 @@
-from memory_profiler import profile, LogFile, memory_usage
+from memory_profiler import profile, memory_usage
 from qulacs import Observable, QuantumState
 import argparse
 
@@ -19,8 +19,10 @@ def profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operato
     # Holds (qubit_count, memory_usage)
     memory_usage_list = []
     for qubit_count in range(qubit_count_start, qubit_count_end):
-        usage = memory_usage((profile_computing_eigenvalue, (method, qubit_count, operator_count, iter_count)))[-1]
+        usage_history = memory_usage((profile_computing_eigenvalue, (method, qubit_count, operator_count, iter_count)))
+        usage = max(usage_history)
         memory_usage_list.append((qubit_count, usage))
+        print("{}MB in {} method with {} qubit".format(usage, method, qubit_count))
 
     with open("memory_usage_{}_method.csv".format(method), "w") as f:
         f.write("qubit_count,memory_usage\n")
