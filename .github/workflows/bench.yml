@@ -46,7 +46,10 @@ jobs:
           repository: 'qulacs/benchmark-qulacs'
           path: './benchmark_qulacs'
       
-      - name: Run Benchmark
+      - name: Run MultiThread Benchmark
         run: |
-          cd ./benchmark_qulacs/benchmark/multithread
-          bash ./exec.sh qulacs
+          unset OMP_NUM_THREADS
+          unset MKL_NUM_THREADS
+          unset MKL_DOMAIN_NUM_THREADS
+          unset JULIA_NUM_THREADS
+          pytest ./benchmark_qulacs/benchmark/multithread/qulacs/benchmarks.py --benchmark-save="data" --benchmark-sort=name --benchmark-min-rounds=5
