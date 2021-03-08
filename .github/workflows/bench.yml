@@ -46,4 +46,4 @@ jobs:
           unset MKL_DOMAIN_NUM_THREADS
           unset JULIA_NUM_THREADS
           cd  ./benchmark_qulacs/benchmark/multithread/qulacs
-          pytest ./benchmarks.py --benchmark-save="data" --benchmark-sort=name --benchmark-min-rounds=5
+          pytest --benchmark-save="data" --benchmark-sort=name --benchmark-min-rounds=5 ./benchmarks.py
