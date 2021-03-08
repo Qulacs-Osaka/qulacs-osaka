@@ -43,5 +43,5 @@ jobs:
       - name: Run Benchmark
         run: |
           ls .
-          cd ./benchmark-qulacs/benchmark/multithread
+          cd ./benchmark_qulacs/benchmark/multithread
           bash ./exec.sh qulacs
