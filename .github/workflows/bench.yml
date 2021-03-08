@@ -1,7 +1,6 @@
-name: CI
+name: BenchMark
 
 on:
-  pull_request:
   push:
 
 jobs:   
@@ -46,7 +45,7 @@ jobs:
           repository: 'qulacs/benchmark-qulacs'
           path: './benchmark_qulacs'
       
-      - name: Run MultiThread Benchmark
+      - name: Run MultiThread Benchmark-qulacs
         run: |
           unset OMP_NUM_THREADS
           unset MKL_NUM_THREADS
@@ -54,3 +53,12 @@ jobs:
           unset JULIA_NUM_THREADS
           cd  ./benchmark_qulacs/benchmark/multithread/qulacs
           pytest --benchmark-save="data" --benchmark-sort=name --benchmark-min-rounds=5 ./benchmarks.py
+          cd ../../../../
+
+      - name: Run benchmark for each qulacs gate
+        run: |
+          unset OMP_NUM_THREADS
+          unset MKL_NUM_THREADS
+          unset MKL_DOMAIN_NUM_THREADS
+          unset JULIA_NUM_THREADS
+          pytest --benchmark-save="data" --benchmark-sort=name --benchmark-min-rounds=5 ./test_qulacs_1.py ./test_qulacs_2.py
