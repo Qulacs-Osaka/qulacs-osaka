@@ -2,7 +2,8 @@ name: BenchMark
 
 on:
   push:
-
+    branches:
+      - dev
 jobs:   
   gcc8-build:
     name: GCC8 build
