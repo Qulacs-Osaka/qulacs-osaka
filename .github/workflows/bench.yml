@@ -31,8 +31,14 @@ jobs:
           architecture: x64
 
       - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy
+        run: pip install -U --only-binary=numpy,scipy,pytest numpy scipy pytest
+      
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc.sh
+        if: ${{ contains(matrix.os, 'ubuntu') }}
 
+      - name: Install qulacs Python module
+        run: python setup.py install
       
       - name: import benchmark_qulacs
         uses: actions/checkout@v2
@@ -42,6 +48,5 @@ jobs:
       
       - name: Run Benchmark
         run: |
-          ls .
           cd ./benchmark_qulacs/benchmark/multithread
           bash ./exec.sh qulacs
