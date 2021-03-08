@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-self-hosted"]
+        os: ["ubuntu-latest"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
@@ -39,13 +39,6 @@ jobs:
 
       - name: Install qulacs Python module
         run: python setup.py install
-
-      - name: Test in Ubuntu
-        run: |
-          cd ./build
-          make test
-          make pythontest
-          cd ../
       
       - name: import benchmark_qulacs
         uses: actions/checkout@v2
