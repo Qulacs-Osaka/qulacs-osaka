@@ -2,6 +2,7 @@
 from qulacs_core import GeneralQuantumOperator
 import numpy as np
 
+
 def convert_openfermion_op(openfermion_op, n_qubits=None, is_hermitian=True):
     """convert_openfermion_op
     Args:
