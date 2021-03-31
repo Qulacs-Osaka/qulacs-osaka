@@ -1,5 +1,5 @@
 
-from qulacs_core import GeneralQuantumOperator
+from qulacs_core import GeneralQuantumOperator, Observable
 import numpy as np
 
 
