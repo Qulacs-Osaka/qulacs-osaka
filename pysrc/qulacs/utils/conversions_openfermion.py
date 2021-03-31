@@ -2,23 +2,30 @@
 from qulacs_core import GeneralQuantumOperator
 import numpy as np
 
-
-def convert_openfermion_op(openfermion_op, n_qubits=None):
+def convert_openfermion_op(openfermion_op, n_qubits=None, is_hermitian=True):
     """convert_openfermion_op
     Args:
         openfermion_op (:class:`openfermion.ops.QubitOperator`)
         n_qubit (:class:`int`):
             if None (default), it automatically calculates the number of qubits required to represent the given operator
+        is_hermitian (:class:`bool`)
     Returns:
-        :class:`qulacs.GeneralQuantumOperator`
+        :class:`qulacs.GeneralQuantumOperator` if is_hermitian is True
+        :class:`qulacs.Observable` if is_hermitian is False
     """
     if n_qubits is None:
         _n_qubits = _count_qubit_in_qubit_operator(openfermion_op)
     else:
         _n_qubits = n_qubits
-    res = GeneralQuantumOperator(_n_qubits)
+    if is_hermitian:
+        res = Observable(_n_qubits)
+    else:
+        res = GeneralQuantumOperator(_n_qubits)
     for pauli_product in openfermion_op.terms:
-        coef = openfermion_op.terms[pauli_product]
+        if is_hermitian:
+            coef = float(np.real(openfermion_op.terms[pauli_product]))
+        else:
+            coef = openfermion_op.terms[pauli_product]
         pauli_string = ''
         for pauli_operator in pauli_product:
             pauli_string += pauli_operator[1] + ' ' + str(pauli_operator[0])
