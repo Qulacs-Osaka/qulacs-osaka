@@ -18,7 +18,7 @@ def convert_openfermion_op(openfermion_op, n_qubits=None):
         _n_qubits = n_qubits
     res = GeneralQuantumOperator(_n_qubits)
     for pauli_product in openfermion_op.terms:
-        coef = float(np.real(openfermion_op.terms[pauli_product]))
+        coef = openfermion_op.terms[pauli_product]
         pauli_string = ''
         for pauli_operator in pauli_product:
             pauli_string += pauli_operator[1] + ' ' + str(pauli_operator[0])
