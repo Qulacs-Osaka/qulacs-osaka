@@ -471,7 +471,7 @@ class TestUtils(unittest.TestCase):
         openfermion_op += 2. * QubitOperator("Z0 Y1")
         openfermion_op += 1. * QubitOperator("Z0 Y3")
 
-        qulacs_op = convert_openfermion_op(openfermion_op)
+        qulacs_op = convert_openfermion_op(openfermion_op, is_hermitian=False)
         str_qulacs_op = str(qulacs_op)
         # operator ordering in openfermion may differ sometimes so we have to do this
         str_qulacs_op = str_qulacs_op.replace("(1,0) X 0", "")
