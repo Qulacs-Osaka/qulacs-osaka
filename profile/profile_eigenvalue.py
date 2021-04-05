@@ -11,6 +11,8 @@ def profile_computing_eigenvalue(method, qubit_count, operator_count, iter_count
         observable.solve_ground_state_eigenvalue_by_power_method(state, iter_count)
     elif method == "arnoldi":
         observable.solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count)
+    elif method == "lanczos":
+        observable.solve_ground_state_eigenvalue_by_lanczos_method(state, iter_count)
     else:
         print("Invalid method; method should be power or arnoldi.")
         exit(1)
@@ -46,6 +48,9 @@ def main():
     profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
 
     method = "arnoldi"
+    profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
+
+    method = "lanczos"
     profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
 
 if __name__ == "__main__":
