@@ -1,7 +1,18 @@
 import argparse
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
+
+def distinguish_method(file_name):
+    if file_name.find("arnoldi") > -1:
+        return "Arnoldi"
+    elif file_name.find("lanczos") > -1:
+        return "Lanczos"
+    elif file_name.find("power") > -1:
+        return "Power"
+    else:
+        return ""
 
 # Change extension of `file_name` to png.
 def default_output_file_name(file_name):
@@ -9,20 +20,25 @@ def default_output_file_name(file_name):
     splitted[-1] = "png"
     return ".".join(splitted)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--file", help="CSV File to draw graph")
-parser.add_argument("-o", "--output", help="Output file name")
-args = parser.parse_args()
-
-file_name = args.file
-data = pd.read_csv(file_name)
-if args.output is None:
+def draw_graph(file_name):
+    data = pd.read_csv(file_name)
+    x = np.array(data["qubit_count"])
+    y = np.array(data["memory_usage"])
+    plt.xlabel("Qubit Count")
+    plt.gca().get_xaxis().set_major_locator(ticker.MultipleLocator(1))
+    plt.ylabel("Memory Usage(MB)")
+    method = distinguish_method(file_name)
+    plt.title("Memory Usage over Qubit Count in {} method".format(method))
+    plt.plot(x, y)
     output_file_name = default_output_file_name(file_name)
+    plt.savefig(output_file_name)
+    plt.clf()
+    plt.close()
 
-x = np.array(data["qubit_count"])
-y = np.array(data["memory_usage"])
-plt.xlabel("Qubit Count")
-plt.ylabel("Memory Usage(MB)")
-plt.title("Memory Usage over Qubit Count")
-plt.plot(x, y)
-plt.savefig(output_file_name)
+parser = argparse.ArgumentParser()
+parser.add_argument("files", nargs="+", help="CSV Files to draw graph.")
+args = parser.parse_args()
+files = args.files
+
+for file in files:
+    draw_graph(file)
