@@ -27,6 +27,8 @@ def draw_graph(file_name):
     plt.xlabel("Qubit Count")
     plt.gca().get_xaxis().set_major_locator(ticker.MultipleLocator(1))
     plt.ylabel("Memory Usage(MB)")
+    plt.yscale("log")
+
     method = distinguish_method(file_name)
     plt.title("Memory Usage over Qubit Count in {} method".format(method))
     plt.plot(x, y)
