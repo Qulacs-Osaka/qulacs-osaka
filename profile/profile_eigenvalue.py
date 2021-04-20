@@ -27,7 +27,6 @@ def profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operato
         print("{}MB in {} method with {} qubit".format(usage, method, qubit_count))
 
     with open("memory_usage_{}.csv".format(method), "w") as f:
-        f.write()
         f.write("qubit_count,memory_usage\n")
         for usage in memory_usage_list:
             f.write("{},{}\n".format(usage[0], usage[1]))
@@ -39,20 +38,16 @@ def main():
     parser.add_argument("-e", "--qubit_count_end", type=int, help="Upper bound of qubit count of observable to profile")
     parser.add_argument("-o", "--operator_count", type=int, help="Operator count of observable to profile")
     parser.add_argument("-i", "--iter_count", type=int, help="Iteration count for each profile")
+    parser.add_argument("-m", "--method", nargs="*", default=["power", "arnoldi", "lanczos"], help="Method to profile. Default: all")
     args = parser.parse_args()
     qubit_count_start = args.qubit_count_start
     qubit_count_end = args.qubit_count_end
     operator_count = args.operator_count
     iter_count = args.iter_count
+    methods = args.method
 
-    method = "power"
-    profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
-
-    method = "arnoldi"
-    profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
-
-    method = "lanczos"
-    profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
+    for method in methods:
+        profile_over_qubit_count(method, qubit_count_start, qubit_count_end, operator_count, iter_count)
 
 if __name__ == "__main__":
     main()
