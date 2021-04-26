@@ -9,27 +9,16 @@
 #include <cassert>
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
-#include <cppsim_experimental/state.hpp>
-#include <cppsim_experimental/type.hpp>
 #include <iostream>
 #include <regex>
 #include <vector>
+
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
 #endif
 
-
-
-#include <cereal/access.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include <cereal/cereal.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/complex.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/types/utility.hpp>
-#include <cereal/types/vector.hpp>
+#include "state.hpp"
+#include "type.hpp"
 
 enum {
     PAULI_ID_I = 0,
@@ -86,16 +75,7 @@ public:
         _target_index.push_back(qubit_index);
         _pauli_id.push_back(pauli_type);
     }
-    
-    template <class Archive>
-    void save(Archive& ar) const {
-        ar(CEREAL_NVP(_target_index), CEREAL_NVP(_pauli_id));
-    }
-    template <class Archive>
-    void load(Archive& ar) {
-        ar(CEREAL_NVP(_target_index), CEREAL_NVP(_pauli_id));
-    }
-    
+
     virtual CPPCTYPE get_expectation_value(
         const QuantumStateBase* state) const {
         if (state->get_device_type() == DEVICE_CPU) {
@@ -178,19 +158,9 @@ class DllExport Observable {
 private:
     std::vector<MultiQubitPauliOperator> _pauli_terms;
     std::vector<CPPCTYPE> _coef_list;
+
 public:
     Observable(){};
-
-    template <class Archive>
-    void save(Archive& ar) const {
-        ar(CEREAL_NVP(_pauli_terms),CEREAL_NVP(_coef_list));
-    }
-    
-    template <class Archive>
-    void load(Archive& ar) {
-        ar(CEREAL_NVP(_pauli_terms),CEREAL_NVP(_coef_list));
-    }
-
     virtual UINT get_term_count() const { return (UINT)_pauli_terms.size(); }
     virtual std::pair<CPPCTYPE, MultiQubitPauliOperator> get_term(
         UINT index) const {
