@@ -63,14 +63,12 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         }, "Get Pauli term", py::arg("index"))
         .def("get_expectation_value", &Observable::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &Observable::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
-<<<<<<< HEAD
         .def("dump_as_byte", [](const Observable& obs) -> pybind11::bytes {
             // return data as "bytes" object to python
             std::string obj = obs.dump_as_byte();
             return py::bytes(obj);
         }, "Seralize object as byte")
         .def("load_from_byte", &Observable::load_from_byte, "Deseralize object as byte")
-=======
         .def("copy", &Observable::copy, "Make copy")
         .def(py::self + py::self)
         .def(py::self += py::self)
@@ -80,7 +78,6 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("__mul__", [](const Observable &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
         .def("__IMUL__", [](Observable &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
->>>>>>> dev
         ;
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
