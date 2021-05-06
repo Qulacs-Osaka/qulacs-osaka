@@ -42,6 +42,7 @@ jobs:
         if: ${{ contains(matrix.os, 'macos') }}
       
       - name: Install Boost for macOS
+        continue-on-error: true
         run: |
           brew install boost
           brew link boost
