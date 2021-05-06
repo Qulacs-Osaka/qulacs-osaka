@@ -190,7 +190,23 @@ public:
     void load(Archive& ar) {
         ar(CEREAL_NVP(_pauli_terms),CEREAL_NVP(_coef_list));
     }
-
+    std::string dump_as_byte() const{
+        // serialize quantum gate
+        std::ostringstream ss;
+        {
+            cereal::PortableBinaryOutputArchive archive(ss);
+            archive(*this);
+        }
+        return ss.str();
+    }
+    void load_from_byte(std::string obj){
+        // deserialize quantum gate
+        std::istringstream ss(obj);
+        {
+            cereal::PortableBinaryInputArchive archive(ss);
+            archive(*this);
+        }
+    }
     virtual UINT get_term_count() const { return (UINT)_pauli_terms.size(); }
     virtual std::pair<CPPCTYPE, MultiQubitPauliOperator> get_term(
         UINT index) const {
