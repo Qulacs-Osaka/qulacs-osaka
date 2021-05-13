@@ -43,7 +43,8 @@ jobs:
       
       - name: Install Boost for macOS
         run: |
-          brew install boost -f
+          brew upgrade
+          brew install boost
           brew link boost
         if: ${{ contains(matrix.os, 'macos') }}
 
