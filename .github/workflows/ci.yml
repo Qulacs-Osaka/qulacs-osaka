@@ -195,6 +195,12 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
+      - name: Install dependencies of scipy build for Ubuntu
+        run: |
+          sudo apt update
+          sudo apt install -y gfortran libopenblas-dev liblapack-dev
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
