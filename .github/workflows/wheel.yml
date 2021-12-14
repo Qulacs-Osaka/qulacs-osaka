@@ -9,7 +9,7 @@ jobs:
     name: Python wheel build
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        # python-version: ["3.7.5"]
         include:
           - os: "ubuntu-20.04"
             c-compiler: "/usr/lib/ccache/gcc"
@@ -55,7 +55,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.7.5"
           architecture: x64
 
       - name: Install Python dependencies
