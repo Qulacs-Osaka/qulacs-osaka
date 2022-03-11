@@ -1,11 +1,11 @@
 #include "pauli_operator.hpp"
 
 #include <boost/dynamic_bitset.hpp>
-#include <csim/stat_ops_dm.hpp>
 #include <vector>
 
+#include "../csim/stat_ops_dm.hpp"
 #ifdef _USE_GPU
-#include <gpusim/stat_ops.h>
+#include "../gpusim/stat_ops.h"
 #endif
 
 #include "state.hpp"
@@ -209,3 +209,4 @@ std::string MultiQubitPauliOperator::to_string() const {
     }
     return res;
 }
+

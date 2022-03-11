@@ -2,8 +2,9 @@
 
 #include "state_dm.hpp"
 
-#include <csim/stat_ops_dm.hpp>
 #include <iostream>
+
+#include "../csim/stat_ops_dm.hpp"
 
 namespace state {
 DensityMatrixCpu* tensor_product(

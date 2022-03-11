@@ -2,8 +2,9 @@
 
 #include "state.hpp"
 
-#include <csim/stat_ops.hpp>
 #include <iostream>
+
+#include "../csim/stat_ops.hpp"
 
 namespace state {
 CPPCTYPE inner_product(const StateVector* state1, const StateVector* state2) {

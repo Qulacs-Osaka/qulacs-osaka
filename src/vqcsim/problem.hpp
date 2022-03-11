@@ -1,12 +1,12 @@
 #pragma once
 
 #include <algorithm>
-#include <cppsim/observable.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/type.hpp>
 #include <functional>
 #include <vector>
 
+#include "../cppsim/observable.hpp"
+#include "../cppsim/state.hpp"
+#include "../cppsim/type.hpp"
 #include "boolean_formula.hpp"
 #include "loss_function.hpp"
 

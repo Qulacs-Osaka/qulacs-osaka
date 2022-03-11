@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cppsim/observable.hpp"
-#include "cppsim/state.hpp"
+#include "../cppsim/observable.hpp"
+#include "../cppsim/state.hpp"
 #include "parametric_circuit.hpp"
 
 class DllExport GradCalculator {

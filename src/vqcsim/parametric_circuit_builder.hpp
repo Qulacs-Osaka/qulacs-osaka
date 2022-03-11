@@ -1,5 +1,5 @@
 #pragma once
-#include <cppsim/circuit_builder.hpp>
+#include "../cppsim/circuit_builder.hpp"
 
 class ParametricCircuitBuilder : public QuantumCircuitBuilder {
     virtual ParametricQuantumCircuit* create_circuit(

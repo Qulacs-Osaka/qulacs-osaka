@@ -3,7 +3,8 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <complex>
-#include <csim/type.hpp>
+
+#include "../csim/type.hpp"
 typedef std::complex<double> CPPCTYPE;
 typedef Eigen::VectorXcd ComplexVector;
 

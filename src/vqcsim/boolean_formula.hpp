@@ -1,8 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <cppsim/type.hpp>
 #include <vector>
+
+#include "../cppsim/type.hpp"
 
 class BooleanFormula {
 private:

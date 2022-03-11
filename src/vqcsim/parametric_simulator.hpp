@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cppsim/simulator.hpp>
+#include "../cppsim/simulator.hpp"
 
 class DllExport ParametricQuantumCircuitSimulator
     : public QuantumCircuitSimulator {

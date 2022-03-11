@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-#include "cppsim/gate_factory.hpp"
-#include "cppsim/gate_matrix.hpp"
-#include "cppsim/gate_merge.hpp"
-#include "cppsim/state.hpp"
-#include "cppsim/type.hpp"
+#include "../cppsim/gate_factory.hpp"
+#include "../cppsim/gate_matrix.hpp"
+#include "../cppsim/gate_merge.hpp"
+#include "../cppsim/state.hpp"
+#include "../cppsim/type.hpp"
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 

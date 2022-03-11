@@ -1,8 +1,8 @@
 ﻿#include "state.hpp"
 
-#include <csim/stat_ops.hpp>
 #include <iostream>
 
+#include "../csim/stat_ops.hpp"
 #include "cppsim/gate_matrix.hpp"
 
 namespace state {

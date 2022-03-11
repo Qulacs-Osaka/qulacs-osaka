@@ -4,10 +4,10 @@
 
 #ifdef _USE_GPU
 
-#include <gpusim/memory_ops.h>
-#include <gpusim/stat_ops.h>
-#include <gpusim/update_ops_cuda.h>
-#include <gpusim/util_func.h>
+#include "../gpusim/memory_ops.h"
+#include "../gpusim/stat_ops.h"
+#include "../gpusim/update_ops_cuda.h"
+#include "../gpusim/util_func.h"
 
 class StateVectorGpu : public QuantumStateBase {
 private:

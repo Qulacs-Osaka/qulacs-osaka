@@ -1,14 +1,13 @@
 #pragma once
 
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
-
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_dm.hpp"
 #include "gate.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
 #include "utility.hpp"
 #ifdef _USE_GPU
-#include <gpusim/update_ops_cuda.h>
+#include "../gpusim/update_ops_cuda.h"
 #endif
 /**
  * \~japanese-en 複数の量子ビットに作用するPauli演算子を作用させるゲート

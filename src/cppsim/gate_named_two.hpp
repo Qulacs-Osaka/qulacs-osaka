@@ -1,7 +1,6 @@
 #pragma once
 
-#include <csim/update_ops.hpp>
-
+#include "../csim/update_ops.hpp"
 #include "gate_named.hpp"
 #include "state.hpp"
 

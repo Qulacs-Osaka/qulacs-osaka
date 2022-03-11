@@ -1,11 +1,11 @@
 #include "gate_merge.hpp"
 
 #include <algorithm>
-#include <csim/utility.hpp>
 #include <iterator>
 #include <numeric>
 #include <vector>
 
+#include "../csim/utility.hpp"
 #include "gate_general.hpp"
 #include "gate_matrix.hpp"
 

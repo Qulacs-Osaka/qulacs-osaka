@@ -1,13 +1,13 @@
 #include "general_quantum_operator.hpp"
 
 #include <Eigen/Dense>
-#include <csim/stat_ops.hpp>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
 #include <cstring>
 #include <fstream>
 #include <numeric>
 
+#include "../csim/stat_ops.hpp"
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_dm.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"

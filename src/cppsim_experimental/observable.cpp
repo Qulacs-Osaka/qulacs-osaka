@@ -3,7 +3,7 @@
 #include <numeric>
 
 #ifdef _USE_GPU
-#include <gpusim/stat_ops.h>
+#include "../gpusim/stat_ops.h"
 #endif
 
 #include "pauli_operator.hpp"

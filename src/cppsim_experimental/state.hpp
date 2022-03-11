@@ -1,15 +1,15 @@
 ﻿
 #pragma once
 
-#include <csim/init_ops.hpp>
-#include <csim/memory_ops.hpp>
-#include <csim/stat_ops.hpp>
-#include <csim/update_ops.hpp>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "../csim/init_ops.hpp"
+#include "../csim/memory_ops.hpp"
+#include "../csim/stat_ops.hpp"
+#include "../csim/update_ops.hpp"
 #include "type.hpp"
 #include "utility.hpp"
 

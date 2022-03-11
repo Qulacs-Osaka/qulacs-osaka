@@ -6,11 +6,11 @@
 #include "parametric_gate_factory.hpp"
 
 #include <cmath>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/utility.hpp>
 #include <cstdlib>
 #include <cstring>
 
+#include "../cppsim/gate_factory.hpp"
+#include "../cppsim/utility.hpp"
 #include "parametric_gate.hpp"
 
 namespace gate {

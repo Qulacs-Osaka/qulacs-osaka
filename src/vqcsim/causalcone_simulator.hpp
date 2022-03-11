@@ -1,13 +1,14 @@
-#include <cppsim/gate.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/type.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <vqcsim/parametric_circuit.hpp>
+
+#include "../cppsim/gate.hpp"
+#include "../cppsim/gate_factory.hpp"
+#include "../cppsim/gate_merge.hpp"
+#include "../cppsim/observable.hpp"
+#include "../cppsim/state.hpp"
+#include "../cppsim/type.hpp"
+#include "../vqcsim/parametric_circuit.hpp"
 
 class UnionFind {
 private:

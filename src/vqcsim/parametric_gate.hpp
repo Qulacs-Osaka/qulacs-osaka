@@ -1,15 +1,15 @@
 
 #pragma once
 
-#include <cppsim/gate.hpp>
-#include <cppsim/pauli_operator.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/utility.hpp>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
+#include "../cppsim/gate.hpp"
+#include "../cppsim/pauli_operator.hpp"
+#include "../cppsim/state.hpp"
+#include "../cppsim/utility.hpp"
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_dm.hpp"
 
 #ifdef _USE_GPU
-#include <gpusim/update_ops_cuda.h>
+#include "../gpusim/update_ops_cuda.h"
 #endif
 
 class QuantumGate_SingleParameter : public QuantumGateBase {

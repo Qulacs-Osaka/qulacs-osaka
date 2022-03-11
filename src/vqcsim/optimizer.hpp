@@ -1,7 +1,8 @@
 
 #pragma once
-#include <cppsim/type.hpp>
 #include <vector>
+
+#include "../cppsim/type.hpp"
 
 class ParametricQuantumCircuitModel;
 

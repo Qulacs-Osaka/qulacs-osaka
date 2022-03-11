@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cppsim/type.hpp>
 #include <string>
 #include <vector>
 
+#include "../cppsim/type.hpp"
 #include "parametric_gate.hpp"
 
 namespace gate {

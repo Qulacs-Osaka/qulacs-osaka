@@ -2,13 +2,13 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <cppsim/circuit_builder.hpp>
-#include <cppsim/simulator.hpp>
-#include <cppsim/type.hpp>
-#include <cppsim/utility.hpp>
 #include <functional>
 #include <vector>
 
+#include "../cppsim/circuit_builder.hpp"
+#include "../cppsim/simulator.hpp"
+#include "../cppsim/type.hpp"
+#include "../cppsim/utility.hpp"
 #include "differential.hpp"
 #include "optimizer.hpp"
 #include "problem.hpp"

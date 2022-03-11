@@ -17,9 +17,8 @@
 #include <gpusim/stat_ops.h>
 #endif
 
-#include <csim/stat_ops.hpp>
-#include <csim/stat_ops_dm.hpp>
-
+#include "../csim/stat_ops.hpp"
+#include "../csim/stat_ops_dm.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cppsim/type.hpp>
+#include "../cppsim/type.hpp"
 #include <vector>
 
 // loss functions

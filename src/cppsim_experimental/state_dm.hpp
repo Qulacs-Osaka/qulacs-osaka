@@ -1,10 +1,9 @@
 
 #pragma once
 
-#include <csim/memory_ops_dm.hpp>
-#include <csim/stat_ops_dm.hpp>
-#include <csim/update_ops_dm.hpp>
-
+#include "../csim/memory_ops_dm.hpp"
+#include "../csim/stat_ops_dm.hpp"
+#include "../csim/update_ops_dm.hpp"
 #include "state.hpp"
 
 class DensityMatrixCpu : public QuantumStateBase {
@@ -429,3 +428,4 @@ DllExport DensityMatrixCpu* partial_trace(
 DllExport DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target);
 }  // namespace state
+

@@ -2,14 +2,15 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <cassert>
-#include <csim/stat_ops.hpp>
-#include <csim/stat_ops_dm.hpp>
 #include <iostream>
 #include <regex>
 #include <vector>
 
+#include "../csim/stat_ops.hpp"
+#include "../csim/stat_ops_dm.hpp"
+
 #ifdef _USE_GPU
-#include <gpusim/stat_ops.h>
+#include "../gpusim/stat_ops.h"
 #endif
 
 #include "pauli_operator.hpp"

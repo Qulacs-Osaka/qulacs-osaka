@@ -1,13 +1,13 @@
 #pragma once
 
 #include <cmath>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
 
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_dm.hpp"
 #include "gate_named.hpp"
 
 #ifdef _USE_GPU
-#include <gpusim/update_ops_cuda.h>
+#include "../gpusim/update_ops_cuda.h"
 #endif
 
 /**

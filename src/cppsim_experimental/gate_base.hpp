@@ -1,16 +1,17 @@
 #pragma once
 
-#include <csim/constant.hpp>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_cpp.hpp>
-#include <csim/update_ops_dm.hpp>
 #include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
 
+#include "../csim/constant.hpp"
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_cpp.hpp"
+#include "../csim/update_ops_dm.hpp"
+
 #ifdef _USE_GPU
-#include <gpusim/update_ops_cuda.h>
+#include "../gpusim/update_ops_cuda.h"
 #endif
 
 #include <cereal/access.hpp>
@@ -23,9 +24,10 @@
 #include <cereal/types/string.hpp>
 #include <cereal/types/utility.hpp>
 #include <cereal/types/vector.hpp>
-#include <cppsim_experimental/observable.hpp>
-#include <cppsim_experimental/state.hpp>
-#include <cppsim_experimental/type.hpp>
+
+#include "../cppsim_experimental/observable.hpp"
+#include "../cppsim_experimental/state.hpp"
+#include "../cppsim_experimental/type.hpp"
 
 enum MapType {
     Basic,

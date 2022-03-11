@@ -2,8 +2,8 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <cppsim/simulator.hpp>
 
+#include "../cppsim/simulator.hpp"
 #include "parametric_circuit.hpp"
 #include "parametric_simulator.hpp"
 #include "problem.hpp"

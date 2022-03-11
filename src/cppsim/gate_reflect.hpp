@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cmath>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_cpp.hpp>
 
+#include "../csim/update_ops.hpp"
+#include "../csim/update_ops_cpp.hpp"
 #include "gate.hpp"
 #include "state.hpp"
 
