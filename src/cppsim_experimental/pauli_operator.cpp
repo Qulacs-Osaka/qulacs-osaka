@@ -209,4 +209,3 @@ std::string MultiQubitPauliOperator::to_string() const {
     }
     return res;
 }
-

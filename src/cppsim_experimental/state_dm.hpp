@@ -428,4 +428,3 @@ DllExport DensityMatrixCpu* partial_trace(
 DllExport DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target);
 }  // namespace state
-
