@@ -51,7 +51,7 @@ jobs:
 
       - name: Install boost
         run: sudo apt install libboost-dev
-      
+
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy pybind11-stubgen
 
@@ -60,7 +60,7 @@ jobs:
 
       - name: Install qulacs Python module
         run: python setup.py install
-      
+
       - name: Check stubs
         run: |
           ./script/update_stubs.sh
@@ -151,7 +151,7 @@ jobs:
           cd /
           git clone -b "${GITHUB_HEAD_REF#refs/*/}" https://github.com/$REPOSITORY
 
-      - name: clone /qulacs-osaka (push)
+      - name: clone /qulacs-osaka (push) testing
         if: ${{ github.event_name == 'push' }}
         run: |
           cd /
