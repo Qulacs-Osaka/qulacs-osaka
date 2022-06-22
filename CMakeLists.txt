@@ -22,6 +22,7 @@ set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
+set(DEFAULT_USE_SANITIZER No)
 set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
 
 if(NOT DEFINED USE_SIMD)
@@ -39,6 +40,9 @@ endif()
 if(NOT DEFINED USE_TEST)
 	set(USE_TEST ${DEFAULT_USE_TEST})
 endif()
+if(NOT DEFINED USE_SANITIZER)
+	set(USE_SANITIZER ${DEFAULT_USE_SANITIZER})
+endif()
 if(NOT DEFINED OPT_FLAGS)
 	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
 endif()
@@ -46,8 +50,9 @@ endif()
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
-message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
+message(STATUS "USE_TEST = ${USE_TEST}")
+message(STATUS "USE_SANITIZER = ${USE_SANITIZER}")
 message(STATUS "OPT_FLAGS = ${OPT_FLAGS}")
 
 ##### configure include files #####
@@ -247,6 +252,12 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 	endif()
 
+	# Add address sanitizer flags
+	if(USE_SANITIZER)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
+	endif()
+
 
 elseif(MSVC)
 	# Compile csim with cpp compiler since VC does not completely support C99 complex values
@@ -319,7 +330,6 @@ if(USE_PYTHON)
 endif()
 
 add_subdirectory(benchmark)
-
 
 ##### custom target #####
 # testing
