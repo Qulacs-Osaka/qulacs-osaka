@@ -105,27 +105,8 @@ void QuantumCircuit::add_gate(QuantumGateBase* gate) {
     this->_gate_list.push_back(gate);
 }
 
-void QuantumCircuit::add_gate(QuantumGateBase* gate, UINT index) {
-    if (!check_gate_index(this, gate)) {
-        throw InvalidQubitCountException(
-            "Error: QuatnumCircuit::add_gate(QuantumGateBase*, UINT): "
-            "gate must be applied to qubits of which the indices are "
-            "smaller than qubit_count");
-    }
-    if (index > this->_gate_list.size()) {
-        throw GateIndexOutOfRangeException(
-            "Error: QuantumCircuit::add_gate(QuantumGateBase*, UINT) : "
-            "insert index must be smaller than or equal to gate_count");
-    }
-    this->_gate_list.insert(this->_gate_list.begin() + index, gate);
-}
-
 void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate) {
     this->add_gate(gate->copy());
-}
-
-void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate, UINT index) {
-    this->add_gate(gate->copy(), index);
 }
 
 void QuantumCircuit::add_noise_gate(
@@ -211,14 +192,13 @@ void QuantumCircuit::add_noise_gate_copy(
     this->add_noise_gate(gate->copy(), noise_type, noise_prob);
 }
 
-void QuantumCircuit::remove_gate(UINT index) {
-    if (index >= this->_gate_list.size()) {
+void QuantumCircuit::pop_gate() {
+    if (this->_gate_list.empty()) {
         throw GateIndexOutOfRangeException(
-            "Error: QuantumCircuit::remove_gate(UINT) : index must be "
-            "smaller than gate_count");
+            "Error: QuantumCircuit::pop_gate(UINT) : gate list is empty");
     }
-    delete this->_gate_list[index];
-    this->_gate_list.erase(this->_gate_list.begin() + index);
+    delete this->_gate_list.back();
+    this->_gate_list.pop_back();
 }
 
 QuantumCircuit::~QuantumCircuit() {

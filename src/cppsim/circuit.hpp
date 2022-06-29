@@ -71,16 +71,6 @@ public:
     virtual void add_gate(QuantumGateBase* gate);
 
     /**
-     * \~japanese-en 量子ゲートを回路の指定位置に追加する。
-     *
-     * 量子ゲートを回路の指定した位置に追加する。
-     * 追加した量子ゲートは量子回路の解放時に開放される。
-     * @param[in] gate 追加する量子ゲート
-     * @param[in] index 追加する位置
-     */
-    virtual void add_gate(QuantumGateBase* gate, UINT index);
-
-    /**
      * \~japanese-en 量子ゲートを回路の末尾に追加する
      *
      * 与えられた量子ゲートのコピーを回路に追加する。
@@ -88,15 +78,6 @@ public:
      * @param[in] gate 追加する量子ゲート
      */
     virtual void add_gate_copy(const QuantumGateBase* gate);
-
-    /**
-     * \~japanese-en 量子ゲートを回路の指定位置に追加する。
-     *
-     * 与えらた量子ゲートを回路の指定した位置に追加する。
-     * @param[in] gate 追加する量子ゲート
-     * @param[in] index 追加する位置
-     */
-    virtual void add_gate_copy(const QuantumGateBase* gate, UINT index);
 
     /**
      * \~japanese-en ノイズ付き量子ゲートを回路の末尾に追加する
@@ -118,25 +99,14 @@ public:
      * @param[in] noise_type 追加するノイズの種類
      * @param[in] noise_prob ノイズが発生する確率
      */
-    void add_noise_gate_copy(
+    virtual void add_noise_gate_copy(
         QuantumGateBase* gate, std::string noise_type, double noise_prob);
+
     /**
-     * \~japanese-en 量子回路からゲートを削除する。
-     *
-     * 削除した量子ゲートは解放される。
-     * @param[in] index 削除するゲートの位置
+     * \~japanese-en 回路の末尾のゲートを削除する。
      */
-    virtual void remove_gate(UINT index);
-    /**
-     *  \~japanese-en 量子回路をマージする。
-     *
-     * 引数で与えた量子回路のゲートを後ろに追加していく。
-     * マージされた側の量子回路に変更を加えてもマージした側の量子回路には変更は加わらないことに注意する。
-     * circuit1.add_circuit(circuit2)
-     * circuit2.add_gate(gate) # これをしても、circuit1にgateは追加されない
-     *
-     * @param[in] circuit マージする量子回路
-     */
+    virtual void pop_gate();
+
     virtual void merge_circuit(const QuantumCircuit* circuit) {
         for (auto gate : circuit->gate_list) {
             this->add_gate_copy(gate);
