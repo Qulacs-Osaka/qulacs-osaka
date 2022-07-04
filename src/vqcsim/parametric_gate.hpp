@@ -61,7 +61,7 @@ protected:
     T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
 
     QuantumGate_SingleParameterOneQubitRotation(
-        SingleParameter* parameter, T_ANGLE_FUNC* angle_func = identity_map)
+        SingleParameter* parameter, T_ANGLE_FUNC* angle_func)
         : QuantumGate_SingleParameter(parameter) {
         _angle_func = angle_func;
     }
@@ -113,7 +113,7 @@ public:
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRXGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func = identity_map)
+        decltype(_angle_func) angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRX";
         this->_update_func = RX_gate;
@@ -140,7 +140,7 @@ public:
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRYGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func = identity_map)
+        decltype(_angle_func) angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRY";
         this->_update_func = RY_gate;
@@ -167,7 +167,7 @@ public:
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRZGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func = identity_map)
+        decltype(_angle_func) angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRZ";
         this->_update_func = RZ_gate;
@@ -199,7 +199,7 @@ protected:
 
 public:
     ClsParametricPauliRotationGate(SingleParameter* parameter,
-        PauliOperator* pauli, T_ANGLE_FUNC* angle_func = identity_map)
+        PauliOperator* pauli, T_ANGLE_FUNC* angle_func)
         : QuantumGate_SingleParameter(parameter) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
