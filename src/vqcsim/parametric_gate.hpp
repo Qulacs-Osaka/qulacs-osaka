@@ -67,6 +67,8 @@ protected:
     }
 
 public:
+    T_ANGLE_FUNC* get_angle_func() { return _angle_func; }
+    void set_angle_func(T_ANGLE_FUNC* func) { _angle_func = func; }
     virtual void update_quantum_state(QuantumStateBase* state) override {
         double angle = _angle_func(_parameter->get_parameter_value());
         if (state->is_state_vector()) {
