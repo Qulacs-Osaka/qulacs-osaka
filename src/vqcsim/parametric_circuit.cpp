@@ -17,15 +17,59 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
         new ParametricQuantumCircuit(this->qubit_count);
+    new_circuit->_parameter_list = this->_parameter_list;
+    std::vector<UINT> parameter_indicies(gate_list.size());
+    for (UINT parameter_pos = 0; parameter_pos < this->_parameter_list.size();
+         parameter_pos++) {
+        for (UINT gate_pos :
+            this->_parameter_list[parameter_pos].get_gate_indices()) {
+            parameter_indicies[gate_pos] = parameter_pos;
+        }
+    }
     for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        auto pos = std::find(this->_parametric_gate_position.begin(),
-            this->_parametric_gate_position.end(), gate_pos);
-        bool is_parametric = (pos != this->_parametric_gate_position.end());
-
-        if (is_parametric) {
-            new_circuit->add_parametric_gate(
-                (QuantumGate_SingleParameter*)this->gate_list[gate_pos]
-                    ->copy());
+        auto gate = gate_list[gate_pos];
+        if (gate->is_parametric()) {
+            if (gate->get_name() == "ParametricRX") {
+                auto parametric_rx_gate =
+                    dynamic_cast<ClsParametricRXGate*>(gate);
+                new_circuit->add_parametric_RX_gate(
+                    gate->get_target_index_list()[0],
+                    parameter_indicies[gate_pos],
+                    parametric_rx_gate->get_angle_func());
+            } else if (gate->get_name() == "ParametricRY") {
+                auto parametric_ry_gate =
+                    dynamic_cast<ClsParametricRYGate*>(gate);
+                new_circuit->add_parametric_RY_gate(
+                    gate->get_target_index_list()[0],
+                    parameter_indicies[gate_pos],
+                    parametric_ry_gate->get_angle_func());
+            } else if (gate->get_name() == "ParametricRZ") {
+                auto parametric_rz_gate =
+                    dynamic_cast<ClsParametricRZGate*>(gate);
+                new_circuit->add_parametric_RZ_gate(
+                    gate->get_target_index_list()[0],
+                    parameter_indicies[gate_pos],
+                    parametric_rz_gate->get_angle_func());
+            } else if (gate->get_name() == "ParametricPauliRotation") {
+                auto parametric_multi_pauli_rotation_gate =
+                    dynamic_cast<ClsParametricPauliRotationGate*>(gate);
+                auto pauli =
+                    parametric_multi_pauli_rotation_gate->get_pauli()->copy();
+                new_circuit->add_parametric_multi_Pauli_rotation_gate(
+                    pauli->get_index_list(), pauli->get_pauli_id_list(),
+                    parameter_indicies[gate_pos],
+                    parametric_multi_pauli_rotation_gate->get_angle_func());
+            } else {
+                throw InvalidGateIdentifierException(
+                    "Error: ParametricQuantumCircuit::copy(): Unknown "
+                    "parametric gate name: " +
+                    gate->get_name());
+            }
+            new_circuit->_parametric_gate_list.push_back(
+                dynamic_cast<QuantumGate_SingleParameter*>(
+                    new_circuit->gate_list.back()));
+            new_circuit->_parametric_gate_position.push_back(
+                new_circuit->gate_list.size() - 1);
         } else {
             new_circuit->add_gate(this->gate_list[gate_pos]->copy());
         }
