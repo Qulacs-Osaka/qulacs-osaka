@@ -12,23 +12,23 @@ using namespace std;
 TEST(Backprop, BackpropCircuit) {
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0, 2.2);
-    kairo.add_parametric_RY_gate(1, 0);
+    kairo.add_parametric_RY_gate(1, 0.);
     kairo.add_gate(gate::CNOT(0, 2));
     kairo.add_parametric_RZ_gate(2, 1.4);
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RY_gate(0, 1);
+    kairo.add_parametric_RY_gate(0, 1.);
     kairo.add_gate(gate::CNOT(1, 0));
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RZ_gate(1, -1);
+    kairo.add_parametric_RZ_gate(1, -1.);
     kairo.add_gate(gate::H(0));
     kairo.add_gate(gate::CNOT(2, 0));
-    kairo.add_parametric_RX_gate(2, 1);
+    kairo.add_parametric_RX_gate(2, 1.);
     kairo.add_gate(gate::CNOT(1, 0));
-    kairo.add_parametric_RZ_gate(0, 1);
+    kairo.add_parametric_RZ_gate(0, 1.);
     kairo.add_gate(gate::CNOT(0, 1));
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RX_gate(1, -1);
-    kairo.add_parametric_RY_gate(2, 1);
+    kairo.add_parametric_RX_gate(1, -1.);
+    kairo.add_parametric_RY_gate(2, 1.);
 
     Observable observable(3);
     observable.add_operator(1, "X 0 Z 2");
@@ -49,23 +49,23 @@ TEST(Backprop, BackpropCircuit) {
 TEST(Backprop, BackpropCircuitInpro) {
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0, 2.2);
-    kairo.add_parametric_RY_gate(1, 0);
+    kairo.add_parametric_RY_gate(1, 0.);
     kairo.add_gate(gate::CNOT(0, 2));
     kairo.add_parametric_RZ_gate(2, 1.4);
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RY_gate(0, 1);
+    kairo.add_parametric_RY_gate(0, 1.);
     kairo.add_gate(gate::CNOT(1, 0));
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RZ_gate(1, -1);
+    kairo.add_parametric_RZ_gate(1, -1.);
     kairo.add_gate(gate::H(0));
     kairo.add_gate(gate::CNOT(2, 0));
-    kairo.add_parametric_RX_gate(2, 1);
+    kairo.add_parametric_RX_gate(2, 1.);
     kairo.add_gate(gate::CNOT(1, 0));
-    kairo.add_parametric_RZ_gate(0, 1);
+    kairo.add_parametric_RZ_gate(0, 1.);
     kairo.add_gate(gate::CNOT(0, 1));
     kairo.add_gate(gate::H(1));
-    kairo.add_parametric_RX_gate(1, -1);
-    kairo.add_parametric_RY_gate(2, 1);
+    kairo.add_parametric_RX_gate(1, -1.);
+    kairo.add_parametric_RY_gate(2, 1.);
     //回路に適当にゲートを加える
 
     std::vector<CPPCTYPE> state_hai = {
