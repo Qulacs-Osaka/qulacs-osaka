@@ -91,6 +91,8 @@ bool QuantumCircuitOptimizer::is_neighboring(
 
 void QuantumCircuitOptimizer::optimize(
     QuantumCircuit* circuit_, UINT max_block_size) {
+    // TODO fix
+    /*
     circuit = circuit_;
     bool merged_flag = true;
     while (merged_flag) {
@@ -136,9 +138,12 @@ void QuantumCircuitOptimizer::optimize(
             }
         }
     }
+    */
 }
 
 void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit_) {
+    // TODO fix
+    /*
     circuit = circuit_;
     UINT qubit_count = circuit->qubit_count;
     std::vector<std::pair<int, std::vector<UINT>>> current_step(
@@ -182,6 +187,7 @@ void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit_) {
             }
         }
     }
+    */
 }
 
 QuantumGateMatrix* QuantumCircuitOptimizer::merge_all(
