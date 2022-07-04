@@ -5,6 +5,7 @@
 #include <cppsim/state.hpp>
 
 #include "parametric_gate.hpp"
+#include "utility.hpp"
 
 class DllExport ParametricQuantumCircuit : public QuantumCircuit {
 private:

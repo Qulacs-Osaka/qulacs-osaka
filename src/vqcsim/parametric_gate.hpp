@@ -13,8 +13,6 @@
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-#include "utility.hpp"
-
 class SingleParameter {
 protected:
     double _value;
