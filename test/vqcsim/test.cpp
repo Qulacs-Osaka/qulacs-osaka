@@ -9,6 +9,8 @@
 #include <vqcsim/problem.hpp>
 #include <vqcsim/solver.hpp>
 
+#include "../util/util.hpp"
+
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {
 public:
@@ -90,6 +92,31 @@ TEST(ParametricCircuit, GateApplyDM) {
     // std::cout << state << std::endl;
     // std::cout << circuit << std::endl;
     delete circuit;
+}
+
+TEST(ParametricCircuit, ParametricGatePosition) {
+    auto circuit = ParametricQuantumCircuit(3);
+    circuit.add_parametric_RX_gate(0, 0.);
+    circuit.add_H_gate(0);
+    circuit.add_parametric_RZ_gate(0, 2.);
+    circuit.add_gate_copy(gate::CNOT(0, 1));
+    circuit.add_parametric_RY_gate(1, 1U);
+    circuit.add_gate_copy(gate::X(0), 2);
+    circuit.add_parametric_RZ_gate(1, 0U);
+    circuit.remove_gate(4);
+    circuit.remove_gate(5);
+    circuit.add_parametric_multi_Pauli_rotation_gate({1}, {0}, 3.);
+    circuit.set_parameter(0, 1.);
+
+    // RX(0), H, X, RZ(1), RZ(0), multi(2)
+    ASSERT_EQ(circuit.get_parameter_count(), 3);
+    ASSERT_NEAR(circuit.get_parameter(0), 1., 1e-12);
+    ASSERT_NEAR(circuit.get_parameter(1), 2., 1e-12);
+    ASSERT_NEAR(circuit.get_parameter(2), 3., 1e-12);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 3);
+    ASSERT_EQ(circuit.get_parametric_gate_position(2), 4);
+    ASSERT_EQ(circuit.get_parametric_gate_position(3), 5);
 }
 
 class MyRandomCircuit : public ParametricCircuitBuilder {

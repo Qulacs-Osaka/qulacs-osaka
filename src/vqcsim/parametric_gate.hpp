@@ -26,6 +26,19 @@ public:
     UINT get_parameter_id() const { return _id; }
     std::vector<UINT> get_gate_indices() const { return _gate_indices; }
     void push_gate_index(UINT index) { _gate_indices.push_back(index); }
+    void increment_gate_index(UINT index) {
+        for (UINT& gate_index : _gate_indices) {
+            if (gate_index >= index) gate_index++;
+        }
+    }
+    void remove_gate_index(UINT index) {
+        auto it = std::find(_gate_indices.begin(), _gate_indices.end(), index);
+        if (it != _gate_indices.end()) {
+            for (UINT& gate_index : _gate_indices) {
+                if (gate_index > index) gate_index++;
+            }
+        }
+    }
     void pop_gate_index() {
         if (_gate_indices.empty()) {
             throw GateIndexOutOfRangeException(

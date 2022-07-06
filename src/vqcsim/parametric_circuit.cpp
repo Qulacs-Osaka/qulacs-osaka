@@ -131,11 +131,38 @@ UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
 void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate) {
     QuantumCircuit::add_gate(gate);
 }
+void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate, UINT index) {
+    QuantumCircuit::add_gate(gate, index);
+    for (auto& val : _parametric_gate_position)
+        if (val >= index) val++;
+    for (auto& parameter : _parameter_list) {
+        parameter.increment_gate_index(index);
+    }
+}
 void ParametricQuantumCircuit::add_gate_copy(const QuantumGateBase* gate) {
     QuantumCircuit::add_gate(gate->copy());
 }
+void ParametricQuantumCircuit::add_gate_copy(
+    const QuantumGateBase* gate, UINT index) {
+    ParametricQuantumCircuit::add_gate(gate->copy(), index);
+}
 
-void ParametricQuantumCircuit::pop_gate() { QuantumCircuit::pop_gate(); }
+void ParametricQuantumCircuit::remove_gate(UINT index) {
+    auto ite = std::find(_parametric_gate_position.begin(),
+        _parametric_gate_position.end(), (unsigned int)index);
+    if (ite != _parametric_gate_position.end()) {
+        UINT dist = (UINT)std::distance(_parametric_gate_position.begin(), ite);
+        _parametric_gate_position.erase(
+            _parametric_gate_position.begin() + dist);
+        _parametric_gate_list.erase(_parametric_gate_list.begin() + dist);
+    }
+    QuantumCircuit::remove_gate(index);
+    for (auto& val : _parametric_gate_position)
+        if (val >= index) val--;
+    for (auto& parameter : this->_parameter_list) {
+        parameter.remove_gate_index(index);
+    }
+}
 
 void ParametricQuantumCircuit::add_parametric_RX_gate(
     UINT target_index, double initial_parameter, double (*angle_func)(double)) {
