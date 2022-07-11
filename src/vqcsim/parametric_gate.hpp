@@ -133,7 +133,7 @@ public:
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRXGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func)
+        AngleFunc angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRX";
         this->_update_func = RX_gate;
@@ -160,7 +160,7 @@ public:
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRYGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func)
+        AngleFunc angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRY";
         this->_update_func = RY_gate;
@@ -187,7 +187,7 @@ public:
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
     ClsParametricRZGate(UINT target_qubit_index, SingleParameter* parameter,
-        decltype(_angle_func) angle_func)
+        AngleFunc angle_func)
         : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
         this->_name = "ParametricRZ";
         this->_update_func = RZ_gate;
