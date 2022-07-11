@@ -59,6 +59,11 @@ public:
         : _parameter(parameter) {
         _gate_property |= FLAG_PARAMETRIC;
     }
+    UINT get_parameter_id() { return _parameter->get_parameter_id(); }
+    double get_parameter_value() { return _parameter->get_parameter_value(); }
+    void set_parameter_value(double value) {
+        _parameter->set_parameter_value(value);
+    }
     virtual QuantumGate_SingleParameter* copy() const override = 0;
 };
 
@@ -81,8 +86,11 @@ protected:
 public:
     AngleFunc get_angle_func() { return _angle_func; }
     void set_angle_func(AngleFunc func) { _angle_func = func; }
+    double get_angle_value() {
+        return _angle_func(_parameter->get_parameter_value());
+    }
     virtual void update_quantum_state(QuantumStateBase* state) override {
-        double angle = _angle_func(_parameter->get_parameter_value());
+        double angle = this->get_angle_value();
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -137,7 +145,7 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
     }
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = _angle_func(_parameter->get_parameter_value());
+        double angle = this->get_angle_value();
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2), sin(angle / 2) * 1.i, sin(angle / 2) * 1.i,
             cos(angle / 2);
@@ -164,7 +172,7 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
     }
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = _angle_func(_parameter->get_parameter_value());
+        double angle = this->get_angle_value();
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2), sin(angle / 2), -sin(angle / 2),
             cos(angle / 2);
@@ -191,7 +199,7 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
     }
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = _angle_func(_parameter->get_parameter_value());
+        double angle = this->get_angle_value();
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2) + 1.i * sin(angle / 2), 0, 0,
             cos(angle / 2) - 1.i * sin(angle / 2);
@@ -235,7 +243,7 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
-        double angle = _angle_func(_parameter->get_parameter_value());
+        double angle = this->get_parameter_value();
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -268,8 +276,8 @@ public:
             "cannot be copied");
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = _angle_func(_parameter->get_parameter_value());
-        get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
+        double angle = this->get_parameter_value();
+        this->get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
         matrix = cos(angle / 2) *
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(angle / 2) * matrix;
