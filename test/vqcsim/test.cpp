@@ -130,7 +130,8 @@ class MyRandomCircuit : public ParametricCircuitBuilder {
         for (UINT d = 0; d < depth; ++d) {
             for (UINT i = 0; i < output_dim; ++i) {
                 if (param_index < param_count) {
-                    circuit->add_parametric_RX_gate(1, 0.);
+                    circuit->add_parametric_RX_gate(i, 0.);
+
                     param_index++;
                 } else {
                     circuit->add_gate(gate::RX(i, 0.0));
