@@ -13,6 +13,8 @@
 #include <gpusim/update_ops_cuda.h>
 #endif
 
+using AngleFunc = double (*)(double);
+
 class SingleParameter {
 protected:
     double _value;
@@ -63,23 +65,22 @@ public:
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
 protected:
-    typedef double(T_ANGLE_FUNC)(double);
     typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
     typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    T_ANGLE_FUNC* _angle_func;
+    AngleFunc _angle_func;
     T_UPDATE_FUNC* _update_func = NULL;
     T_UPDATE_FUNC* _update_func_dm = NULL;
     T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
 
     QuantumGate_SingleParameterOneQubitRotation(
-        SingleParameter* parameter, T_ANGLE_FUNC* angle_func)
+        SingleParameter* parameter, AngleFunc angle_func)
         : QuantumGate_SingleParameter(parameter) {
         _angle_func = angle_func;
     }
 
 public:
-    T_ANGLE_FUNC* get_angle_func() { return _angle_func; }
-    void set_angle_func(T_ANGLE_FUNC* func) { _angle_func = func; }
+    AngleFunc get_angle_func() { return _angle_func; }
+    void set_angle_func(AngleFunc func) { _angle_func = func; }
     virtual void update_quantum_state(QuantumStateBase* state) override {
         double angle = _angle_func(_parameter->get_parameter_value());
         if (state->is_state_vector()) {
@@ -205,12 +206,11 @@ public:
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
 protected:
     PauliOperator* _pauli;
-    typedef double(T_ANGLE_FUNC)(double);
-    T_ANGLE_FUNC* _angle_func;
+    AngleFunc _angle_func;
 
 public:
-    ClsParametricPauliRotationGate(SingleParameter* parameter,
-        PauliOperator* pauli, T_ANGLE_FUNC* angle_func)
+    ClsParametricPauliRotationGate(
+        SingleParameter* parameter, PauliOperator* pauli, AngleFunc angle_func)
         : QuantumGate_SingleParameter(parameter) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
@@ -230,8 +230,8 @@ public:
         _angle_func = angle_func;
     }
     virtual ~ClsParametricPauliRotationGate() { delete _pauli; }
-    T_ANGLE_FUNC* get_angle_func() { return _angle_func; }
-    void set_angle_func(T_ANGLE_FUNC* func) { _angle_func = func; }
+    AngleFunc get_angle_func() { return _angle_func; }
+    void set_angle_func(AngleFunc func) { _angle_func = func; }
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
