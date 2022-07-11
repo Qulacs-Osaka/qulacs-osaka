@@ -37,23 +37,23 @@ public:
         std::ostream& os, const ParametricQuantumCircuit* circuit);
 
     virtual void add_parametric_RX_gate_new_parameter(UINT target_index,
-        double initial_parameter, double (*angle_func)(double) = identity_map);
+        double initial_parameter, AngleFunc angle_func = identity_map);
     virtual void add_parametric_RX_gate_share_parameter(UINT target_index,
-        UINT parameter_id, double (*angle_func)(double) = identity_map);
+        UINT parameter_id, AngleFunc angle_func = identity_map);
     virtual void add_parametric_RY_gate_new_parameter(UINT target_index,
-        double initial_parameter, double (*angle_func)(double) = identity_map);
+        double initial_parameter, AngleFunc angle_func = identity_map);
     virtual void add_parametric_RY_gate_share_parameter(UINT target_index,
-        UINT parameter_id, double (*angle_func)(double) = identity_map);
+        UINT parameter_id, AngleFunc angle_func = identity_map);
     virtual void add_parametric_RZ_gate_new_parameter(UINT target_index,
-        double initial_parameter, double (*angle_func)(double) = identity_map);
+        double initial_parameter, AngleFunc angle_func = identity_map);
     virtual void add_parametric_RZ_gate_share_parameter(UINT target_index,
-        UINT parameter_id, double (*angle_func)(double) = identity_map);
+        UINT parameter_id, AngleFunc angle_func = identity_map);
     virtual void add_parametric_multi_Pauli_rotation_gate_new_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        double initial_parameter, double (*angle_func)(double) = identity_map);
+        double initial_parameter, AngleFunc angle_func = identity_map);
     virtual void add_parametric_multi_Pauli_rotation_gate_share_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id, UINT parameter_id,
-        double (*angle_func)(double) = identity_map);
+        AngleFunc angle_func = identity_map);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
 };

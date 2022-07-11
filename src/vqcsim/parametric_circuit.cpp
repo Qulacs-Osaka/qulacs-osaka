@@ -165,7 +165,7 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
 }
 
 void ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter(
-    UINT target_index, double initial_parameter, double (*angle_func)(double)) {
+    UINT target_index, double initial_parameter, AngleFunc angle_func) {
     UINT id = _parameter_list.size();
     UINT gate_index = gate_list.size();
     _parameter_list.push_back(SingleParameter(initial_parameter, id));
@@ -177,7 +177,7 @@ void ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter(
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_RX_gate_share_parameter(
-    UINT target_index, UINT parameter_id, double (*angle_func)(double)) {
+    UINT target_index, UINT parameter_id, AngleFunc angle_func) {
     if (parameter_id >= _parameter_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "ParametricQuantumCircuit::add_parameteric_RX_gate(UINT, UINT): "
@@ -192,7 +192,7 @@ void ParametricQuantumCircuit::add_parametric_RX_gate_share_parameter(
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter(
-    UINT target_index, double initial_parameter, double (*angle_func)(double)) {
+    UINT target_index, double initial_parameter, AngleFunc angle_func) {
     UINT id = _parameter_list.size();
     UINT gate_index = gate_list.size();
     _parameter_list.push_back(SingleParameter(initial_parameter, id));
@@ -204,7 +204,7 @@ void ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter(
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate_share_parameter(
-    UINT target_index, UINT parameter_id, double (*angle_func)(double)) {
+    UINT target_index, UINT parameter_id, AngleFunc angle_func) {
     if (parameter_id >= _parameter_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "ParametricQuantumCircuit::add_parameteric_RY_gate(UINT, UINT): "
@@ -219,7 +219,7 @@ void ParametricQuantumCircuit::add_parametric_RY_gate_share_parameter(
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter(
-    UINT target_index, double initial_parameter, double (*angle_func)(double)) {
+    UINT target_index, double initial_parameter, AngleFunc angle_func) {
     UINT id = _parameter_list.size();
     UINT gate_index = gate_list.size();
     _parameter_list.push_back(SingleParameter(initial_parameter, id));
@@ -231,7 +231,7 @@ void ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter(
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate_share_parameter(
-    UINT target_index, UINT parameter_id, double (*angle_func)(double)) {
+    UINT target_index, UINT parameter_id, AngleFunc angle_func) {
     if (parameter_id >= _parameter_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "ParametricQuantumCircuit::add_parameteric_RZ_gate(UINT, UINT): "
@@ -249,7 +249,7 @@ void ParametricQuantumCircuit::add_parametric_RZ_gate_share_parameter(
 void ParametricQuantumCircuit::
     add_parametric_multi_Pauli_rotation_gate_new_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        double initial_parameter, double (*angle_func)(double)) {
+        double initial_parameter, AngleFunc angle_func) {
     UINT id = _parameter_list.size();
     UINT gate_index = gate_list.size();
     _parameter_list.push_back(SingleParameter(initial_parameter, id));
@@ -273,7 +273,7 @@ void ParametricQuantumCircuit::
 void ParametricQuantumCircuit::
     add_parametric_multi_Pauli_rotation_gate_share_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id, UINT parameter_id,
-        double (*angle_func)(double)) {
+        AngleFunc angle_func) {
     if (parameter_id >= _parameter_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "ParametricQuantumCircuit::add_parameteric_RZ_gate(UINT, UINT): "
