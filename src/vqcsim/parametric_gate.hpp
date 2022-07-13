@@ -13,56 +13,42 @@
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-using AngleFunc = double (*)(double);
-
-class SingleParameter {
-protected:
-    double _value;
-    UINT _id;
-    std::vector<UINT> _gate_indices;
-
-public:
-    SingleParameter(double value, UINT id) : _value(value), _id(id) {}
-    void set_parameter_value(double value) { _value = value; }
-    double get_parameter_value() const { return _value; }
-    UINT get_parameter_id() const { return _id; }
-    std::vector<UINT> get_gate_indices() const { return _gate_indices; }
-    void push_gate_index(UINT index) { _gate_indices.push_back(index); }
-    void increment_gate_index(UINT index) {
-        for (UINT& gate_index : _gate_indices) {
-            if (gate_index >= index) gate_index++;
-        }
-    }
-    void remove_gate_index(UINT index) {
-        auto it = std::find(_gate_indices.begin(), _gate_indices.end(), index);
-        if (it != _gate_indices.end()) {
-            for (UINT& gate_index : _gate_indices) {
-                if (gate_index > index) gate_index++;
-            }
-        }
-    }
-    void pop_gate_index() {
-        if (_gate_indices.empty()) {
-            throw GateIndexOutOfRangeException(
-                "SingleParameter::pop_gate_index(): gate_indices is empty");
-        }
-        _gate_indices.pop_back();
-    }
-};
+using ParameterKey = std::string;
+using ParameterSet = std::map<ParameterKey, double>;
 
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:
-    SingleParameter* _parameter;
+    ParameterKey _parameter_id;
 
 public:
-    QuantumGate_SingleParameter(SingleParameter* parameter)
-        : _parameter(parameter) {
+    QuantumGate_SingleParameter(const ParameterKey& parameter_id)
+        : _parameter_id(parameter_id) {
         _gate_property |= FLAG_PARAMETRIC;
     }
-    UINT get_parameter_id() { return _parameter->get_parameter_id(); }
-    double get_parameter_value() { return _parameter->get_parameter_value(); }
-    void set_parameter_value(double value) {
-        _parameter->set_parameter_value(value);
+    std::string get_parameter_id() { return _parameter_id; }
+    double get_parameter_value(const ParameterSet& parameter_set) const {
+        auto it = parameter_set.find(_parameter_id);
+        if (it != parameter_set.end()) {
+            throw ParameterIdNotFoundException(
+                "Error: QuantumGate_SingleParameter::get_parameter_id("
+                "ParameterKey parameter_id): parameter_id" +
+                _parameter_id + "is not found in parameter_set");
+        }
+        return it->second;
+    }
+    virtual void update_quantum_state(QuantumStateBase* state) override {
+        throw OperateWithoutParameterException(
+            "Error: "
+            "QuantumGate_SingleParameter::update_quantum_state("
+            "QuantumStateBase*): ParametricGate cannot run "
+            "update_quantum_state() without ParameterSet");
+    }
+    virtual void set_matrix(ComplexMatrix& matrix) const override {
+        throw OperateWithoutParameterException(
+            "Error: "
+            "QuantumGate_SingleParameter::set_matrix("
+            "QuantumStateBase*): ParametricGate cannot run "
+            "set_matrix() without ParameterSet");
     }
     virtual QuantumGate_SingleParameter* copy() const override = 0;
 };
@@ -72,25 +58,17 @@ class QuantumGate_SingleParameterOneQubitRotation
 protected:
     typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
     typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    AngleFunc _angle_func;
     T_UPDATE_FUNC* _update_func = NULL;
     T_UPDATE_FUNC* _update_func_dm = NULL;
     T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
 
-    QuantumGate_SingleParameterOneQubitRotation(
-        SingleParameter* parameter, AngleFunc angle_func)
-        : QuantumGate_SingleParameter(parameter) {
-        _angle_func = angle_func;
-    }
-
 public:
-    AngleFunc get_angle_func() { return _angle_func; }
-    void set_angle_func(AngleFunc func) { _angle_func = func; }
-    double get_angle_value() {
-        return _angle_func(_parameter->get_parameter_value());
-    }
-    virtual void update_quantum_state(QuantumStateBase* state) override {
-        double angle = this->get_angle_value();
+    QuantumGate_SingleParameterOneQubitRotation(
+        const ParameterKey& parameter_id)
+        : QuantumGate_SingleParameter(parameter_id) {}
+    virtual void update_quantum_state(
+        QuantumStateBase* state, ParameterSet& parameter_set) {
+        double angle = this->get_parameter_value(parameter_set);
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -132,9 +110,9 @@ public:
 
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRXGate(UINT target_qubit_index, SingleParameter* parameter,
-        AngleFunc angle_func)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
+    ClsParametricRXGate(
+        UINT target_qubit_index, const ParameterKey& parameter_id)
+        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
         this->_name = "ParametricRX";
         this->_update_func = RX_gate;
         this->_update_func_dm = dm_RX_gate;
@@ -144,24 +122,23 @@ public:
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
     }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = this->get_angle_value();
+    virtual void set_matrix(
+        ComplexMatrix& matrix, const ParameterSet& parameter_set) const {
+        double angle = this->get_parameter_value(parameter_set);
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2), sin(angle / 2) * 1.i, sin(angle / 2) * 1.i,
             cos(angle / 2);
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        throw NotImplementedException(
-            "Error: ClsParametricRXGate::copy(): ParametricGate "
-            "cannot be copied");
+        return new ClsParametricRXGate(*this);
     };
 };
 
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRYGate(UINT target_qubit_index, SingleParameter* parameter,
-        AngleFunc angle_func)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
+    ClsParametricRYGate(
+        UINT target_qubit_index, const ParameterKey& parameter_id)
+        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
         this->_name = "ParametricRY";
         this->_update_func = RY_gate;
         this->_update_func_dm = dm_RY_gate;
@@ -171,24 +148,23 @@ public:
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
     }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = this->get_angle_value();
+    virtual void set_matrix(
+        ComplexMatrix& matrix, const ParameterSet& parameter_set) const {
+        double angle = this->get_parameter_value(parameter_set);
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2), sin(angle / 2), -sin(angle / 2),
             cos(angle / 2);
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        throw NotImplementedException(
-            "Error: ClsParametricRYGate::copy(): ParametricGate "
-            "cannot be copied");
+        return new ClsParametricRYGate(*this);
     };
 };
 
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRZGate(UINT target_qubit_index, SingleParameter* parameter,
-        AngleFunc angle_func)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter, angle_func) {
+    ClsParametricRZGate(
+        UINT target_qubit_index, const ParameterKey& parameter_id)
+        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
         this->_name = "ParametricRZ";
         this->_update_func = RZ_gate;
         this->_update_func_dm = dm_RZ_gate;
@@ -198,28 +174,26 @@ public:
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
     }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = this->get_angle_value();
+    virtual void set_matrix(
+        ComplexMatrix& matrix, const ParameterSet& parameter_set) const {
+        double angle = this->get_parameter_value(parameter_set);
         matrix = ComplexMatrix::Zero(2, 2);
         matrix << cos(angle / 2) + 1.i * sin(angle / 2), 0, 0,
             cos(angle / 2) - 1.i * sin(angle / 2);
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        throw NotImplementedException(
-            "Error: ClsParametricRZGate::copy(): ParametricGate "
-            "cannot be copied");
+        return new ClsParametricRZGate(*this);
     };
 };
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
 protected:
     PauliOperator* _pauli;
-    AngleFunc _angle_func;
 
 public:
     ClsParametricPauliRotationGate(
-        SingleParameter* parameter, PauliOperator* pauli, AngleFunc angle_func)
-        : QuantumGate_SingleParameter(parameter) {
+        PauliOperator* pauli, const ParameterKey& parameter_id)
+        : QuantumGate_SingleParameter(parameter_id) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
         auto target_index_list = _pauli->get_index_list();
@@ -235,15 +209,13 @@ public:
             this->_target_qubit_list.push_back(TargetQubitInfo(
                 target_index_list[index], commutation_relation));
         }
-        _angle_func = angle_func;
     }
     virtual ~ClsParametricPauliRotationGate() { delete _pauli; }
-    AngleFunc get_angle_func() { return _angle_func; }
-    void set_angle_func(AngleFunc func) { _angle_func = func; }
-    virtual void update_quantum_state(QuantumStateBase* state) override {
+    virtual void update_quantum_state(
+        QuantumStateBase* state, const ParameterSet& parameter_set) {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
-        double angle = this->get_parameter_value();
+        double angle = this->get_parameter_value(parameter_set);
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -271,13 +243,13 @@ public:
         }
     };
     virtual QuantumGate_SingleParameter* copy() const override {
-        throw NotImplementedException(
-            "Error: ClsParametricPauliRotationGate::copy(): ParametricGate "
-            "cannot be copied");
+        return new ClsParametricPauliRotationGate(
+            _pauli->copy(), _parameter_id);
     };
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        double angle = this->get_parameter_value();
-        this->get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
+    virtual void set_matrix(
+        ComplexMatrix& matrix, const ParameterSet& parameter_set) const {
+        double angle = this->get_parameter_value(parameter_set);
+        get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
         matrix = cos(angle / 2) *
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(angle / 2) * matrix;

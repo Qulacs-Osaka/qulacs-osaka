@@ -177,6 +177,36 @@ public:
 };
 
 /**
+ * \~japanese-en ParametricCircuitのParameterSetのキーが存在しないという例外
+ */
+class ParameterIdNotFoundException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdNotFoundException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en
+ * ParametricGateに対するupdate_quantum_state()やset_matrix()をParameterSetなしで呼んだという例外
+ *
+ */
+class OperateWithoutParameterException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    OperateWithoutParameterException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en ParametricGateのupdate_funcが定義されていないという例外
  */
 class UndefinedUpdateFuncException : public std::logic_error {
