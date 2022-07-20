@@ -142,11 +142,6 @@ std::ostream& operator<<(
 
 UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr
-            << "Error: "
-               "ParametricQuantumCircuit::get_parametric_gate_position(UINT):"
-               " parameter index is out of range"
-            << std::endl;
         throw GateIndexOutOfRangeException(
             "Error: "
             "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
