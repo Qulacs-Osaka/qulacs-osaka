@@ -192,6 +192,21 @@ public:
 
 /**
  * \~japanese-en
+ * ParametricCircuitのParameterSetの作ろうとしたキーがすでに存在するという例外
+ */
+class ParameterIdDuplicatedException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdDuplicatedException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en
  * ParametricGateに対するupdate_quantum_state()やset_matrix()をParameterSetなしで呼んだという例外
  *
  */
@@ -274,20 +289,6 @@ public:
      * @param message エラーメッセージ
      */
     GateIndexOutOfRangeException(const std::string& message)
-        : std::out_of_range(message) {}
-};
-
-/**
- * \~japanese-en ParametricCircuitのパラメータのインデックスが範囲外という例外
- */
-class ParameterIndexOutOfRangeException : public std::out_of_range {
-public:
-    /**
-     * \~japanese-en コンストラクタ
-     *
-     * @param message エラーメッセージ
-     */
-    ParameterIndexOutOfRangeException(const std::string& message)
         : std::out_of_range(message) {}
 };
 

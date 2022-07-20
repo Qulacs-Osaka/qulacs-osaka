@@ -36,14 +36,14 @@ public:
         }
         return it->second;
     }
-    virtual void update_quantum_state(QuantumStateBase* state) override {
+    virtual void update_quantum_state(QuantumStateBase*) override {
         throw OperateWithoutParameterException(
             "Error: "
             "QuantumGate_SingleParameter::update_quantum_state("
             "QuantumStateBase*): ParametricGate cannot run "
             "update_quantum_state() without ParameterSet");
     }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
+    virtual void set_matrix(ComplexMatrix&) const override {
         throw OperateWithoutParameterException(
             "Error: "
             "QuantumGate_SingleParameter::set_matrix("

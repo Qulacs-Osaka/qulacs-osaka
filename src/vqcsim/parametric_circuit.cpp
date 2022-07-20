@@ -77,14 +77,20 @@ std::vector<ParameterKey> ParametricQuantumCircuit::get_parameter_id_list()
 void ParametricQuantumCircuit::create_parameter(
     const ParameterKey& parameter_id, double initial_parameter) {
     if (_parameter_set.count(parameter_id) > 0) {
-        // TODO exception
+        throw ParameterIdDuplicatedException(
+            "Error: ParametricQuantumCircuit::create_parameter(ParameterKey&): "
+            "parameter_id \"" +
+            parameter_id + "\" already exists");
     }
     _parameter_set[parameter_id] = initial_parameter;
 }
 void ParametricQuantumCircuit::remove_parameter(
     const ParameterKey& parameter_id) {
-    if (_parameter_set.count(parameter_id) > 0) {
-        // TODO exception
+    if (_parameter_set.count(parameter_id) == 0) {
+        throw ParameterIdNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(ParameterKey&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
     }
     _parameter_set.erase(parameter_id);
 }
@@ -96,22 +102,20 @@ double ParametricQuantumCircuit::get_parameter(
     const ParameterKey& parameter_id) const {
     auto it = _parameter_set.find(parameter_id);
     if (it == _parameter_set.end()) {
-        // TODO exception
-        std::cerr << "Error: ParametricQuantumCircuit::get_parameter(UINT): "
-                     "parameter index is out of range"
-                  << std::endl;
-        return 0.;
+        throw ParameterIdNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(ParameterKey&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
     }
     return it->second;
 }
 void ParametricQuantumCircuit::set_parameter(
     const ParameterKey& parameter_id, double value) {
     if (_parameter_set.count(parameter_id) == 0) {
-        // TODO exception
-        std::cerr
-            << "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
-               "parameter index is out of range"
-            << std::endl;
+        throw ParameterIdNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(ParameterKey&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
         return;
     }
     _parameter_set[parameter_id] = value;
@@ -143,7 +147,10 @@ UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
                "ParametricQuantumCircuit::get_parametric_gate_position(UINT):"
                " parameter index is out of range"
             << std::endl;
-        return 0;
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
+            "index is out of range");
     }
 
     return _parametric_gate_position[index];
