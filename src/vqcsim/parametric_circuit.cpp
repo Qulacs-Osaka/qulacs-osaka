@@ -71,7 +71,7 @@ std::vector<ParameterKey> ParametricQuantumCircuit::get_parameter_id_list()
     std::vector<ParameterKey> keys;
     keys.reserve(_parameter_set.size());
     std::transform(_parameter_set.begin(), _parameter_set.end(),
-        std::back_inserter(keys), [](auto pair) { return pair.first; });
+        std::back_inserter(keys), [](auto& pair) { return pair.first; });
     return keys;
 }
 void ParametricQuantumCircuit::create_parameter(
