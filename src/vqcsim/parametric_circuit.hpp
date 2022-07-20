@@ -14,6 +14,10 @@ private:
     std::vector<UINT> _parametric_gate_position;
     ParameterSet _parameter_set;
 
+    virtual ParameterKey _generate_old_parameter_id(UINT index) const {
+        return "index_" + std::to_string(index);
+    }
+
 public:
     ParametricQuantumCircuit(UINT qubit_count);
 
@@ -68,4 +72,17 @@ public:
         ParameterKey& parameter_id);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
+
+    // 互換性のために残す旧メソッド(パラメータのIDとして整数値を利用)
+    virtual double get_parameter(UINT index) const;
+    virtual void set_parameter(UINT index, double value);
+    virtual void add_parametric_RX_gate(
+        UINT target_index, double initial_angle);
+    virtual void add_parametric_RY_gate(
+        UINT target_index, double initial_angle);
+    virtual void add_parametric_RZ_gate(
+        UINT target_index, double initial_angle);
+    virtual void add_parametric_multi_Pauli_rotation_gate(
+        std::vector<UINT> target, std::vector<UINT> pauli_id,
+        double initial_angle);
 };
