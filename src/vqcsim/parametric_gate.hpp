@@ -19,13 +19,16 @@ using ParameterSet = std::map<ParameterKey, double>;
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:
     ParameterKey _parameter_id;
+    double _parameter_coef;
 
 public:
-    QuantumGate_SingleParameter(const ParameterKey& parameter_id)
-        : _parameter_id(parameter_id) {
+    QuantumGate_SingleParameter(
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : _parameter_id(parameter_id), _parameter_coef(parameter_coef) {
         _gate_property |= FLAG_PARAMETRIC;
     }
     std::string get_parameter_id() { return _parameter_id; }
+    double get_parameter_coef() { return _parameter_coef; }
     double get_parameter_value(const ParameterSet& parameter_set) const {
         auto it = parameter_set.find(_parameter_id);
         if (it != parameter_set.end()) {
@@ -34,7 +37,7 @@ public:
                 "ParameterKey parameter_id): parameter_id" +
                 _parameter_id + "is not found in parameter_set");
         }
-        return it->second;
+        return it->second * _parameter_coef;
     }
     virtual void update_quantum_state(QuantumStateBase*) override {
         throw OperateWithoutParameterException(
@@ -64,8 +67,8 @@ protected:
 
 public:
     QuantumGate_SingleParameterOneQubitRotation(
-        const ParameterKey& parameter_id)
-        : QuantumGate_SingleParameter(parameter_id) {}
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameter(parameter_id, parameter_coef) {}
     virtual void update_quantum_state(
         QuantumStateBase* state, ParameterSet& parameter_set) {
         double angle = this->get_parameter_value(parameter_set);
@@ -110,9 +113,10 @@ public:
 
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRXGate(
-        UINT target_qubit_index, const ParameterKey& parameter_id)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
+    ClsParametricRXGate(UINT target_qubit_index,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameterOneQubitRotation(
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRX";
         this->_update_func = RX_gate;
         this->_update_func_dm = dm_RX_gate;
@@ -136,9 +140,10 @@ public:
 
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRYGate(
-        UINT target_qubit_index, const ParameterKey& parameter_id)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
+    ClsParametricRYGate(UINT target_qubit_index,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameterOneQubitRotation(
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRY";
         this->_update_func = RY_gate;
         this->_update_func_dm = dm_RY_gate;
@@ -162,9 +167,10 @@ public:
 
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRZGate(
-        UINT target_qubit_index, const ParameterKey& parameter_id)
-        : QuantumGate_SingleParameterOneQubitRotation(parameter_id) {
+    ClsParametricRZGate(UINT target_qubit_index,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameterOneQubitRotation(
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRZ";
         this->_update_func = RZ_gate;
         this->_update_func_dm = dm_RZ_gate;
@@ -191,9 +197,9 @@ protected:
     PauliOperator* _pauli;
 
 public:
-    ClsParametricPauliRotationGate(
-        PauliOperator* pauli, const ParameterKey& parameter_id)
-        : QuantumGate_SingleParameter(parameter_id) {
+    ClsParametricPauliRotationGate(PauliOperator* pauli,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameter(parameter_id, parameter_coef) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
         auto target_index_list = _pauli->get_index_list();

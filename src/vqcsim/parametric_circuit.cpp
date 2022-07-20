@@ -183,47 +183,57 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
 }
 
 void ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter(
-    UINT target_index, ParameterKey& parameter_id, double initial_parameter) {
+    UINT target_index, ParameterKey& parameter_id, double initial_parameter,
+    double parameter_coef) {
     this->create_parameter(parameter_id, initial_parameter);
-    this->add_parametric_gate(gate::ParametricRX(target_index, parameter_id));
+    this->add_parametric_gate(
+        gate::ParametricRX(target_index, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::add_parametric_RX_gate_share_parameter(
-    UINT target_index, ParameterKey& parameter_id) {
-    this->add_parametric_gate(gate::ParametricRX(target_index, parameter_id));
+    UINT target_index, ParameterKey& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(
+        gate::ParametricRX(target_index, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter(
-    UINT target_index, ParameterKey& parameter_id, double initial_parameter) {
+    UINT target_index, ParameterKey& parameter_id, double initial_parameter,
+    double parameter_coef) {
     this->create_parameter(parameter_id, initial_parameter);
-    this->add_parametric_gate(gate::ParametricRY(target_index, parameter_id));
+    this->add_parametric_gate(
+        gate::ParametricRY(target_index, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate_share_parameter(
-    UINT target_index, ParameterKey& parameter_id) {
-    this->add_parametric_gate(gate::ParametricRY(target_index, parameter_id));
+    UINT target_index, ParameterKey& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(
+        gate::ParametricRY(target_index, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter(
-    UINT target_index, ParameterKey& parameter_id, double initial_parameter) {
+    UINT target_index, ParameterKey& parameter_id, double initial_parameter,
+    double parameter_coef) {
     this->create_parameter(parameter_id, initial_parameter);
-    this->add_parametric_gate(gate::ParametricRZ(target_index, parameter_id));
+    this->add_parametric_gate(
+        gate::ParametricRZ(target_index, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate_share_parameter(
-    UINT target_index, ParameterKey& parameter_id) {
-    this->add_parametric_gate(gate::ParametricRZ(target_index, parameter_id));
+    UINT target_index, ParameterKey& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(
+        gate::ParametricRZ(target_index, parameter_id, parameter_coef));
 }
 
 void ParametricQuantumCircuit::
     add_parametric_multi_Pauli_rotation_gate_new_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        ParameterKey& parameter_id, double initial_angle) {
+        ParameterKey& parameter_id, double initial_angle,
+        double parameter_coef) {
     this->create_parameter(parameter_id, initial_angle);
-    this->add_parametric_gate(
-        gate::ParametricPauliRotation(target, pauli_id, parameter_id));
+    this->add_parametric_gate(gate::ParametricPauliRotation(
+        target, pauli_id, parameter_id, parameter_coef));
 }
 void ParametricQuantumCircuit::
     add_parametric_multi_Pauli_rotation_gate_share_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        ParameterKey& parameter_id) {
-    this->add_parametric_gate(
-        gate::ParametricPauliRotation(target, pauli_id, parameter_id));
+        ParameterKey& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(gate::ParametricPauliRotation(
+        target, pauli_id, parameter_id, parameter_coef));
 }
 
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(

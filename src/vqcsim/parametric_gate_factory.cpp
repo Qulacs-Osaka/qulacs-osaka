@@ -15,20 +15,24 @@
 #include "parametric_gate.hpp"
 
 namespace gate {
-QuantumGate_SingleParameter* ParametricRX(
-    UINT target_qubit_index, const ParameterKey& parameter_id) {
-    return new ClsParametricRXGate(target_qubit_index, parameter_id);
+QuantumGate_SingleParameter* ParametricRX(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRXGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
-QuantumGate_SingleParameter* ParametricRY(
-    UINT target_qubit_index, const ParameterKey& parameter_id) {
-    return new ClsParametricRYGate(target_qubit_index, parameter_id);
+QuantumGate_SingleParameter* ParametricRY(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRYGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
-QuantumGate_SingleParameter* ParametricRZ(
-    UINT target_qubit_index, const ParameterKey& parameter_id) {
-    return new ClsParametricRZGate(target_qubit_index, parameter_id);
+QuantumGate_SingleParameter* ParametricRZ(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRZGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
 QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
-    std::vector<UINT> pauli_id, const ParameterKey& parameter_id) {
+    std::vector<UINT> pauli_id, const ParameterKey& parameter_id,
+    double parameter_coef) {
     if (!check_is_unique_index_list(target)) {
         throw DuplicatedQubitIndexException(
             "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
@@ -38,7 +42,8 @@ QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
             "but it changed to throw exception.");
     }
     auto pauli = new PauliOperator(target, pauli_id, 0.);
-    return new ClsParametricPauliRotationGate(pauli, parameter_id);
+    return new ClsParametricPauliRotationGate(
+        pauli, parameter_id, parameter_coef);
 }
 
 QuantumGateBase* create_parametric_quantum_gate_from_string(
