@@ -13,6 +13,7 @@ private:
     std::vector<QuantumGate_SingleParameter*> _parametric_gate_list;
     std::vector<UINT> _parametric_gate_position;
     ParameterSet _parameter_set;
+    UINT _next_parameter_index = 0;
 
     virtual ParameterKey _generate_old_parameter_id(UINT index) const {
         return "index_" + std::to_string(index);
