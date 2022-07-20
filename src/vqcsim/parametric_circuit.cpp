@@ -63,6 +63,7 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
     _parametric_gate_list.push_back(copied_gate);
 }
 UINT ParametricQuantumCircuit::get_parameter_count() const {
+    // 意味上おかしいが互換性維持の点ではこう
     return (UINT)_parametric_gate_list.size();
 }
 std::vector<ParameterKey> ParametricQuantumCircuit::get_parameter_id_list()
