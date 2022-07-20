@@ -13,8 +13,8 @@
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-using ParameterKey = std::string;
-using ParameterSet = std::map<ParameterKey, double>;
+typedef std::string ParameterKey;
+typedef std::map<ParameterKey, double> ParameterSet;
 
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:

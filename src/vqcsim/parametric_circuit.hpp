@@ -3,6 +3,9 @@
 #include <cppsim/circuit.hpp>
 #include <cppsim/observable.hpp>
 #include <cppsim/state.hpp>
+
+#include "parametric_gate.hpp"
+
 class QuantumGate_SingleParameter;
 
 class DllExport ParametricQuantumCircuit : public QuantumCircuit {
@@ -27,9 +30,9 @@ public:
     virtual void create_parameter(
         const ParameterKey& parameter_id, double initial_parameter);
     virtual void remove_parameter(const ParameterKey& parameter_id);
-    virtual void contains_parameter(const ParameterKey& parameter_id) const;
+    bool contains_parameter(const ParameterKey& parameter_id) const;
     virtual double get_parameter(const ParameterKey& parameter_id) const;
-    virtual void set_parameter(const ParameterKey& parameter_id);
+    virtual void set_parameter(const ParameterKey& parameter_id, double value);
 
     virtual UINT get_parametric_gate_position(UINT index) const;
     virtual void add_gate(QuantumGateBase* gate) override;
