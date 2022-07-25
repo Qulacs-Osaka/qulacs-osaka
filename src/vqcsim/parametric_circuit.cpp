@@ -65,7 +65,7 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumCircuit::add_gate(copied_gate, index);
     _parametric_gate_list.push_back(copied_gate);
 }
-UINT ParametricQuantumCircuit::get_parameter_key_count() const {
+UINT ParametricQuantumCircuit::get_parameter_id_count() const {
     return (UINT)_parameter_set.size();
 }
 UINT ParametricQuantumCircuit::get_parameteric_gate_count() const {
@@ -141,7 +141,7 @@ std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
     os << QuantumCircuit::to_string();
     os << "*** Parameter Info ***" << std::endl;
-    os << "# of parameter: " << this->get_parameter_key_count() << std::endl;
+    os << "# of parameter: " << this->get_parameter_id_count() << std::endl;
     return os.str();
 }
 
