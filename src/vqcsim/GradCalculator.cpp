@@ -6,30 +6,52 @@
 #include "causalcone_simulator.hpp"
 
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
-    ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
+    ParametricQuantumCircuit& x, Observable& obs,
+    const ParameterSet& parameter_set) {
     ParametricQuantumCircuit* x_copy = x.copy();
+    std::vector<ParameterKey> parameter_id_list = x.get_parameter_id_list();
 
     std::vector<std::complex<double>> grad;
-    for (UINT i = 0; i < x.get_parameter_count(); ++i) {
+    for (ParameterKey& i : parameter_id_list) {
         std::complex<double> y, z;
         {
-            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
+            for (ParameterKey& q : parameter_id_list) {
                 double diff = 0;
                 if (i == q) {
                     diff = M_PI_2;
                 }
-                x_copy->set_parameter(q, theta[q] + diff);
+                auto parameter_it = parameter_set.find(q);
+                if (parameter_it == parameter_set.end()) {
+                    throw ParameterIdNotFoundException(
+                        "Error: "
+                        "GradCalculator::calculate_grad("
+                        "ParametricQuantumCircuit&, Observable&, ParameterSet, "
+                        "const ParameterSet&): given parameter_set does not "
+                        "contain a parameter: " +
+                        q);
+                }
+                x_copy->set_parameter(q, parameter_it->second + diff);
             }
             CausalConeSimulator hoge(*x_copy, obs);
             y = hoge.get_expectation_value();
         }
         {
-            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
+            for (ParameterKey& q : parameter_id_list) {
                 double diff = 0;
                 if (i == q) {
                     diff = M_PI_2;
                 }
-                x_copy->set_parameter(q, theta[q] - diff);
+                auto parameter_it = parameter_set.find(q);
+                if (parameter_it == parameter_set.end()) {
+                    throw ParameterIdNotFoundException(
+                        "Error: "
+                        "GradCalculator::calculate_grad("
+                        "ParametricQuantumCircuit&, Observable&, ParameterSet, "
+                        "const ParameterSet&): given parameter_set does not "
+                        "contain a parameter: " +
+                        q);
+                }
+                x_copy->set_parameter(q, parameter_it->second - diff);
             }
             CausalConeSimulator hoge(*x_copy, obs);
             z = hoge.get_expectation_value();
@@ -41,10 +63,15 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
 };
 
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
-    ParametricQuantumCircuit& x, Observable& obs) {
-    std::vector<double> initial_parameter;
-    for (UINT i = 0; i < x.get_parameter_count(); ++i) {
-        initial_parameter.push_back(x.get_parameter(i));
+    ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
+    ParameterSet parameter_set;
+    for (UINT i = 0; i < theta.size(); ++i) {
+        parameter_set[x.generate_parameter_id_from_index(i)] = theta[i];
     }
-    return calculate_grad(x, obs, initial_parameter);
+    calculate_grad(x, obs, parameter_set);
+};
+
+std::vector<std::complex<double>> GradCalculator::calculate_grad(
+    ParametricQuantumCircuit& x, Observable& obs) {
+    return calculate_grad(x, obs, x.get_parameter_set());
 };
