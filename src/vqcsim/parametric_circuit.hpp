@@ -57,27 +57,27 @@ public:
         std::ostream& os, const ParametricQuantumCircuit* circuit);
 
     virtual void add_parametric_RX_gate_new_parameter(UINT target_index,
-        ParameterKey& parameter_id, double initial_parameter,
+        const ParameterKey& parameter_id, double initial_parameter,
         double parameter_coef = 1.);
     virtual void add_parametric_RX_gate_share_parameter(UINT target_index,
-        ParameterKey& parameter_id, double parameter_coef = 1.);
+        const ParameterKey& parameter_id, double parameter_coef = 1.);
     virtual void add_parametric_RY_gate_new_parameter(UINT target_index,
-        ParameterKey& parameter_id, double initial_parameter,
+        const ParameterKey& parameter_id, double initial_parameter,
         double parameter_coef = 1.);
     virtual void add_parametric_RY_gate_share_parameter(UINT target_index,
-        ParameterKey& parameter_id, double parameter_coef = 1.);
+        const ParameterKey& parameter_id, double parameter_coef = 1.);
     virtual void add_parametric_RZ_gate_new_parameter(UINT target_index,
-        ParameterKey& parameter_id, double initial_parameter,
+        const ParameterKey& parameter_id, double initial_parameter,
         double parameter_coef = 1.);
     virtual void add_parametric_RZ_gate_share_parameter(UINT target_index,
-        ParameterKey& parameter_id, double parameter_coef = 1.);
+        const ParameterKey& parameter_id, double parameter_coef = 1.);
     virtual void add_parametric_multi_Pauli_rotation_gate_new_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        ParameterKey& parameter_id, double initial_parameter,
+        const ParameterKey& parameter_id, double initial_parameter,
         double parameter_coef = 1.);
     virtual void add_parametric_multi_Pauli_rotation_gate_share_parameter(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
-        ParameterKey& parameter_id, double parameter_coef = 1.);
+        const ParameterKey& parameter_id, double parameter_coef = 1.);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
 
