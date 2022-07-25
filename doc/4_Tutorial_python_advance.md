@@ -3,7 +3,7 @@
 この章は量子情報の用語をある程度知っていたり、数値計算のための細かなチューニングをしたい人のための解説です。用語の詳細についてはM.A.Nielsenらによる教科書Quantum Computation and Quantum Information、または[量子情報科学入門](https://www.kyoritsu-pub.co.jp/bookdetail/9784320122994)などを参照してください。
 
 ## QuantumStateクラス
-complex128の精度で\f$2^n\f$個の複素配列をCPU/GPU上に確保し管理するクラスです。状態ベクトルの移動や変換の他、状態に関する情報の計算や変形をサポートします。
+complex128の精度で$2^n$個の複素配列をCPU/GPU上に確保し管理するクラスです。状態ベクトルの移動や変換の他、状態に関する情報の計算や変形をサポートします。
 
 ### 生成と破棄
 インスタンス生成時に必要なメモリが確保されます。メモリはpythonがインスタンスを破棄した段階で解放されますが、メモリ解放のために明示的に破棄したい場合は<code>del</code>で解放できます。<code>\_\_repr\_\_</code>関数のオーバーライドにより状態ベクトルのフォーマットされた表示を提供します。
@@ -332,7 +332,7 @@ print(gate.get_matrix())
  [[0.99875026+0.j         0.        +0.04997917j]
  [0.        +0.04997917j 0.99875026+0.j        ]]
  ```
-回転操作の定義は\f$R_X(\theta) = \exp(i\frac{\theta}{2} X)\f$です。
+回転操作の定義は$R_X(\theta) = \exp(irac{\theta}{2} X)$です。
 
 #### IBMQの基底ゲート
 IBMQのOpenQASMで定義されている、virtual-Z分解に基づくゲートです。
@@ -357,9 +357,9 @@ print(U3(0, 0.1, 0.2, 0.3))
 ```
 定義はそれぞれ
 
-- \f$U_1(\lambda) = R_Z(\lambda)\f$
-- \f$U_2(\phi, \lambda) = R_Z(\phi+\frac{\pi}{2}) R_X(\frac{\pi}{2}) R_Z(\lambda-\frac{\pi}{2})\f$
-- \f$U_3(\theta, \phi, \lambda) = R_Z(\phi+3\pi) R_X(\pi/2) R_Z(\theta+\pi) R_X(\pi/2) R_Z(\lambda)\f$
+- $U_1(\lambda) = R_Z(\lambda)$
+- $U_2(\phi, \lambda) = R_Z(\phi+rac{\pi}{2}) R_X(rac{\pi}{2}) R_Z(\lambda-rac{\pi}{2})$
+- $U_3(\theta, \phi, \lambda) = R_Z(\phi+3\pi) R_X(\pi/2) R_Z(\theta+\pi) R_X(\pi/2) R_Z(\lambda)$
 
 になります。U3は任意の1qubitユニタリ操作の自由度と一致します。
 
@@ -450,7 +450,7 @@ print(gate.get_matrix().shape)
  ```
 
 #### 可逆回路
-\f$2^n\f$個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。全単射でない場合正常に動作しないため注意してください。
+$2^n$個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。全単射でない場合正常に動作しないため注意してください。
 ```python
 from qulacs.gate import ReversibleBoolean
 def upper(val, dim):
@@ -680,7 +680,7 @@ print(x_and_ry_gate)
 ```
 
 #### ゲートの和
-複数のゲートの和を取り、新たなゲートを作ることが出来ます。例えばパウリ演算子\f$P\f$に対して\f$(I+P)/2\f$といった+1固有値空間への射影を作るときに便利です。
+複数のゲートの和を取り、新たなゲートを作ることが出来ます。例えばパウリ演算子$P$に対して$(I+P)/2$といった+1固有値空間への射影を作るときに便利です。
 ```python
 import numpy as np
 from qulacs.gate import P0,P1,add, merge, Identity, X, Z
