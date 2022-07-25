@@ -15,22 +15,23 @@ private:
     ParameterSet _parameter_set;
     UINT _next_parameter_index = 0;
 
-    virtual ParameterKey _generate_old_parameter_id(UINT index) const {
-        return "index_" + std::to_string(index);
-    }
-
 public:
     ParametricQuantumCircuit(UINT qubit_count);
+    ParametricQuantumCircuit(
+        UINT qubit_count, const ParameterSet& parameter_set);
 
     ParametricQuantumCircuit* copy() const;
 
+    virtual ParameterKey generate_parameter_id_from_index(UINT index) const;
     virtual void add_parametric_gate(QuantumGate_SingleParameter* gate);
     virtual void add_parametric_gate(
         QuantumGate_SingleParameter* gate, UINT index);
     virtual void add_parametric_gate_copy(QuantumGate_SingleParameter* gate);
     virtual void add_parametric_gate_copy(
         QuantumGate_SingleParameter* gate, UINT index);
-    virtual UINT get_parameter_count() const;
+    virtual std::vector<ParameterKey> get_parameter_key_list() const;
+    virtual UINT get_parameter_key_count() const;
+    virtual UINT get_parameteric_gate_count() const;
     virtual std::vector<ParameterKey> get_parameter_id_list() const;
     virtual void create_parameter(
         const ParameterKey& parameter_id, double initial_parameter);
@@ -38,6 +39,8 @@ public:
     bool contains_parameter(const ParameterKey& parameter_id) const;
     virtual double get_parameter(const ParameterKey& parameter_id) const;
     virtual void set_parameter(const ParameterKey& parameter_id, double value);
+    virtual ParameterSet get_parameter_set() const;
+    virtual void set_parameter_set(const ParameterSet& parameter_set);
 
     virtual UINT get_parametric_gate_position(UINT index) const;
     virtual void add_gate(QuantumGateBase* gate) override;
