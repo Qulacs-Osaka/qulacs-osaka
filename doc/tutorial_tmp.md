@@ -1,5 +1,6 @@
 このドキュメントはチュートリアル作成のための情報をまとめるために置いてます。プルリクを送る前に削除する予定です。
 ## 一覧
+`qulacs-osaka`の[cppsim_wrapper.cpp](../python/cppsim_wrapper.cpp)、`qulacs`の[cppsim_wrapper.cpp](https://github.com/qulacs/qulacs/blob/master/python/cppsim_wrapper.cpp)、[python教材](3_Tutorial_python_first.md)、[Python教材上級](4_Tutorial_python_advance.md)をもとに、qulacsとqulacs-osakaに含まれるクラス、関数などや、それがどの教材に書かれているかをまとめました。
 ```
 o : qulacs qulacs-osaka両方
 + : qulacs-osakaのみ
@@ -9,6 +10,11 @@ o : qulacs qulacs-osaka両方
 1 : Python教材
 2 : 上級編
 ```
+あまり書き方に統一性はないですが、
+**サブモジュール名**
+- (情報) メンバ・メソッド・関数名
+
+のように記述し、同名のものがあれば引数名などを書き加えました。
 ### PauliOperator
 - o0 init(coef)
 - o2 init(pauli_string, coef)
