@@ -31,7 +31,7 @@ public:
         QuantumGate_SingleParameter* gate, UINT index);
     virtual std::vector<ParameterKey> get_parameter_key_list() const;
     virtual UINT get_parameter_id_count() const;
-    virtual UINT get_parameteric_gate_count() const;
+    virtual UINT get_parametric_gate_count() const;
     virtual std::vector<ParameterKey> get_parameter_id_list() const;
     virtual void create_parameter(
         const ParameterKey& parameter_id, double initial_parameter);

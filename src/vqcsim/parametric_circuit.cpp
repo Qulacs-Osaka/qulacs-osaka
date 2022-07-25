@@ -66,7 +66,7 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
 UINT ParametricQuantumCircuit::get_parameter_id_count() const {
     return (UINT)_parameter_set.size();
 }
-UINT ParametricQuantumCircuit::get_parameteric_gate_count() const {
+UINT ParametricQuantumCircuit::get_parametric_gate_count() const {
     return (UINT)_parametric_gate_list.size();
 }
 std::vector<ParameterKey> ParametricQuantumCircuit::get_parameter_id_list()
@@ -262,11 +262,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 
     int num_gates = this->gate_list.size();
     std::vector<int> inverse_parametric_gate_position(num_gates, -1);
-    for (UINT i = 0; i < this->get_parameteric_gate_count(); i++) {
+    for (UINT i = 0; i < this->get_parametric_gate_count(); i++) {
         inverse_parametric_gate_position[this->_parametric_gate_position[i]] =
             i;
     }
-    std::vector<double> ans(this->get_parameteric_gate_count());
+    std::vector<double> ans(this->get_parametric_gate_count());
 
     /*
     現在、2番のゲートを見ているとする
