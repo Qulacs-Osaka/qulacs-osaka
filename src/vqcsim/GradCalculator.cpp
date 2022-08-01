@@ -68,7 +68,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
     for (UINT i = 0; i < theta.size(); ++i) {
         parameter_set[x.generate_parameter_id_from_index(i)] = theta[i];
     }
-    calculate_grad(x, obs, parameter_set);
+    return calculate_grad(x, obs, parameter_set);
 };
 
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
