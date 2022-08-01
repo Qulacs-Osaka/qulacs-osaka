@@ -96,4 +96,36 @@ QuantumGateBase* create_parametric_quantum_gate_from_string(
     return gate;
 }
 
+namespace internal {
+ParameterKey create_parameter(double initial_angle) {
+    UINT index = initial_angle_list.size();
+    initial_angle_list.push_back(initial_angle);
+    return "gate_" + std::to_string(index);
+}
+}  // namespace internal
+
+QuantumGateBase* create_parametric_quantum_gate_from_string(
+    std::string gate_string, double initial_angle) {
+    return create_parametric_quantum_gate_from_string(
+        gate_string, internal::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRX(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRX(qubit_index, internal::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRY(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRY(qubit_index, internal::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRZ(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRZ(qubit_index, internal::create_parameter(initial_angle));
+}
+DllExport QuantumGate_SingleParameter* ParametricPauliRotation(
+    std::vector<UINT> target, std::vector<UINT> pauli_id,
+    double initial_angle) {
+    return ParametricPauliRotation(
+        target, pauli_id, internal::create_parameter(initial_angle));
+}
+
 }  // namespace gate

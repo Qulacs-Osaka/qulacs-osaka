@@ -37,18 +37,42 @@ ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
 
 void ParametricQuantumCircuit::add_parametric_gate(
     QuantumGate_SingleParameter* gate) {
+    ParameterKey parameter_id = gate->get_parameter_id();
+    if (parameter_id.substr(0, 5) == "gate_") {
+        UINT index = std::stoi(parameter_id.substr(5));
+        if (index < gate::internal::initial_angle_list.size()) {
+            _parameter_set[parameter_id] =
+                gate::internal::initial_angle_list[index];
+        }
+    }
     _parametric_gate_position.push_back((UINT)gate_list.size());
     this->add_gate(gate);
     _parametric_gate_list.push_back(gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate(
     QuantumGate_SingleParameter* gate, UINT index) {
+    ParameterKey parameter_id = gate->get_parameter_id();
+    if (parameter_id.substr(0, 5) == "gate_") {
+        UINT index = std::stoi(parameter_id.substr(5));
+        if (index < gate::internal::initial_angle_list.size()) {
+            _parameter_set[parameter_id] =
+                gate::internal::initial_angle_list[index];
+        }
+    }
     _parametric_gate_position.push_back(index);
     this->add_gate(gate, index);
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate) {
+    ParameterKey parameter_id = gate->get_parameter_id();
+    if (parameter_id.substr(0, 5) == "gate_") {
+        UINT index = std::stoi(parameter_id.substr(5));
+        if (index < gate::internal::initial_angle_list.size()) {
+            _parameter_set[parameter_id] =
+                gate::internal::initial_angle_list[index];
+        }
+    }
     _parametric_gate_position.push_back((UINT)gate_list.size());
     QuantumGate_SingleParameter* copied_gate = gate->copy();
     QuantumCircuit::add_gate(copied_gate);
@@ -56,6 +80,14 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
 };
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate, UINT index) {
+    ParameterKey parameter_id = gate->get_parameter_id();
+    if (parameter_id.substr(0, 5) == "gate_") {
+        UINT index = std::stoi(parameter_id.substr(5));
+        if (index < gate::internal::initial_angle_list.size()) {
+            _parameter_set[parameter_id] =
+                gate::internal::initial_angle_list[index];
+        }
+    }
     for (auto& val : _parametric_gate_position)
         if (val >= index) val++;
     _parametric_gate_position.push_back(index);
