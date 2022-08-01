@@ -68,14 +68,14 @@ o : qulacs qulacs-osaka両方
 - o2 create_quantum_operator_from_openfermion_text
 - o0 create_split_quantum_operator
 ### Observable
-- o0 init
-- o0 add_operator(pauli_operator)
+- o2 init
+- o2 add_operator(pauli_operator)
 - o0 add_operator(coef, string)
 - o0 get_qubit_count
 - o0 get_state_dim
 - o0 get_term_count
 - o0 get_term
-- o0 get_expectation_value
+- o2 get_expectation_value
 - +0 get_expectation_value_single_thread
 - o0 get_transition_amplitude
 - +0 add_random_operator(operator_count)
