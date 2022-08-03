@@ -98,6 +98,14 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumCircuit::add_gate(copied_gate, index);
     _parametric_gate_list.push_back(copied_gate);
 }
+std::vector<ParameterKey> ParametricQuantumCircuit::get_parameter_key_list()
+    const {
+    std::vector<ParameterKey> parameter_key_list;
+    parameter_key_list.reserve(_parameter_set.size());
+    std::transform(_parameter_set.begin(), _parameter_set.end(),
+        std::back_inserter(parameter_key_list), [](auto p) { return p.first; });
+    return parameter_key_list;
+}
 UINT ParametricQuantumCircuit::get_parameter_id_count() const {
     return (UINT)_parameter_set.size();
 }
