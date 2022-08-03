@@ -97,6 +97,7 @@ QuantumGateBase* create_parametric_quantum_gate_from_string(
 }
 
 namespace internal {
+std::vector<double> initial_angle_list;
 ParameterKey create_parameter(double initial_angle) {
     UINT index = initial_angle_list.size();
     initial_angle_list.push_back(initial_angle);

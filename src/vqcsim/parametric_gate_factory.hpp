@@ -21,7 +21,7 @@ DllExport QuantumGate_SingleParameter* ParametricPauliRotation(
 
 // old methods
 namespace internal {
-std::vector<double> initial_angle_list;
+extern std::vector<double> initial_angle_list;
 ParameterKey create_parameter(double initial_angle);
 }  // namespace internal
 DllExport QuantumGateBase* create_parametric_quantum_gate_from_string(
