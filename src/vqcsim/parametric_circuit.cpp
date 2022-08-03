@@ -436,3 +436,9 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
     this->add_parametric_multi_Pauli_rotation_gate_new_parameter(
         target, pauli_id, parameter_id, initial_angle);
 }
+UINT ParametricQuantumCircuit::get_parameter_count() const {
+    throw NotImplementedException(
+        "Error: ParametricQuantumCircuit::get_parameter_count(): This function "
+        "is no longer supported. Use get_parameter_id_count() or "
+        "get_parametric_gate_count() instead.");
+}

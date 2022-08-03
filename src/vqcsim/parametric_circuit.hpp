@@ -93,4 +93,5 @@ public:
     virtual void add_parametric_multi_Pauli_rotation_gate(
         std::vector<UINT> target, std::vector<UINT> pauli_id,
         double initial_angle);
+    virtual UINT get_parameter_count() const;
 };
