@@ -15,8 +15,10 @@
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricNullUpdateGate(UINT target_qubit_index, double angle)
-        : QuantumGate_SingleParameterOneQubitRotation(angle) {
+    ClsParametricNullUpdateGate(UINT target_qubit_index,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameterOneQubitRotation(
+              parameter_id, parameter_coef) {
         this->_name = "ParametricNullUpdate";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index));
     }
@@ -27,10 +29,11 @@ public:
 };
 
 TEST(ParametricGate, NullUpdateFunc) {
-    ClsParametricNullUpdateGate gate(0, 0.);
+    ClsParametricNullUpdateGate gate(0, "user:parameter_id");
+    ParameterSet parameter_set = {{"parameter_id", 0.}};
     QuantumState state(1);
-    ASSERT_THROW(
-        gate.update_quantum_state(&state), UndefinedUpdateFuncException);
+    ASSERT_THROW(gate.update_quantum_state(&state, parameter_set),
+        UndefinedUpdateFuncException);
 }
 
 TEST(ParametricCircuit, GateApply) {
@@ -50,7 +53,7 @@ TEST(ParametricCircuit, GateApply) {
         }
     }
 
-    UINT param_count = circuit->get_parameter_count();
+    UINT param_count = circuit->get_parametric_gate_count();
     for (UINT p = 0; p < param_count; ++p) {
         double current_angle = circuit->get_parameter(p);
         circuit->set_parameter(p, current_angle + random.uniform());
@@ -80,7 +83,7 @@ TEST(ParametricCircuit, GateApplyDM) {
         }
     }
 
-    UINT param_count = circuit->get_parameter_count();
+    UINT param_count = circuit->get_parametric_gate_count();
     for (UINT p = 0; p < param_count; ++p) {
         double current_angle = circuit->get_parameter(p);
         circuit->set_parameter(p, current_angle + random.uniform());
@@ -108,7 +111,7 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     circuit.add_parametric_gate_copy(
         gate::ParametricPauliRotation({1}, {0}, 0.), 6);
 
-    ASSERT_EQ(circuit.get_parameter_count(), 5);
+    ASSERT_EQ(circuit.get_parametric_gate_count(), 5);
     ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
     ASSERT_EQ(circuit.get_parametric_gate_position(1), 4);
     ASSERT_EQ(circuit.get_parametric_gate_position(2), 5);
@@ -323,10 +326,10 @@ TEST(GradCalculator, BasicCheck) {
     // Calculate using normal Greedy.
     std::vector<std::complex<double>> Greedy_ans;
     {
-        for (int i = 0; i < circuit.get_parameter_count(); ++i) {
+        for (int i = 0; i < circuit.get_parametric_gate_count(); ++i) {
             std::complex<double> y, z;
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
+                for (int q = 0; q < circuit.get_parametric_gate_count(); ++q) {
                     float diff = 0;
                     if (i == q) {
                         diff = 0.001;
@@ -337,7 +340,7 @@ TEST(GradCalculator, BasicCheck) {
                 y = cone.get_expectation_value();
             }
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
+                for (int q = 0; q < circuit.get_parametric_gate_count(); ++q) {
                     float diff = 0;
                     if (i == q) {
                         diff = 0.001;

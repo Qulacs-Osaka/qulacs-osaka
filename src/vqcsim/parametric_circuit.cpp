@@ -14,30 +14,32 @@
 
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
     : QuantumCircuit(qubit_count_){};
+ParametricQuantumCircuit::ParametricQuantumCircuit(
+    UINT qubit_count_, const ParameterSet& parameter_set)
+    : QuantumCircuit(qubit_count_), _parameter_set(parameter_set){};
 
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
-        new ParametricQuantumCircuit(this->qubit_count);
+        new ParametricQuantumCircuit(this->qubit_count, this->_parameter_set);
+    new_circuit->_parametric_gate_position = this->_parametric_gate_position;
+    new_circuit->_gate_list.resize(this->_gate_list.size());
     for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        auto pos = std::find(this->_parametric_gate_position.begin(),
-            this->_parametric_gate_position.end(), gate_pos);
-        bool is_parametric = (pos != this->_parametric_gate_position.end());
-
-        if (is_parametric) {
-            new_circuit->add_parametric_gate(
-                (QuantumGate_SingleParameter*)this->gate_list[gate_pos]
-                    ->copy());
-        } else {
-            new_circuit->add_gate(this->gate_list[gate_pos]->copy());
-        }
+        new_circuit->_gate_list[gate_pos] = this->gate_list[gate_pos]->copy();
+    }
+    new_circuit->_parametric_gate_list.resize(
+        this->_parametric_gate_list.size());
+    for (UINT i = 0; i < this->_parametric_gate_position.size(); i++) {
+        UINT index = _parametric_gate_position[i];
+        new_circuit->_parametric_gate_list[i] =
+            dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[index]);
     }
     return new_circuit;
 }
 
 void ParametricQuantumCircuit::add_parametric_gate(
     QuantumGate_SingleParameter* gate) {
+    _parametric_gate_position.push_back((UINT)gate_list.size());
     this->add_gate(gate);
-    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
     _parametric_gate_list.push_back(gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate(
@@ -48,45 +50,96 @@ void ParametricQuantumCircuit::add_parametric_gate(
 }
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate) {
+    _parametric_gate_position.push_back((UINT)gate_list.size());
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate);
-    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
+    QuantumCircuit::add_gate(copied_gate);
     _parametric_gate_list.push_back(copied_gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate, UINT index) {
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate, index);
+    QuantumCircuit::add_gate(copied_gate, index);
     _parametric_gate_position.push_back(index);
     _parametric_gate_list.push_back(copied_gate);
 }
-UINT ParametricQuantumCircuit::get_parameter_count() const {
+std::vector<ParameterId> ParametricQuantumCircuit::get_parameter_id_list()
+    const {
+    std::vector<ParameterId> parameter_id_list;
+    parameter_id_list.reserve(_parameter_set.size());
+    for (auto& param_pair : _parameter_set) {
+        parameter_id_list.push_back(param_pair.first);
+    }
+    return parameter_id_list;
+}
+UINT ParametricQuantumCircuit::get_parameter_id_count() const {
+    return (UINT)_parameter_set.size();
+}
+UINT ParametricQuantumCircuit::get_parametric_gate_count() const {
     return (UINT)_parametric_gate_list.size();
 }
-double ParametricQuantumCircuit::get_parameter(UINT index) const {
-    if (index >= this->_parametric_gate_list.size()) {
-        throw ParameterIndexOutOfRangeException(
-            "Error: ParametricQuantumCircuit::get_parameter(UINT): parameter "
-            "index is out of range");
+void ParametricQuantumCircuit::create_parameter(
+    const ParameterId& parameter_id, double initial_parameter) {
+    if (_parameter_set.count(parameter_id) > 0) {
+        throw ParameterIdDuplicatedException(
+            "Error: ParametricQuantumCircuit::create_parameter(const "
+            "const ParameterKey&, double): "
+            "parameter_id \"" +
+            parameter_id + "\" already exists");
     }
-
-    return _parametric_gate_list[index]->get_parameter_value();
+    _parameter_set[parameter_id] = initial_parameter;
 }
-void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
-    if (index >= this->_parametric_gate_list.size()) {
-        throw ParameterIndexOutOfRangeException(
-            "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
-            "parameter index is out of range");
+void ParametricQuantumCircuit::remove_parameter(
+    const ParameterId& parameter_id) {
+    if (_parameter_set.count(parameter_id) == 0) {
+        throw ParameterKeyNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(const "
+            "ParameterKey&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
     }
-
-    _parametric_gate_list[index]->set_parameter_value(value);
+    _parameter_set.erase(parameter_id);
+}
+bool ParametricQuantumCircuit::contains_parameter(
+    const ParameterId& parameter_id) const {
+    return _parameter_set.count(parameter_id) > 0;
+}
+double ParametricQuantumCircuit::get_parameter(
+    const ParameterId& parameter_id) const {
+    auto it = _parameter_set.find(parameter_id);
+    if (it == _parameter_set.end()) {
+        throw ParameterKeyNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(const "
+            "ParameterId&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
+    }
+    return it->second;
+}
+void ParametricQuantumCircuit::set_parameter(
+    const ParameterId& parameter_id, double value) {
+    if (_parameter_set.count(parameter_id) == 0) {
+        throw ParameterKeyNotFoundException(
+            "Error: ParametricQuantumCircuit::create_parameter(const "
+            "ParameterId&): "
+            "parameter_id \"" +
+            parameter_id + "\" is not found");
+        return;
+    }
+    _parameter_set[parameter_id] = value;
+}
+ParameterSet ParametricQuantumCircuit::get_parameter_set() const {
+    return _parameter_set;
+}
+void ParametricQuantumCircuit::set_parameter_set(
+    const ParameterSet& parameter_set) {
+    _parameter_set = parameter_set;
 }
 
 std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
     os << QuantumCircuit::to_string();
     os << "*** Parameter Info ***" << std::endl;
-    os << "# of parameter: " << this->get_parameter_count() << std::endl;
+    os << "# of parameter: " << this->get_parameter_id_count() << std::endl;
     return os.str();
 }
 
@@ -103,10 +156,10 @@ std::ostream& operator<<(
 
 UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        throw ParameterIndexOutOfRangeException(
+        throw GateIndexOutOfRangeException(
             "Error: "
             "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
-            "parameter index is out of range");
+            "index is out of range");
     }
 
     return _parametric_gate_position[index];
@@ -142,6 +195,7 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
     for (auto& val : _parametric_gate_position)
         if (val >= index) val--;
 }
+
 void ParametricQuantumCircuit::merge_circuit(
     const ParametricQuantumCircuit* circuit) {
     UINT gate_count = this->gate_list.size();
@@ -157,24 +211,58 @@ void ParametricQuantumCircuit::merge_circuit(
     }
     return;
 }
-void ParametricQuantumCircuit::add_parametric_RX_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
+void ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter(
+    UINT target_index, const ParameterId& parameter_id,
+    double initial_parameter, double parameter_coef) {
+    this->create_parameter(parameter_id, initial_parameter);
+    this->add_parametric_gate(gate::ParametricRX(
+        target_index, "user:" + parameter_id, parameter_coef));
 }
-void ParametricQuantumCircuit::add_parametric_RY_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRY(target_index, initial_angle));
+void ParametricQuantumCircuit::add_parametric_RX_gate_share_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(gate::ParametricRX(
+        target_index, "user:" + parameter_id, parameter_coef));
 }
-void ParametricQuantumCircuit::add_parametric_RZ_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRZ(target_index, initial_angle));
+void ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter(
+    UINT target_index, const ParameterId& parameter_id,
+    double initial_parameter, double parameter_coef) {
+    this->create_parameter(parameter_id, initial_parameter);
+    this->add_parametric_gate(gate::ParametricRY(
+        target_index, "user:" + parameter_id, parameter_coef));
+}
+void ParametricQuantumCircuit::add_parametric_RY_gate_share_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(gate::ParametricRY(
+        target_index, "user:" + parameter_id, parameter_coef));
+}
+void ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter(
+    UINT target_index, const ParameterId& parameter_id,
+    double initial_parameter, double parameter_coef) {
+    this->create_parameter(parameter_id, initial_parameter);
+    this->add_parametric_gate(gate::ParametricRZ(
+        target_index, "user:" + parameter_id, parameter_coef));
+}
+void ParametricQuantumCircuit::add_parametric_RZ_gate_share_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(gate::ParametricRZ(
+        target_index, "user:" + parameter_id, parameter_coef));
 }
 
-void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
-    std::vector<UINT> target, std::vector<UINT> pauli_id,
-    double initial_angle) {
-    this->add_parametric_gate(
-        gate::ParametricPauliRotation(target, pauli_id, initial_angle));
+void ParametricQuantumCircuit::
+    add_parametric_multi_Pauli_rotation_gate_new_parameter(
+        std::vector<UINT> target, std::vector<UINT> pauli_id,
+        const ParameterId& parameter_id, double initial_angle,
+        double parameter_coef) {
+    this->create_parameter(parameter_id, initial_angle);
+    this->add_parametric_gate(gate::ParametricPauliRotation(
+        target, pauli_id, "user:" + parameter_id, parameter_coef));
+}
+void ParametricQuantumCircuit::
+    add_parametric_multi_Pauli_rotation_gate_share_parameter(
+        std::vector<UINT> target, std::vector<UINT> pauli_id,
+        const ParameterId& parameter_id, double parameter_coef) {
+    this->add_parametric_gate(gate::ParametricPauliRotation(
+        target, pauli_id, "user:" + parameter_id, parameter_coef));
 }
 
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
@@ -189,11 +277,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 
     int num_gates = this->gate_list.size();
     std::vector<int> inverse_parametric_gate_position(num_gates, -1);
-    for (UINT i = 0; i < this->get_parameter_count(); i++) {
+    for (UINT i = 0; i < this->get_parametric_gate_count(); i++) {
         inverse_parametric_gate_position[this->_parametric_gate_position[i]] =
             i;
     }
-    std::vector<double> ans(this->get_parameter_count());
+    std::vector<double> ans(this->get_parametric_gate_count());
 
     /*
     現在、2番のゲートを見ているとする
@@ -287,3 +375,41 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     return ans;
 
 }  // CPP
+
+// 旧メソッド
+double ParametricQuantumCircuit::get_parameter(UINT index) const {
+    return this->_parametric_gate_list[index]->get_parameter_value(
+        _parameter_set);
+}
+void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
+    this->_parametric_gate_list[index]->set_parameter_value(
+        value, _parameter_set);
+}
+void ParametricQuantumCircuit::add_parametric_RX_gate(
+    UINT target_index, double initial_angle) {
+    ParameterKey parameter_key = parameter::create_parameter(initial_angle);
+    this->add_parametric_gate(gate::ParametricRX(target_index, parameter_key));
+}
+void ParametricQuantumCircuit::add_parametric_RY_gate(
+    UINT target_index, double initial_angle) {
+    ParameterKey parameter_key = parameter::create_parameter(initial_angle);
+    this->add_parametric_gate(gate::ParametricRY(target_index, parameter_key));
+}
+void ParametricQuantumCircuit::add_parametric_RZ_gate(
+    UINT target_index, double initial_angle) {
+    ParameterKey parameter_key = parameter::create_parameter(initial_angle);
+    this->add_parametric_gate(gate::ParametricRZ(target_index, parameter_key));
+}
+void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
+    std::vector<UINT> target, std::vector<UINT> pauli_id,
+    double initial_angle) {
+    ParameterKey parameter_key = parameter::create_parameter(initial_angle);
+    this->add_parametric_gate(
+        gate::ParametricPauliRotation(target, pauli_id, parameter_key));
+}
+UINT ParametricQuantumCircuit::get_parameter_count() const {
+    throw NotImplementedException(
+        "Error: ParametricQuantumCircuit::get_parameter_count(): This function "
+        "is no longer supported. Use get_parameter_id_count() or "
+        "get_parametric_gate_count() instead.");
+}

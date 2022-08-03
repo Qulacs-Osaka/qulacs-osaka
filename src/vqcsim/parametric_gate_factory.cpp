@@ -15,20 +15,24 @@
 #include "parametric_gate.hpp"
 
 namespace gate {
-QuantumGate_SingleParameter* ParametricRX(
-    UINT target_qubit_index, double initial_angle) {
-    return new ClsParametricRXGate(target_qubit_index, initial_angle);
+QuantumGate_SingleParameter* ParametricRX(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRXGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
-QuantumGate_SingleParameter* ParametricRY(
-    UINT target_qubit_index, double initial_angle) {
-    return new ClsParametricRYGate(target_qubit_index, initial_angle);
+QuantumGate_SingleParameter* ParametricRY(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRYGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
-QuantumGate_SingleParameter* ParametricRZ(
-    UINT target_qubit_index, double initial_angle) {
-    return new ClsParametricRZGate(target_qubit_index, initial_angle);
+QuantumGate_SingleParameter* ParametricRZ(UINT target_qubit_index,
+    const ParameterKey& parameter_id, double parameter_coef) {
+    return new ClsParametricRZGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
 QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
-    std::vector<UINT> pauli_id, double initial_angle) {
+    std::vector<UINT> pauli_id, const ParameterKey& parameter_id,
+    double parameter_coef) {
     if (!check_is_unique_index_list(target)) {
         throw DuplicatedQubitIndexException(
             "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
@@ -37,12 +41,13 @@ QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
             "\nInfo: NULL used to be returned, "
             "but it changed to throw exception.");
     }
-    auto pauli = new PauliOperator(target, pauli_id, initial_angle);
-    return new ClsParametricPauliRotationGate(initial_angle, pauli);
+    auto pauli = new PauliOperator(target, pauli_id, 0.);
+    return new ClsParametricPauliRotationGate(
+        pauli, parameter_id, parameter_coef);
 }
 
 QuantumGateBase* create_parametric_quantum_gate_from_string(
-    std::string gate_string) {
+    std::string gate_string, const ParameterKey& parameter_id) {
     auto non_parametric_gate =
         gate::create_quantum_gate_from_string(gate_string);
     if (non_parametric_gate != NULL) return non_parametric_gate;
@@ -60,13 +65,13 @@ QuantumGateBase* create_parametric_quantum_gate_from_string(
 
     if (strcasecmp(sbuf, "PRX") == 0) {
         unsigned int target = atoi(strtok(NULL, delim));
-        gate = gate::ParametricRX(target);
+        gate = gate::ParametricRX(target, parameter_id);
     } else if (strcasecmp(sbuf, "PRY") == 0) {
         unsigned int target = atoi(strtok(NULL, delim));
-        gate = gate::ParametricRY(target);
+        gate = gate::ParametricRY(target, parameter_id);
     } else if (strcasecmp(sbuf, "PRZ") == 0) {
         unsigned int target = atoi(strtok(NULL, delim));
-        gate = gate::ParametricRZ(target);
+        gate = gate::ParametricRZ(target, parameter_id);
     } else if (strcasecmp(sbuf, "PPR") == 0) {
         char* pauliStr = strtok(NULL, delim);
         unsigned int targetCount = (UINT)strlen(pauliStr);
@@ -85,10 +90,37 @@ QuantumGateBase* create_parametric_quantum_gate_from_string(
         for (unsigned int i = 0; i < targetCount; i++) {
             targets[i] = atoi(strtok(NULL, delim));
         }
-        gate = gate::ParametricPauliRotation(targets, pauli);
+        gate = gate::ParametricPauliRotation(targets, pauli, parameter_id);
     }
     free(buf);
     return gate;
+}
+
+QuantumGateBase* create_parametric_quantum_gate_from_string(
+    std::string gate_string, double initial_angle) {
+    return create_parametric_quantum_gate_from_string(
+        gate_string, parameter::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRX(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRX(
+        qubit_index, parameter::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRY(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRY(
+        qubit_index, parameter::create_parameter(initial_angle));
+}
+QuantumGate_SingleParameter* ParametricRZ(
+    UINT qubit_index, double initial_angle) {
+    return ParametricRZ(
+        qubit_index, parameter::create_parameter(initial_angle));
+}
+DllExport QuantumGate_SingleParameter* ParametricPauliRotation(
+    std::vector<UINT> target, std::vector<UINT> pauli_id,
+    double initial_angle) {
+    return ParametricPauliRotation(
+        target, pauli_id, parameter::create_parameter(initial_angle));
 }
 
 }  // namespace gate

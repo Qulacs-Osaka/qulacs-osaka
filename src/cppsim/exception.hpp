@@ -248,17 +248,33 @@ public:
 };
 
 /**
- * \~japanese-en ParametricCircuitのパラメータのインデックスが範囲外という例外
+ * \~japanese-en
+ * ParameterKeyが与えられたParameterSetやグローバルに存在しないという例外
  */
-class ParameterIndexOutOfRangeException : public std::out_of_range {
+class ParameterKeyNotFoundException : public std::logic_error {
 public:
     /**
      * \~japanese-en コンストラクタ
      *
      * @param message エラーメッセージ
      */
-    ParameterIndexOutOfRangeException(const std::string& message)
-        : std::out_of_range(message) {}
+    ParameterKeyNotFoundException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en
+ * ParametricCircuitのParameterSetの作ろうとしたIDがすでに存在するという例外
+ */
+class ParameterIdDuplicatedException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdDuplicatedException(const std::string& message)
+        : std::logic_error(message) {}
 };
 
 /**
