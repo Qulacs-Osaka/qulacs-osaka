@@ -15,8 +15,10 @@
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricNullUpdateGate(UINT target_qubit_index, double angle)
-        : QuantumGate_SingleParameterOneQubitRotation(angle) {
+    ClsParametricNullUpdateGate(UINT target_qubit_index,
+        const ParameterKey& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameterOneQubitRotation(
+              parameter_id, parameter_coef) {
         this->_name = "ParametricNullUpdate";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index));
     }
@@ -27,10 +29,11 @@ public:
 };
 
 TEST(ParametricGate, NullUpdateFunc) {
-    ClsParametricNullUpdateGate gate(0, 0.);
+    ClsParametricNullUpdateGate gate(0, "parameter_id");
+    ParameterSet parameter_set = {{"parameter_id", 0.}};
     QuantumState state(1);
-    ASSERT_THROW(
-        gate.update_quantum_state(&state), UndefinedUpdateFuncException);
+    ASSERT_THROW(gate.update_quantum_state(&state, parameter_set),
+        UndefinedUpdateFuncException);
 }
 
 TEST(ParametricCircuit, GateApply) {
