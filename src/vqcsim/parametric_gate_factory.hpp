@@ -25,13 +25,14 @@ std::vector<double> initial_angle_list;
 ParameterKey create_parameter(double initial_angle);
 }  // namespace internal
 DllExport QuantumGateBase* create_parametric_quantum_gate_from_string(
-    std::string gate_string, double initial_angle);
+    std::string gate_string, double initial_angle = 0.);
 DllExport QuantumGate_SingleParameter* ParametricRX(
-    UINT qubit_index, double initial_angle);
+    UINT qubit_index, double initial_angle = 0.);
 DllExport QuantumGate_SingleParameter* ParametricRY(
-    UINT qubit_index, double initial_angle);
+    UINT qubit_index, double initial_angle = 0.);
 DllExport QuantumGate_SingleParameter* ParametricRZ(
-    UINT qubit_index, double initial_angle);
+    UINT qubit_index, double initial_angle = 0.);
 DllExport QuantumGate_SingleParameter* ParametricPauliRotation(
-    std::vector<UINT> target, std::vector<UINT> pauli_id, double initial_angle);
+    std::vector<UINT> target, std::vector<UINT> pauli_id,
+    double initial_angle = 0.);
 }  // namespace gate
