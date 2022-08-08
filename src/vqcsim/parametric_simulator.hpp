@@ -11,8 +11,11 @@ public:
     ParametricQuantumCircuitSimulator(
         ParametricQuantumCircuit* circuit, QuantumStateBase* state = NULL);
     double get_parameter(UINT index) const;
+    double get_parameter(const ParameterId& parameter_id) const;
     void add_parameter_value(UINT index, double value);
+    void add_parameter_value(const ParameterId& parameter_id, double value);
     void set_parameter_value(UINT index, double value);
+    void set_parameter_value(const ParameterId& parameter_id, double value);
     UINT get_parametric_gate_count();
     UINT get_parametric_gate_position(UINT index);
 };
