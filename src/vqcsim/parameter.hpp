@@ -11,7 +11,7 @@
 using ParameterType = std::string;
 using ParameterId = std::string;
 using ParameterKey = std::string;
-using ParameterSet = std::map<ParameterKey, double>;
+using ParameterSet = std::map<ParameterId, double>;
 
 namespace parameter {
 ParameterType get_parameter_type(const ParameterKey& parameter_key);

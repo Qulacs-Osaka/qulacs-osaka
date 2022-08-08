@@ -21,7 +21,7 @@ ParameterKey create_parameter(double parameter) {
 void set_parameter_value(const ParameterKey& parameter_key, double parameter,
     ParameterSet& parameter_set) {
     ParameterType ptype = get_parameter_type(parameter_key);
-    ParameterType pid = get_parameter_id(parameter_key);
+    ParameterId pid = get_parameter_id(parameter_key);
     if (ptype == "user") {
         auto it = parameter_set.find(pid);
         if (it != parameter_set.end()) {
@@ -48,7 +48,7 @@ void set_parameter_value(const ParameterKey& parameter_key, double parameter) {
 double get_parameter_value(
     const ParameterKey& parameter_key, const ParameterSet& parameter_set = {}) {
     ParameterType ptype = get_parameter_type(parameter_key);
-    ParameterType pid = get_parameter_id(parameter_key);
+    ParameterId pid = get_parameter_id(parameter_key);
     if (ptype == "user") {
         auto it = parameter_set.find(pid);
         if (it != parameter_set.end()) return it->second;
