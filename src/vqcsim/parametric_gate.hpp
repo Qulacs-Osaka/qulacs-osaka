@@ -130,7 +130,13 @@ public:
         set_matrix(matrix, {});
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRXGate(*this);
+        auto* copied_gate = new ClsParametricRXGate(*this);
+        ParameterKey key = this->_parameter_key;
+        if (parameter::get_parameter_type(key) == "global") {
+            copied_gate->_parameter_key = parameter::create_parameter(
+                parameter::get_parameter_value(key, {}));
+        }
+        return copied_gate;
     };
 };
 
@@ -160,7 +166,13 @@ public:
         set_matrix(matrix, {});
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRYGate(*this);
+        auto* copied_gate = new ClsParametricRYGate(*this);
+        ParameterKey key = this->_parameter_key;
+        if (parameter::get_parameter_type(key) == "global") {
+            copied_gate->_parameter_key = parameter::create_parameter(
+                parameter::get_parameter_value(key, {}));
+        }
+        return copied_gate;
     };
 };
 
@@ -190,7 +202,13 @@ public:
         set_matrix(matrix, {});
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRZGate(*this);
+        auto* copied_gate = new ClsParametricRZGate(*this);
+        ParameterKey key = this->_parameter_key;
+        if (parameter::get_parameter_type(key) == "global") {
+            copied_gate->_parameter_key = parameter::create_parameter(
+                parameter::get_parameter_value(key, {}));
+        }
+        return copied_gate;
     };
 };
 
@@ -254,8 +272,14 @@ public:
         update_quantum_state(state, {});
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricPauliRotationGate(
-            _pauli->copy(), _parameter_key);
+        auto* copied_gate =
+            new ClsParametricPauliRotationGate(_pauli->copy(), _parameter_key);
+        ParameterKey key = this->_parameter_key;
+        if (parameter::get_parameter_type(key) == "global") {
+            copied_gate->_parameter_key = parameter::create_parameter(
+                parameter::get_parameter_value(key, {}));
+        }
+        return copied_gate;
     };
     virtual void set_matrix(
         ComplexMatrix& matrix, const ParameterSet& parameter_set) const {

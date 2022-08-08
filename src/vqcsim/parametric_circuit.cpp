@@ -31,7 +31,8 @@ ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     for (UINT i = 0; i < this->_parametric_gate_position.size(); i++) {
         UINT index = _parametric_gate_position[i];
         new_circuit->_parametric_gate_list[i] =
-            dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[index]);
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                new_circuit->_gate_list[index]);
     }
     return new_circuit;
 }
@@ -408,8 +409,5 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
         gate::ParametricPauliRotation(target, pauli_id, parameter_key));
 }
 UINT ParametricQuantumCircuit::get_parameter_count() const {
-    throw NotImplementedException(
-        "Error: ParametricQuantumCircuit::get_parameter_count(): This function "
-        "is no longer supported. Use get_parameter_id_count() or "
-        "get_parametric_gate_count() instead.");
+    return this->_parametric_gate_list.size();
 }
