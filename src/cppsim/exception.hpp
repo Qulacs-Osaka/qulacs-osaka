@@ -191,6 +191,34 @@ public:
 };
 
 /**
+ * \~japanese-en parameter_idが見つからないという例外
+ */
+class ParameterIdNotFoundException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdNotFoundException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en parameter_idがすでに存在しているという例外
+ */
+class ParameterIdDuplicatedException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdDuplicatedException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * GeneralQuantumOperator中のPauliOperatorのインデックスが範囲外という例外
  */

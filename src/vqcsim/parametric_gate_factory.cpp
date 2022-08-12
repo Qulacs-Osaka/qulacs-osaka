@@ -19,13 +19,28 @@ QuantumGate_SingleParameter* ParametricRX(
     UINT target_qubit_index, double initial_angle) {
     return new ClsParametricRXGate(target_qubit_index, initial_angle);
 }
+QuantumGate_SingleParameter* ParametricRX(UINT target_qubit_index,
+    const ParameterId& parameter_id, double parameter_coef) {
+    return new ClsParametricRXGate(
+        target_qubit_index, parameter_id, parameter_coef);
+}
 QuantumGate_SingleParameter* ParametricRY(
     UINT target_qubit_index, double initial_angle) {
     return new ClsParametricRYGate(target_qubit_index, initial_angle);
 }
+QuantumGate_SingleParameter* ParametricRY(UINT target_qubit_index,
+    const ParameterId& parameter_id, double parameter_coef) {
+    return new ClsParametricRYGate(
+        target_qubit_index, parameter_id, parameter_coef);
+}
 QuantumGate_SingleParameter* ParametricRZ(
     UINT target_qubit_index, double initial_angle) {
     return new ClsParametricRZGate(target_qubit_index, initial_angle);
+}
+QuantumGate_SingleParameter* ParametricRZ(UINT target_qubit_index,
+    const ParameterId& parameter_id, double parameter_coef) {
+    return new ClsParametricRZGate(
+        target_qubit_index, parameter_id, parameter_coef);
 }
 QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
     std::vector<UINT> pauli_id, double initial_angle) {
@@ -39,6 +54,21 @@ QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
     }
     auto pauli = new PauliOperator(target, pauli_id, initial_angle);
     return new ClsParametricPauliRotationGate(initial_angle, pauli);
+}
+QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
+    std::vector<UINT> pauli_id, const ParameterId& parameter_id,
+    double parameter_coef) {
+    if (!check_is_unique_index_list(target)) {
+        throw DuplicatedQubitIndexException(
+            "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
+            "std::vector<UINT>, double): target qubit list contains "
+            "duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
+    }
+    auto pauli = new PauliOperator(target, pauli_id, 0.);
+    return new ClsParametricPauliRotationGate(
+        pauli, parameter_id, parameter_coef);
 }
 
 QuantumGateBase* create_parametric_quantum_gate_from_string(

@@ -16,28 +16,34 @@
 
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:
-    ParameterKey _parameter_key;
+    ParameterType _parameter_type;
+    ParameterId _parameter_id;
     double _parameter_coef;
     double _angle;
 
 public:
     QuantumGate_SingleParameter(double angle) : _angle(angle) {
-        _parameter_key = "gate:";
+        _parameter_type = "gate";
         _parameter_coef = 1.;
         _gate_property |= FLAG_PARAMETRIC;
     }
     QuantumGate_SingleParameter(
         const ParameterId& parameter_id, double parameter_coef = 1.)
-        : _parameter_coef(parameter_coef) {
-        _parameter_key = "id:" + parameter_id;
+        : _parameter_id(parameter_id), _parameter_coef(parameter_coef) {
+        _parameter_type = "id";
         _gate_property |= FLAG_PARAMETRIC;
     }
-    ParameterKey get_parameter_key() const { return _parameter_key; }
-    ParameterType get_parameter_type() const {
-        return parameter::get_parameter_type(_parameter_key);
-    }
+    ParameterType get_parameter_type() const { return _parameter_type; }
     ParameterId get_parameter_id() const {
-        return parameter::get_parameter_id(_parameter_key);
+        if (this->get_parameter_type() != "id") {
+            throw NotImplementedException(
+                "Error: "
+                "QuantumGate_SingleParameter::get_parameter_id() const: "
+                "this is a new-style function. You cannot use this function "
+                "with an old-style parametric_gate which contains a parameter "
+                "value");
+        }
+        return _parameter_id;
     }
     double get_parameter_coef() const { return _parameter_coef; }
     void set_parameter_value(double value) {
@@ -45,7 +51,9 @@ public:
             throw NotImplementedException(
                 "Error: "
                 "QuantumGate_SingleParameter::set_parameter_value(double): "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         _angle = value;
     }
@@ -54,7 +62,9 @@ public:
             throw NotImplementedException(
                 "Error: "
                 "QuantumGate_SingleParameter::get_parameter_value() const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         return _angle;
     }
@@ -64,10 +74,10 @@ public:
             auto it = parameter_set.find(get_parameter_id());
             if (it != parameter_set.end()) return it->second * _parameter_coef;
         }
-        throw ParameterKeyNotFoundException(
+        throw ParameterIdNotFoundException(
             "Error: QuantumGate_SingleParameter::get_angle(const "
-            "ParameterSet&) const: parameter_key \"" +
-            _parameter_key + "\" is not found");
+            "ParameterSet&) const: parameter_id \"" +
+            get_parameter_id() + "\" is not found");
     }
     virtual QuantumGate_SingleParameter* copy() const override = 0;
 };
@@ -132,9 +142,11 @@ public:
         if (this->get_parameter_type() != "gate") {
             throw NotImplementedException(
                 "Error: "
-                "QuantumGate_SingleParameterOneQubitRotation::update_autnum_"
-                "state(QuantumStateBase*) const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "QuantumGate_SingleParameter::update_quantum_state("
+                "QuantumStateBase*): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         update_quantum_state(state, {});
     }
@@ -154,9 +166,9 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
     }
     ClsParametricRXGate(UINT target_qubit_index,
-        const ParameterKey& parameter_key, double parameter_coef = 1.)
+        const ParameterId& parameter_id, double parameter_coef = 1.)
         : QuantumGate_SingleParameterOneQubitRotation(
-              parameter_key, parameter_coef) {
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRX";
         this->_update_func = RX_gate;
         this->_update_func_dm = dm_RX_gate;
@@ -178,8 +190,11 @@ public:
         if (this->get_parameter_type() != "gate") {
             throw NotImplementedException(
                 "Error: "
-                "ClsParametricRXGate::set_matrix(ComplexMatrix&) const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "ClsParametricRXGate::set_matrix("
+                "ComplexMatrix&): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         set_matrix(matrix, {});
     }
@@ -202,9 +217,9 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
     }
     ClsParametricRYGate(UINT target_qubit_index,
-        const ParameterKey& parameter_key, double parameter_coef = 1.)
+        const ParameterId& parameter_id, double parameter_coef = 1.)
         : QuantumGate_SingleParameterOneQubitRotation(
-              parameter_key, parameter_coef) {
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRY";
         this->_update_func = RY_gate;
         this->_update_func_dm = dm_RY_gate;
@@ -225,8 +240,11 @@ public:
         if (this->get_parameter_type() != "gate") {
             throw NotImplementedException(
                 "Error: "
-                "ClsParametricRYGate::set_matrix(ComplexMatrix&) const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "ClsParametricRYGate::set_matrix("
+                "ComplexMatrix&): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         set_matrix(matrix, {});
     }
@@ -249,9 +267,9 @@ public:
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
     }
     ClsParametricRZGate(UINT target_qubit_index,
-        const ParameterKey& parameter_key, double parameter_coef = 1.)
+        const ParameterId& parameter_id, double parameter_coef = 1.)
         : QuantumGate_SingleParameterOneQubitRotation(
-              parameter_key, parameter_coef) {
+              parameter_id, parameter_coef) {
         this->_name = "ParametricRZ";
         this->_update_func = RZ_gate;
         this->_update_func_dm = dm_RZ_gate;
@@ -272,8 +290,11 @@ public:
         if (this->get_parameter_type() != "gate") {
             throw NotImplementedException(
                 "Error: "
-                "ClsParametricRZGate::set_matrix(ComplexMatrix&) const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "ClsParametricRZGate::set_matrix("
+                "ComplexMatrix&): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         set_matrix(matrix, {});
     }
@@ -287,7 +308,7 @@ protected:
     PauliOperator* _pauli;
 
 public:
-    ClsParametricPauliRotationGate(PauliOperator* pauli, double angle)
+    ClsParametricPauliRotationGate(double angle, PauliOperator* pauli)
         : QuantumGate_SingleParameter(angle) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
@@ -306,8 +327,8 @@ public:
         }
     }
     ClsParametricPauliRotationGate(PauliOperator* pauli,
-        const ParameterKey& parameter_key, double parameter_coef = 1.)
-        : QuantumGate_SingleParameter(parameter_key, parameter_coef) {
+        const ParameterId& parameter_id, double parameter_coef = 1.)
+        : QuantumGate_SingleParameter(parameter_id, parameter_coef) {
         _pauli = pauli;
         this->_name = "ParametricPauliRotation";
         auto target_index_list = _pauli->get_index_list();
@@ -329,7 +350,7 @@ public:
         QuantumStateBase* state, const ParameterSet& parameter_set) {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
-        double angle = this->get_angle();
+        double angle = this->get_angle(parameter_set);
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -361,15 +382,24 @@ public:
             throw NotImplementedException(
                 "Error: "
                 "ClsParametricPauliRotationGate::update_quantum_state("
-                "QuantumStateBase*) const: "
-                "this is an old-style function used for parameter_id 'gate:'");
+                "QuantumStateBase*): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         update_quantum_state(state, {});
     }
     virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricPauliRotationGate(
-            _pauli->copy(), _parameter_key);
-    };
+        if (this->get_parameter_type() == "gate") {
+            return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
+        }
+        if (this->get_parameter_type() == "id") {
+            return new ClsParametricPauliRotationGate(
+                _pauli->copy(), this->get_parameter_id());
+        }
+        assert(false);
+        return nullptr;
+    }
     virtual void set_matrix(
         ComplexMatrix& matrix, const ParameterSet& parameter_set) const {
         double angle = this->get_angle(parameter_set);
@@ -385,6 +415,15 @@ public:
                 "ClsParametricPauliRotationGate::set_matrix(ComplexMatrix&) "
                 "const: "
                 "this is an old-style function used for parameter_id 'gate:'");
+        }
+        if (this->get_parameter_type() != "gate") {
+            throw NotImplementedException(
+                "Error: "
+                "ClsParametricPauliRotationGate::set_matrix("
+                "ComplexMatrix&): "
+                "this is an old-style function. You cannot use this function "
+                "with a new-style parametric_gate which has string "
+                "parameter_id.");
         }
         set_matrix(matrix, {});
     }
