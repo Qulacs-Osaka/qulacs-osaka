@@ -229,7 +229,11 @@ std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
     os << QuantumCircuit::to_string();
     os << "*** Parameter Info ***" << std::endl;
-    os << "# of parameter: " << this->get_parameter_count() << std::endl;
+    if (this->is_old_style()) {
+        os << "# of parameter: " << this->get_parameter_count() << std::endl;
+    } else {
+        os << "# of parameter: " << this->get_parameter_id_count() << std::endl;
+    }
     return os.str();
 }
 
