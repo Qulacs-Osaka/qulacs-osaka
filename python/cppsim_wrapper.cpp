@@ -514,20 +514,24 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("Adaptive",  py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&, unsigned int)>, unsigned int> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, py::arg("gate"), py::arg("condition"),py::arg("id"));
     mgate.def("NoisyEvolution", &gate::NoisyEvolution, pybind11::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
     mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, pybind11::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"));
+    mgate.def("ParametricRX", py::overload_cast<UINT, double>(&gate::ParametricRX), pybind11::return_value_policy::take_ownership, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle") = 0.);
+    mgate.def("ParametricRX", py::overload_cast<UINT, const ParameterId&, double>(&gate::ParametricRX), pybind11::return_value_policy::take_ownership, py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.);
+    mgate.def("ParametricRY", py::overload_cast<UINT, double>(&gate::ParametricRY), pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle") = 0.);
+    mgate.def("ParametricRY", py::overload_cast<UINT, const ParameterId&, double>(&gate::ParametricRY), pybind11::return_value_policy::take_ownership, py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.);
+    mgate.def("ParametricRZ", py::overload_cast<UINT, double>(&gate::ParametricRZ), pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle") = 0.);
+    mgate.def("ParametricRZ", py::overload_cast<UINT, const ParameterId&, double>(&gate::ParametricRZ), pybind11::return_value_policy::take_ownership, py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.);
+    mgate.def("ParametricPauliRotation", py::overload_cast<std::vector<UINT>, std::vector<UINT>, double>(&gate::ParametricPauliRotation), pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+    mgate.def("ParametricPauliRotation", py::overload_cast<std::vector<UINT>, std::vector<UINT>, const ParameterId&, double>(&gate::ParametricPauliRotation), pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.);
 
     py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
-        .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")
-        .def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value, "Set parameter value", py::arg("value"))
+        .def("get_parameter_type", &QuantumGate_SingleParameter::get_parameter_type, "Get parameter type")
+        .def("get_parameter_id", &QuantumGate_SingleParameter::get_parameter_id, "Get parameter id (only new-style)")
+        .def("get_parameter_coef", &QuantumGate_SingleParameter::get_parameter_coef, "Get parameter coef")
+        .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value (only old-style)")
+        .def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value, "Set parameter value (only old-style)", py::arg("value"))
+        .def("get_angle", &QuantumGate_SingleParameter::get_angle, "Get angle", py::arg("parameter_set") = ParameterSet())
         .def("copy", &QuantumGate_SingleParameter::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         ;
-    mgate.def("ParametricRX", &gate::ParametricRX, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRY", &gate::ParametricRY, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRZ", &gate::ParametricRZ, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricPauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
-        auto ptr = gate::ParametricPauliRotation(target_qubit_index_list, pauli_ids, angle);
-        if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
-        return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
@@ -598,21 +602,46 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
-        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")      
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate_copy, "Add parametric gate", py::arg("gate"))
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate_copy, py::arg("gate"), py::arg("position"))
+        .def(py::init<unsigned int, const ParameterSet&>(), py::arg("qubit_count"), py::arg("parameter_set"))
+
+        .def("is_old_style", &ParametricQuantumCircuit::is_old_style, "Return whether the circuit is old-style")
+        .def("is_new_style", &ParametricQuantumCircuit::is_new_style, "Return whether the circuit is new-style")
+
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+
+        .def("create_parameter", &ParametricQuantumCircuit::create_parameter, "Create a new parameter (only new-style)", py::arg("parameter_id"), py::arg("initial_parameter"))
+        .def("remove_parameter", &ParametricQuantumCircuit::remove_parameter, "Remove an existing parameter (only new-style)", py::arg("parameter_id"))
+        .def("contains_parameter", &ParametricQuantumCircuit::contains_parameter, "Return whether the parameter is existing (only new-style)", py::arg("parameter_id"))
+        .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count, "Get parameter count (only old-style)")
+        .def("get_parametric_gate_count", &ParametricQuantumCircuit::get_parametric_gate_count, "Get parametric gate count (only new-style)")
+        .def("get_parameter_id_count", &ParametricQuantumCircuit::get_parameter_id_count, "Get parameter-id count (only new-style)")
+        .def("get_parameter", py::overload_cast<UINT>(&ParametricQuantumCircuit::get_parameter, py::const_), "Get parameter", py::arg("index"))
+        .def("get_parameter", py::overload_cast<const ParameterId&>(&ParametricQuantumCircuit::get_parameter, py::const_), py::arg("parameter id"))
+        .def("set_parameter", py::overload_cast<UINT, double>(&ParametricQuantumCircuit::set_parameter), "Set parameter", py::arg("index"), py::arg("parameter"))
+        .def("set_parameter", py::overload_cast<const ParameterId&, double>(&ParametricQuantumCircuit::set_parameter), py::arg("parameter_id"), py::arg("value"))
+        .def("get_parameter_set", &ParametricQuantumCircuit::get_parameter_set, "Get current parameter-set")
+        .def("set_parameter_set", &ParametricQuantumCircuit::set_parameter_set, "Replace current parameter-set with given one", py::arg("parameter_set"))
+
+        .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate_copy, "Add gate", py::arg("gate"))
         .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate_copy, py::arg("gate"), py::arg("position"))
-        .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count, "Get parameter count")
-        .def("get_parameter", &ParametricQuantumCircuit::get_parameter, "Get parameter", py::arg("index"))
-        .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
-        .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
 
-        .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate, "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
+        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate_copy, "Add parametric gate", py::arg("gate"))
+        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate_copy, py::arg("gate"), py::arg("position"))
+
+        .def("add_parametric_RX_gate", py::overload_cast<UINT, double>(&ParametricQuantumCircuit::add_parametric_RX_gate), "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_RX_gate", py::overload_cast<UINT, const ParameterId&, double>(&ParametricQuantumCircuit::add_parametric_RX_gate), py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_RX_gate_new_parameter", &ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter, "Create a new parameter and add parametric Pauli-X rotation gate owning it", py::arg("index"), py::arg("parameter_id"), py::arg("value"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_RY_gate", py::overload_cast<UINT, double>(&ParametricQuantumCircuit::add_parametric_RY_gate), "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_RY_gate", py::overload_cast<UINT, const ParameterId&, double>(&ParametricQuantumCircuit::add_parametric_RY_gate), py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_RY_gate_new_parameter", &ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter, "Create a new parameter and add parametric Pauli-Y rotation gate owning it", py::arg("index"), py::arg("parameter_id"), py::arg("value"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_RZ_gate", py::overload_cast<UINT, double>(&ParametricQuantumCircuit::add_parametric_RZ_gate), "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_RZ_gate", py::overload_cast<UINT, const ParameterId&, double>(&ParametricQuantumCircuit::add_parametric_RZ_gate), py::arg("index"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_RZ_gate_new_parameter", &ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter, "Create a new parameter and add parametric Pauli-Z rotation gate owning it", py::arg("index"), py::arg("parameter_id"), py::arg("value"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_multi_Pauli_rotation_gate", py::overload_cast<std::vector<UINT>, std::vector<UINT>, double>(&ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate), "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
+        .def("add_parametric_multi_Pauli_rotation_gate", py::overload_cast<std::vector<UINT>, std::vector<UINT>, const ParameterId&, double>(&ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate), py::arg("index_list"), py::arg("pauli_ids"), py::arg("parameter_id"), py::arg("parameter_coef") = 1.)
+        .def("add_parametric_multi_Pauli_rotation_gate_new_parameter", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate_new_parameter, "Create a new parameter and add parametric multi-qubit Pauli rotation gate owning it", py::arg("index_list"), py::arg("pauli_ids"), py::arg("parameter_id"), py::arg("value"), py::arg("parameter_coef") = 1.)
 
         .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("obs"))
         .def("backprop_inner_product",&ParametricQuantumCircuit::backprop_inner_product,"do backprop with innder product",py::arg("state"))

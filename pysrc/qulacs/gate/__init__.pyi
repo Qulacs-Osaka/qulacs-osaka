@@ -158,22 +158,40 @@ def P1(index: int) -> qulacs_core.QuantumGateBase:
     """
     Create projection gate to |1> subspace
     """
-def ParametricPauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+@typing.overload
+def ParametricPauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> QuantumGate_SingleParameter:
     """
     Create parametric multi-qubit Pauli rotation gate
+
+    Create parametric multi-qubit Pauli rotation gate
     """
-def ParametricRX(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+@typing.overload
+def ParametricPauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], parameter_id: str, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    pass
+@typing.overload
+def ParametricRX(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
     """
     Create parametric Pauli-X rotation gate
     """
-def ParametricRY(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+@typing.overload
+def ParametricRX(index: int, parameter_id: str, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    pass
+@typing.overload
+def ParametricRY(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
     """
     Create parametric Pauli-Y rotation gate
     """
-def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+@typing.overload
+def ParametricRY(index: int, parameter_id: str, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    pass
+@typing.overload
+def ParametricRZ(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
     """
     Create parametric Pauli-Z rotation gate
     """
+@typing.overload
+def ParametricRZ(index: int, parameter_id: str, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    pass
 def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.QuantumGateBase:
     """
     Create multi-qubit Pauli gate
