@@ -4,7 +4,7 @@
 
 ### 量子状態の生成
 以下のコードで<code>n</code>qubitの量子状態を生成します。
-生成した量子状態は \f$|0\rangle^{\otimes n}\f$ に初期化されています。
+生成した量子状態は $|0\rangle^{\otimes n}$ に初期化されています。
 ```cpp
 #include <cppsim/state.hpp>
 
@@ -130,8 +130,8 @@ int main(){
 
 
 ### 量子状態のデータの取得
-量子状態を表す \f$2^n\f$ の長さの配列を取得します。
-特にGPUで量子状態を作成したり、大きい \f$n\f$ では非常に重い操作になるので注意してください。
+量子状態を表す $2^n$ の長さの配列を取得します。
+特にGPUで量子状態を作成したり、大きい $n$ では非常に重い操作になるので注意してください。
 ```cpp
 #include <cppsim/state.hpp>
 
@@ -725,7 +725,7 @@ int main() {
 ```
 
 ### オブザーバブルの回転
-オブザーバブル\f$H\f$の回転\f$e^{i\theta H}\f$をTrotter展開によって行います。<code>num_repeats</code>はデフォルト値では以下のコードのようになっていますが、ユーザがオプションで指定することが可能です。
+オブザーバブル$H$の回転$e^{i\theta H}$をTrotter展開によって行います。<code>num_repeats</code>はデフォルト値では以下のコードのようになっていますが、ユーザがオプションで指定することが可能です。
 ```cpp
 #include <cppsim/circuit.hpp>
 #include <cppsim/state.hpp>

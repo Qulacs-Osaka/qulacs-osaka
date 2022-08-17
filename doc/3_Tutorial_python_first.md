@@ -10,7 +10,7 @@ QulacsはJupyter Notebook環境で動作させるとエラー時のメッセー�
 
 ## 量子状態
 ### 量子状態の生成
-量子状態は<code>QuantumState</code>クラスを用いて生成します。生成した量子状態は \f$|0\rangle^{\otimes n}\f$ に初期化されています。量子状態を<code>print</code>することで量子状態の情報を表示できます。
+量子状態は<code>QuantumState</code>クラスを用いて生成します。生成した量子状態は $|0\rangle^{\otimes n}$ に初期化されています。量子状態を<code>print</code>することで量子状態の情報を表示できます。
 ```python
 from qulacs import QuantumState
 
@@ -280,7 +280,7 @@ print(gate)
 (1,0) (0,0)
 ```
 
-２量子ビット以上の大きさのゲートを作るには、一つ目の引数に対象となる添え字のリストを、二つ目に行列を与えます。n量子ビットゲートを作るとき、行列の大きさは \f$2^n\f$ 次元でなければなりません。
+２量子ビット以上の大きさのゲートを作るには、一つ目の引数に対象となる添え字のリストを、二つ目に行列を与えます。n量子ビットゲートを作るとき、行列の大きさは $2^n$ 次元でなければなりません。
 
 ```python
 from qulacs.gate import DenseMatrix
