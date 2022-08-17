@@ -12,11 +12,50 @@
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 
-ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
-    : QuantumCircuit(qubit_count_){};
 ParametricQuantumCircuit::ParametricQuantumCircuit(
-    UINT qubit_count_, const ParameterSet& parameter_set)
-    : QuantumCircuit(qubit_count_), _parameter_set(parameter_set){};
+    UINT qubit_count_, std::string style)
+    : QuantumCircuit(qubit_count_) {
+    if (style == "undefined") {
+    } else if (style == "old")
+        _specified_old = true;
+    else if (style == "new")
+        _specified_new = true;
+    else if (style ==
+             "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
+             "still_want_to_do_that") {
+        _specified_old = true;
+        _specified_new = true;
+    } else {
+        throw InvalidParametricQuantumCircuitStyleOptionException(
+            "Error: "
+            "ParametricQuantumCircuit::ParametricQuantumCircuit(UINT, "
+            "std::string): "
+            "unknown style option: " +
+            style);
+    }
+}
+ParametricQuantumCircuit::ParametricQuantumCircuit(
+    UINT qubit_count_, const ParameterSet& parameter_set, std::string style)
+    : QuantumCircuit(qubit_count_), _parameter_set(parameter_set) {
+    if (style == "undefined") {
+    } else if (style == "old")
+        _specified_old = true;
+    else if (style == "new")
+        _specified_new = true;
+    else if (style ==
+             "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
+             "still_want_to_do_that") {
+        _specified_old = true;
+        _specified_new = true;
+    } else {
+        throw InvalidParametricQuantumCircuitStyleOptionException(
+            "Error: "
+            "ParametricQuantumCircuit::ParametricQuantumCircuit(UINT, "
+            "std::string): "
+            "unknown style option: " +
+            style);
+    }
+}
 
 bool ParametricQuantumCircuit::is_old_style() const {
     if (_parametric_gate_list.size() == 0) return true;

@@ -106,6 +106,22 @@ public:
 };
 
 /**
+ * \~japanese-en ParametricQuantumCircuitのスタイルオプションが不正
+ */
+class InvalidParametricQuantumCircuitStyleOptionException
+    : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidParametricQuantumCircuitStyleOptionException(
+        const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * hermitianにしか使えない演算にhermitianでないOperatorやObservableを渡した例外
  */

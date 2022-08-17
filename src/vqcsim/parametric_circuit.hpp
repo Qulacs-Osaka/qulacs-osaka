@@ -11,12 +11,13 @@ private:
     std::vector<QuantumGate_SingleParameter*> _parametric_gate_list;
     std::vector<UINT> _parametric_gate_position;
     ParameterSet _parameter_set;
+    bool _specified_old;
+    bool _specified_new;
 
 public:
-    ParametricQuantumCircuit(UINT qubit_count);
-    ParametricQuantumCircuit(
-        UINT qubit_count, const ParameterSet& parameter_set);
-
+    ParametricQuantumCircuit(UINT qubit_count, std::string style = "undefined");
+    ParametricQuantumCircuit(UINT qubit_count,
+        const ParameterSet& parameter_set, std::string style = "undefined");
     virtual bool is_old_style() const;
     virtual bool is_new_style() const;
 

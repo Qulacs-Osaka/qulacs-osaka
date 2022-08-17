@@ -601,8 +601,8 @@ PYBIND11_MODULE(qulacs_core, m) {
     ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
-        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
-        .def(py::init<unsigned int, const ParameterSet&>(), py::arg("qubit_count"), py::arg("parameter_set"))
+        .def(py::init<unsigned int, std::string>(), "Constructor", py::arg("qubit_count"), py::arg("style") = "undefined")
+        .def(py::init<unsigned int, const ParameterSet&, std::string>(), py::arg("qubit_count"), py::arg("parameter_set"), py::arg("style") = "undefied")
 
         .def("is_old_style", &ParametricQuantumCircuit::is_old_style, "Return whether the circuit is old-style")
         .def("is_new_style", &ParametricQuantumCircuit::is_new_style, "Return whether the circuit is new-style")
