@@ -482,12 +482,12 @@ class PauliOperator():
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
     @typing.overload
-    def __init__(self, qubit_count: int) -> None: 
+    def __init__(self, qubit_count: int, parameter_set: typing.Dict[str, float], style: str = 'undefied') -> None: 
         """
         Constructor
         """
     @typing.overload
-    def __init__(self, qubit_count: int, parameter_set: typing.Dict[str, float]) -> None: ...
+    def __init__(self, qubit_count: int, style: str = 'undefined') -> None: ...
     def __repr__(self) -> str: ...
     @typing.overload
     def add_gate(self, gate: QuantumGateBase) -> None: 
