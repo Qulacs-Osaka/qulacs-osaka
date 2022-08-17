@@ -15,6 +15,17 @@ o : qulacs qulacs-osaka両方
 - (情報) メンバ・メソッド・関数名
 
 のように記述し、同名のものがあれば引数名などを書き加えました。
+
+## 章追加
+- Observable
+- DensityMatrix 
+- Simulator : 担当、森
+  - CausalConeSimulator
+  - NoiseSimulator
+  - QuantumCircuitSimulator
+
+o0と+0の追加分類
+
 ### PauliOperator
 - o0 init(coef)
 - o2 init(pauli_string, coef)
