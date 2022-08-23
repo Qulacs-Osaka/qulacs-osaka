@@ -80,6 +80,9 @@ public:
             get_parameter_id() + "\" is not found");
     }
     virtual QuantumGate_SingleParameter* copy() const override = 0;
+    virtual void update_quantum_state(QuantumStateBase* state) override = 0;
+    virtual void update_quantum_state(
+        QuantumStateBase* state, const ParameterSet& parameter_set) = 0;
 };
 
 class QuantumGate_SingleParameterOneQubitRotation

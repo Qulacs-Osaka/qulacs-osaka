@@ -101,6 +101,10 @@ public:
         const ParameterId& parameter_id, double value,
         double parameter_coef = 1.);
 
+    virtual void update_quantum_state(QuantumStateBase* state);
+    virtual void update_quantum_state(
+        QuantumStateBase* state, UINT start_index, UINT end_index);
+
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
 };

@@ -25,8 +25,8 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(
         _specified_old = false;
         _specified_new = true;
     } else if (style ==
-             "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
-             "still_want_to_do_that") {
+               "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
+               "still_want_to_do_that") {
         _specified_old = true;
         _specified_new = true;
     } else {
@@ -51,8 +51,8 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(
         _specified_old = false;
         _specified_new = true;
     } else if (style ==
-             "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
-             "still_want_to_do_that") {
+               "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
+               "still_want_to_do_that") {
         _specified_old = true;
         _specified_new = true;
     } else {
@@ -585,6 +585,55 @@ void ParametricQuantumCircuit::
     this->create_parameter(parameter_id, value);
     this->add_parametric_gate(gate::ParametricPauliRotation(
         target, pauli_id, parameter_id, parameter_coef));
+}
+
+void ParametricQuantumCircuit::update_quantum_state(QuantumStateBase* state) {
+    if (state->qubit_count != this->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase) : "
+            "invalid qubit count");
+    }
+
+    for (const auto& gate : this->_gate_list) {
+        if (gate->is_parametric()) {
+            dynamic_cast<QuantumGate_SingleParameter*>(gate)
+                ->update_quantum_state(state, _parameter_set);
+        } else {
+            gate->update_quantum_state(state);
+        }
+    }
+}
+
+void ParametricQuantumCircuit::update_quantum_state(
+    QuantumStateBase* state, UINT start, UINT end) {
+    if (state->qubit_count != this->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : invalid qubit count");
+    }
+    if (start > end) {
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : start must be smaller than or equal to end");
+    }
+    if (end > this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : end must be smaller than or equal to gate_count");
+    }
+    for (UINT cursor = start; cursor < end; ++cursor) {
+        auto gate = this->_gate_list[cursor];
+        if (gate->is_parametric()) {
+            dynamic_cast<QuantumGate_SingleParameter*>(gate)
+                ->update_quantum_state(state, _parameter_set);
+        } else {
+            gate->update_quantum_state(state);
+        }
+    }
 }
 
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
