@@ -437,16 +437,17 @@ TEST(ParametricCircuit, ParametricMergeCircuitsNew) {
 
     for (int i = 0; i < 3; ++i) {
         double initial_angle = random.uniform();
-        circuit_for_merge.add_parametric_RX_gate(
+        circuit_for_merge.add_parametric_RX_gate_new_parameter(
             i, "merge" + std::to_string(i), initial_angle);
         circuit_for_merge.add_X_gate(i);
-        expected_circuit.add_parametric_RX_gate(
+        expected_circuit.add_parametric_RX_gate_new_parameter(
             i, "merge" + std::to_string(i), initial_angle);
         expected_circuit.add_X_gate(i);
     }
     for (int i = 0; i < 3; ++i) {
-        circuit_for_merge.add_parametric_RX_gate(
-            i, "common" + std::to_string(i));
+        circuit_for_merge.add_parametric_RX_gate_new_parameter(i,
+            "common" + std::to_string(i),
+            base_circuit.get_parameter("common" + std::to_string(i)));
         base_circuit.add_X_gate(i);
         expected_circuit.add_parametric_RX_gate(
             i, "common" + std::to_string(i));
