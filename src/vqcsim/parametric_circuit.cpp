@@ -58,11 +58,17 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(
 }
 
 bool ParametricQuantumCircuit::is_old_style() const {
+    if (_specified_old) return true;
+    if (!_specified_new) return false;
+    if (!_parameter_set.empty()) return false;
     if (_parametric_gate_list.size() == 0) return true;
     if (_parametric_gate_list[0]->get_parameter_type() == "gate") return true;
     return false;
 }
 bool ParametricQuantumCircuit::is_new_style() const {
+    if (_specified_new) return true;
+    if (!_specified_old) return false;
+    if (!_parameter_set.empty()) return true;
     if (_parametric_gate_list.size() == 0) return true;
     if (_parametric_gate_list[0]->get_parameter_type() == "id") return true;
     return false;
