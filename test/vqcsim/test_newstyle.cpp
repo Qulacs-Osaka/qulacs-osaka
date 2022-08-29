@@ -448,7 +448,7 @@ TEST(ParametricCircuit, ParametricMergeCircuitsNew) {
         circuit_for_merge.add_parametric_RX_gate_new_parameter(i,
             "common" + std::to_string(i),
             base_circuit.get_parameter("common" + std::to_string(i)));
-        base_circuit.add_X_gate(i);
+        circuit_for_merge.add_X_gate(i);
         expected_circuit.add_parametric_RX_gate(
             i, "common" + std::to_string(i));
         expected_circuit.add_X_gate(i);
@@ -457,16 +457,13 @@ TEST(ParametricCircuit, ParametricMergeCircuitsNew) {
     base_circuit.merge_circuit(&circuit_for_merge);
 
     ASSERT_EQ(base_circuit.to_string(), expected_circuit.to_string());
-    UINT parametric_gate_index = 0;
     for (int i = 0; i < base_circuit.gate_list.size(); ++i) {
         ASSERT_EQ(base_circuit.gate_list[i]->to_string(),
             expected_circuit.gate_list[i]->to_string());
         if (base_circuit.gate_list[i]->is_parametric()) {
             // Compare parametric_gate angles
-            ASSERT_NEAR(base_circuit.get_parameter(parametric_gate_index),
-                expected_circuit.get_parameter(parametric_gate_index), eps);
-
-            ++parametric_gate_index;
+            ASSERT_NEAR(
+                base_circuit.get_angle(i), expected_circuit.get_angle(i), eps);
         }
     }
 }
