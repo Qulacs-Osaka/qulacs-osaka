@@ -363,6 +363,9 @@ void ParametricQuantumCircuit::merge_circuit(
             dynamic_cast<QuantumGate_SingleParameter*>(
                 this->gate_list[new_gate_position]));
     }
+    for (auto& p : circuit->_parameter_set) {
+        this->_parameter_set[p.first] = p.second;
+    }
     return;
 }
 
