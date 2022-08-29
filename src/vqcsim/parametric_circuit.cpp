@@ -218,6 +218,31 @@ double ParametricQuantumCircuit::get_parameter(
     }
     return it->second;
 }
+double ParametricQuantumCircuit::get_angle(UINT index) const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_angle(UINT index) const: "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.\n"
+            "Info: use get_parameter(UINT parameter_index) instead.");
+    }
+    if (index >= this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "ParametricQuantumCircuit::get_angle(UINT): "
+            "gate index is out of range");
+    }
+    if (!this->_gate_list[index]->is_parametric()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_angle(UINT index) const: "
+            "specified gate is not parametric.");
+    }
+    auto pgate =
+        dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[index]);
+    return pgate->get_angle(this->_parameter_set);
+}
 void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
     if (!this->is_old_style()) {
         throw NotImplementedException(

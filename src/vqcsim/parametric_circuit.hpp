@@ -32,6 +32,7 @@ public:
     virtual UINT get_parameter_id_count() const;
     virtual double get_parameter(UINT index) const;
     virtual double get_parameter(const ParameterId& parameter_id) const;
+    virtual double get_angle(UINT index) const;
     virtual void set_parameter(UINT index, double value);
     virtual void set_parameter(const ParameterId& parameter_id, double value);
     virtual ParameterSet get_parameter_set() const;
