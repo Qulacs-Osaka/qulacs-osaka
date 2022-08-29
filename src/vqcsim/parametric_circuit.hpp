@@ -30,15 +30,15 @@ public:
     virtual UINT get_parameter_count() const;
     virtual UINT get_parametric_gate_count() const;
     virtual UINT get_parameter_id_count() const;
-    virtual double get_parameter(UINT index) const;
+    virtual double get_parameter(UINT parameter_index) const;
     virtual double get_parameter(const ParameterId& parameter_id) const;
-    virtual double get_angle(UINT index) const;
-    virtual void set_parameter(UINT index, double value);
+    virtual double get_angle(UINT gate_index) const;
+    virtual void set_parameter(UINT parameter_index, double value);
     virtual void set_parameter(const ParameterId& parameter_id, double value);
     virtual ParameterSet get_parameter_set() const;
     virtual void set_parameter_set(const ParameterSet& parameter_set);
 
-    virtual UINT get_parametric_gate_position(UINT index) const;
+    virtual UINT get_parametric_gate_position(UINT parameter_index) const;
     virtual void add_gate(QuantumGateBase* gate) override;
     virtual void add_gate(QuantumGateBase* gate, UINT index) override;
     virtual void add_gate_copy(const QuantumGateBase* gate) override;

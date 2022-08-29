@@ -181,7 +181,7 @@ UINT ParametricQuantumCircuit::get_parameter_id_count() const {
     }
     return (UINT)_parameter_set.size();
 }
-double ParametricQuantumCircuit::get_parameter(UINT index) const {
+double ParametricQuantumCircuit::get_parameter(UINT parameter_index) const {
     if (!this->is_old_style()) {
         throw NotImplementedException(
             "Error: "
@@ -190,13 +190,13 @@ double ParametricQuantumCircuit::get_parameter(UINT index) const {
             "add gate with a new-style parametric_gate which has string "
             "parameter_id.");
     }
-    if (index >= this->_parametric_gate_list.size()) {
+    if (parameter_index >= this->_parametric_gate_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "Error: "
             "ParametricQuantumCircuit::get_parameter(UINT): "
             "parameter index is out of range");
     }
-    return _parametric_gate_list[index]->get_parameter_value();
+    return _parametric_gate_list[parameter_index]->get_parameter_value();
 }
 double ParametricQuantumCircuit::get_parameter(
     const ParameterId& parameter_id) const {
@@ -218,32 +218,33 @@ double ParametricQuantumCircuit::get_parameter(
     }
     return it->second;
 }
-double ParametricQuantumCircuit::get_angle(UINT index) const {
+double ParametricQuantumCircuit::get_angle(UINT gate_index) const {
     if (!this->is_new_style()) {
         throw NotImplementedException(
             "Error: "
-            "ParametricQuantumCircuit::get_angle(UINT index) const: "
+            "ParametricQuantumCircuit::get_angle(UINT gate_index) const: "
             "this is a new-style function. If you want to use "
             "this, do not add gate with an old-style parameteric_gate whose "
             "parameter is inside.\n"
             "Info: use get_parameter(UINT parameter_index) instead.");
     }
-    if (index >= this->_gate_list.size()) {
+    if (gate_index >= this->_gate_list.size()) {
         throw GateIndexOutOfRangeException(
             "ParametricQuantumCircuit::get_angle(UINT): "
             "gate index is out of range");
     }
-    if (!this->_gate_list[index]->is_parametric()) {
+    if (!this->_gate_list[gate_index]->is_parametric()) {
         throw NotImplementedException(
             "Error: "
-            "ParametricQuantumCircuit::get_angle(UINT index) const: "
+            "ParametricQuantumCircuit::get_angle(UINT gate_index) const: "
             "specified gate is not parametric.");
     }
-    auto pgate =
-        dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[index]);
+    auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(
+        this->_gate_list[gate_index]);
     return pgate->get_angle(this->_parameter_set);
 }
-void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
+void ParametricQuantumCircuit::set_parameter(
+    UINT parameter_index, double value) {
     if (!this->is_old_style()) {
         throw NotImplementedException(
             "Error: "
@@ -252,12 +253,12 @@ void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
             "add gate with a new-style parametric_gate which has string "
             "parameter_id.");
     }
-    if (index >= this->_parametric_gate_list.size()) {
+    if (parameter_index >= this->_parametric_gate_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
             "parameter index is out of range");
     }
-    _parametric_gate_list[index]->set_parameter_value(value);
+    _parametric_gate_list[parameter_index]->set_parameter_value(value);
 }
 void ParametricQuantumCircuit::set_parameter(
     const ParameterId& parameter_id, double value) {
@@ -326,15 +327,16 @@ std::ostream& operator<<(
     return stream;
 }
 
-UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
-    if (index >= this->_parametric_gate_list.size()) {
+UINT ParametricQuantumCircuit::get_parametric_gate_position(
+    UINT parameter_index) const {
+    if (parameter_index >= this->_parametric_gate_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "Error: "
             "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
             "parameter index is out of range");
     }
 
-    return _parametric_gate_position[index];
+    return _parametric_gate_position[parameter_index];
 }
 void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate) {
     QuantumCircuit::add_gate(gate);
