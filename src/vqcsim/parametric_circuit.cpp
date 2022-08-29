@@ -370,7 +370,7 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
 void ParametricQuantumCircuit::merge_circuit(
     const ParametricQuantumCircuit* circuit) {
     if ((!this->is_old_style() && !circuit->is_new_style()) ||
-        (!this->is_new_style() && !this->is_old_style())) {
+        (!this->is_new_style() && !circuit->is_old_style())) {
         throw NotImplementedException(
             "Error: "
             "ParametricQuantumCircuit::merge_circuit(const "
