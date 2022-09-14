@@ -1,8 +1,6 @@
 #pragma once
 
-#include <map>
 #include <string>
 
-using ParameterType = std::string;
-using ParameterId = std::string;
-using ParameterSet = std::map<ParameterId, double>;
+using ParameterId = int32_t;
+constexpr int32_t OLD_STYLE_PARAMETER = -1;  // パラメータの値をゲート自身が持つ

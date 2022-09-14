@@ -24,11 +24,7 @@ TEST(ParametricCircuit, StyleOption) {
         ASSERT_TRUE(circuit->is_old_style());
         ASSERT_FALSE(circuit->is_new_style());
         ASSERT_NO_THROW({ circuit->add_parametric_RX_gate(0, 0.); });
-        ASSERT_THROW(
-            {
-                circuit->add_parametric_RX_gate_new_parameter(
-                    0, "parameter0", 0.);
-            },
+        ASSERT_THROW({ circuit->add_parametric_RX_gate_new_parameter(0, 0.); },
             NotImplementedException);
     }
     {
@@ -36,9 +32,8 @@ TEST(ParametricCircuit, StyleOption) {
             new ParametricQuantumCircuit(1, "new");
         ASSERT_FALSE(circuit->is_old_style());
         ASSERT_TRUE(circuit->is_new_style());
-        ASSERT_NO_THROW({
-            circuit->add_parametric_RX_gate_new_parameter(0, "parameter0", 0.);
-        });
+        ASSERT_NO_THROW(
+            { circuit->add_parametric_RX_gate_new_parameter(0, 0.); });
         ASSERT_THROW({ circuit->add_parametric_RX_gate(0, 0.); },
             NotImplementedException);
     }
@@ -48,9 +43,8 @@ TEST(ParametricCircuit, StyleOption) {
             "still_want_to_do_that");
         ASSERT_TRUE(circuit->is_old_style());
         ASSERT_TRUE(circuit->is_new_style());
-        ASSERT_NO_THROW({
-            circuit->add_parametric_RX_gate_new_parameter(0, "parameter0", 0.);
-        });
+        ASSERT_NO_THROW(
+            { circuit->add_parametric_RX_gate_new_parameter(0, 0.); });
         ASSERT_NO_THROW({ circuit->add_parametric_RX_gate(0, 0.); });
     }
     {
@@ -71,25 +65,20 @@ TEST(ParametricCircuit, GateApplyNew) {
     for (UINT d = 0; d < depth; ++d) {
         std::string d_str = std::to_string(d);
         for (UINT i = 0; i < n; ++i) {
-            std::string i_str = std::to_string(i);
-            circuit->add_parametric_RX_gate_new_parameter(
-                i, "RX_" + d_str + "_" + i_str, random.uniform());
-            circuit->add_parametric_RY_gate_new_parameter(
-                i, "RY_" + d_str + "_" + i_str, random.uniform());
-            circuit->add_parametric_RZ_gate_new_parameter(
-                i, "RZ_" + d_str + "_" + i_str, random.uniform());
+            circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
+            circuit->add_parametric_RY_gate_new_parameter(i, random.uniform());
+            circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
         }
         for (UINT i = d % 2; i + 1 < n; i += 2) {
             std::string i_str = std::to_string(i);
             circuit->add_parametric_multi_Pauli_rotation_gate_new_parameter(
-                {i, i + 1}, {3, 3}, "Pauli_" + d_str + "_" + i_str,
-                random.uniform());
+                {i, i + 1}, {3, 3}, random.uniform());
         }
     }
 
-    for (auto& p : circuit->get_parameter_set()) {
-        double current_angle = circuit->get_parameter(p.first);
-        circuit->set_parameter(p.first, current_angle + random.uniform());
+    for (UINT i = 0; i < circuit->get_parameter_id_count(); i++) {
+        double current_angle = circuit->get_parameter_new_style(i);
+        circuit->set_parameter_new_style(i, current_angle + random.uniform());
     }
 
     QuantumState state(n);
@@ -108,24 +97,19 @@ TEST(ParametricCircuit, GateApplyDMNew) {
         std::string d_str = std::to_string(d);
         for (UINT i = 0; i < n; ++i) {
             std::string i_str = std::to_string(i);
-            circuit->add_parametric_RX_gate_new_parameter(
-                i, "RX_" + d_str + "_" + i_str, random.uniform());
-            circuit->add_parametric_RY_gate_new_parameter(
-                i, "RY_" + d_str + "_" + i_str, random.uniform());
-            circuit->add_parametric_RZ_gate_new_parameter(
-                i, "RZ_" + d_str + "_" + i_str, random.uniform());
+            circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
+            circuit->add_parametric_RY_gate_new_parameter(i, random.uniform());
+            circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
         }
         for (UINT i = d % 2; i + 1 < n; i += 2) {
-            std::string i_str = std::to_string(i);
             circuit->add_parametric_multi_Pauli_rotation_gate_new_parameter(
-                {i, i + 1}, {3, 3}, "Pauli_" + d_str + "_" + i_str,
-                random.uniform());
+                {i, i + 1}, {3, 3}, random.uniform());
         }
     }
 
-    for (auto& p : circuit->get_parameter_set()) {
-        double current_angle = circuit->get_parameter(p.first);
-        circuit->set_parameter(p.first, current_angle + random.uniform());
+    for (UINT i = 0; i < circuit->get_parameter_id_count(); i++) {
+        double current_angle = circuit->get_parameter_new_style(i);
+        circuit->set_parameter_new_style(i, current_angle + random.uniform());
     }
 
     DensityMatrix state(n);
@@ -137,22 +121,39 @@ TEST(ParametricCircuit, GateApplyDMNew) {
 
 TEST(ParametricCircuit, ParametricGatePositionNew) {
     auto circuit = ParametricQuantumCircuit(3);
-    circuit.add_parametric_RX_gate_new_parameter(0, "A", 0.);
+    ParameterId parameter0 =
+        circuit.add_parametric_RX_gate_new_parameter(0, 0.);  // 0
+    ASSERT_EQ(parameter0, 0);
     circuit.add_H_gate(0);
-    circuit.create_parameter("B", 0.);
-    circuit.add_parametric_gate_copy(gate::ParametricRZ(0, "B"));
+    ParameterId parameter1 = circuit.create_parameter(0.);  // 1
+    ASSERT_EQ(parameter1, 1);
+    ASSERT_EQ(circuit.add_parametric_gate_copy(
+                  gate::ParametricRZ_existing_parameter(0, parameter1)),
+        1);
     circuit.add_gate_copy(gate::CNOT(0, 1));
-    circuit.add_parametric_RY_gate_new_parameter(1, "C", 0.);
-    circuit.create_parameter("D", 0.);
-    circuit.add_parametric_gate(gate::ParametricRY(2, "D"), 2);
+    ParameterId parameter2 =
+        circuit.add_parametric_RY_gate_new_parameter(1, 0.);  // 2
+    ASSERT_EQ(parameter2, 2);
+    ParameterId parameter3 = circuit.create_parameter(0.);  // 3
+    ASSERT_EQ(parameter3, 3);
+    ASSERT_EQ(circuit.add_parametric_gate(
+                  gate::ParametricRY_existing_parameter(2, parameter3), 2),
+        3);
     circuit.add_gate_copy(gate::X(0), 2);
-    circuit.create_parameter("E", 0.);
-    circuit.add_parametric_gate(gate::ParametricRZ(1, "E"), 0);
+    ParameterId parameter4 = circuit.create_parameter(0.);  // 4
+    ASSERT_EQ(parameter4, 4);
+    ASSERT_EQ(circuit.add_parametric_gate(
+                  gate::ParametricRZ_existing_parameter(1, parameter4), 0),
+        4);
     circuit.remove_gate(4);
     circuit.remove_gate(5);
-    circuit.create_parameter("F", 0.);
-    circuit.add_parametric_gate_copy(
-        gate::ParametricPauliRotation({1}, {0}, "F", 0.), 6);
+    ParameterId parameter5 = circuit.create_parameter(0.);  // 5
+    ASSERT_EQ(parameter5, 5);
+    ASSERT_EQ(circuit.add_parametric_gate_copy(
+                  gate::ParametricPauliRotation_existing_parameter(
+                      {1}, {0}, parameter5, 1.),
+                  6),
+        5);
 
     ASSERT_EQ(circuit.get_parameter_id_count(), 6);
     ASSERT_EQ(circuit.get_parametric_gate_count(), 5);
@@ -304,23 +305,23 @@ TEST(ParametricCircuit, ParametricGatePositionNew) {
 
 TEST(ParametricGate, DuplicateIndexNew) {
     auto gate1 = gate::ParametricPauliRotation(
-        {0, 1, 2, 3, 4, 5, 6}, {0, 0, 0, 0, 0, 0, 0}, "A");
+        {0, 1, 2, 3, 4, 5, 6}, {0, 0, 0, 0, 0, 0, 0}, 0);
     EXPECT_TRUE(gate1 != NULL);
     delete gate1;
     auto gate2 = gate::ParametricPauliRotation(
-        {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, "A");
+        {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, 0);
     EXPECT_TRUE(gate2 != NULL);
     delete gate2;
     ASSERT_THROW(
         {
             auto gate3 = gate::ParametricPauliRotation(
-                {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, "A");
+                {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0);
         },
         DuplicatedQubitIndexException);
     ASSERT_THROW(
         {
             auto gate4 = gate::ParametricPauliRotation(
-                {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, "A");
+                {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0);
         },
         DuplicatedQubitIndexException);
 }
@@ -418,43 +419,39 @@ TEST(ParametricCircuit, ParametricMergeCircuitsNew) {
 
     for (int i = 0; i < 3; ++i) {
         double initial_angle = random.uniform();
-        base_circuit.add_parametric_RX_gate_new_parameter(
-            i, "base" + std::to_string(i), initial_angle);
+        base_circuit.add_parametric_RX_gate_new_parameter(i, initial_angle);
         base_circuit.add_X_gate(i);
-        expected_circuit.add_parametric_RX_gate_new_parameter(
-            i, "base" + std::to_string(i), initial_angle);
+        expected_circuit.add_parametric_RX_gate_new_parameter(i, initial_angle);
         expected_circuit.add_X_gate(i);
     }
+    // common parameter: base[3,4,5]
     for (int i = 0; i < 3; ++i) {
         double initial_angle = random.uniform();
-        base_circuit.add_parametric_RX_gate_new_parameter(
-            i, "common" + std::to_string(i), initial_angle);
+        base_circuit.add_parametric_RX_gate_new_parameter(i, initial_angle);
         base_circuit.add_X_gate(i);
-        expected_circuit.add_parametric_RX_gate_new_parameter(
-            i, "common" + std::to_string(i), initial_angle);
+        expected_circuit.add_parametric_RX_gate_new_parameter(i, initial_angle);
         expected_circuit.add_X_gate(i);
     }
 
     for (int i = 0; i < 3; ++i) {
         double initial_angle = random.uniform();
         circuit_for_merge.add_parametric_RX_gate_new_parameter(
-            i, "merge" + std::to_string(i), initial_angle);
+            i, initial_angle);
         circuit_for_merge.add_X_gate(i);
-        expected_circuit.add_parametric_RX_gate_new_parameter(
-            i, "merge" + std::to_string(i), initial_angle);
-        expected_circuit.add_X_gate(i);
-    }
-    for (int i = 0; i < 3; ++i) {
-        circuit_for_merge.add_parametric_RX_gate_new_parameter(i,
-            "common" + std::to_string(i),
-            base_circuit.get_parameter("common" + std::to_string(i)));
-        circuit_for_merge.add_X_gate(i);
-        expected_circuit.add_parametric_RX_gate(
-            i, "common" + std::to_string(i));
+        expected_circuit.add_parametric_RX_gate_new_parameter(i, initial_angle);
         expected_circuit.add_X_gate(i);
     }
 
-    base_circuit.merge_circuit(&circuit_for_merge);
+    // common parameter: merge[3,4,5]
+    for (int i = 0; i < 3; ++i) {
+        circuit_for_merge.add_parametric_RX_gate_new_parameter(
+            i, base_circuit.get_parameter_new_style(3 + i));
+        circuit_for_merge.add_X_gate(i);
+        expected_circuit.add_parametric_RX_gate_existing_parameter(i, 3 + i);
+        expected_circuit.add_X_gate(i);
+    }
+
+    base_circuit.merge_circuit(&circuit_for_merge, {{3, 3}, {4, 4}, {5, 5}});
 
     ASSERT_EQ(base_circuit.to_string(), expected_circuit.to_string());
     for (int i = 0; i < base_circuit.gate_list.size(); ++i) {
