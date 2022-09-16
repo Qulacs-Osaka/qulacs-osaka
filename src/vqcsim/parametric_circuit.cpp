@@ -789,8 +789,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
-    throw NotImplementedException(
-        "backprop for new-style ParametricQuantumCircuit is not implemented.");
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "backprop for new-style ParametricQuantumCircuit is not "
+            "implemented.");
+    }
     //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
     //上側から来た変動量 * 下側の対応する微分値 =
     //最終的な変動量になるようにする。
