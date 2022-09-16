@@ -22,11 +22,11 @@ public:
     virtual bool is_old_style() const;  // both-style
     virtual bool is_new_style() const;  // both-style
 
-    ParametricQuantumCircuit* copy() const;  // both-style
+    virtual ParametricQuantumCircuit* copy() const;  // both-style
 
     virtual ParameterId create_parameter(
         double initial_parameter);  // new-style
-    bool contains_parameter(
+    virtual bool contains_parameter(
         const ParameterId& parameter_id) const;                // new-style
     virtual UINT get_parameter_count() const;                  // old-style
     virtual UINT get_parametric_gate_count() const;            // new-style

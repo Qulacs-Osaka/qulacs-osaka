@@ -39,23 +39,24 @@ public:
     /**
      * \~japanese-en new-styleのコンストラクタ
      *
-     * @param[in] parameter_id パラメータのId(未割り当ての場合は-1)
+     * @param[in] parameter_id パラメータのId
      * @param[in] parameter_coef パラメータの倍率
      * @return 生成されたインスタンス
      */
     explicit QuantumGate_SingleParameter(const ParameterId& parameter_id,
         double parameter_coef = 1.);  // new-style
 
-    bool is_old_style() const;  // both-style
-    bool is_new_style() const;  // both-style
+    virtual bool is_old_style() const;  // both-style
+    virtual bool is_new_style() const;  // both-style
 
-    ParameterId get_parameter_id() const;                    // both-style
-    void set_parameter_id(const ParameterId& parameter_id);  // new-style
-    double get_parameter_coef() const;                       // both-style
-    void set_parameter_value(double value);                  // old-style
-    double get_parameter_value() const;                      // old-style
-    double get_angle() const;                                // old-style
-    double get_angle(
+    virtual ParameterId get_parameter_id() const;  // both-style
+    virtual void set_parameter_id(
+        const ParameterId& parameter_id);            // new-style
+    virtual double get_parameter_coef() const;       // both-style
+    virtual void set_parameter_value(double value);  // old-style
+    virtual double get_parameter_value() const;      // old-style
+    virtual double get_angle() const;                // old-style
+    virtual double get_angle(
         const std::vector<double> parameter_list) const;  // new-style
     virtual QuantumGate_SingleParameter* copy()
         const override = 0;  // both-style
@@ -72,7 +73,7 @@ public:
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
 private:
-    void _update_quantum_state(
+    virtual void _update_quantum_state(
         QuantumStateBase* state, double angle);  // both-style
 
 protected:
@@ -98,7 +99,8 @@ public:
  */
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 private:
-    void _set_matrix(ComplexMatrix& matrix, double angle) const;  // both-style
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
 
 public:
     ClsParametricRXGate(UINT target_qubit_index, double angle);  // old-style
@@ -118,7 +120,8 @@ public:
  */
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 private:
-    void _set_matrix(ComplexMatrix& matrix, double angle) const;  // both-style
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
 
 public:
     ClsParametricRYGate(UINT target_qubit_index, double angle);  // old-style
@@ -138,7 +141,8 @@ public:
  */
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 private:
-    void _set_matrix(ComplexMatrix& matrix, double angle) const;  // both-style
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
 
 public:
     ClsParametricRZGate(UINT target_qubit_index, double angle);  // old-style
@@ -154,9 +158,10 @@ public:
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
 private:
-    void _update_quantum_state(
-        QuantumStateBase* state, double angle);                   // both-style
-    void _set_matrix(ComplexMatrix& matrix, double angle) const;  // both-style
+    virtual void _update_quantum_state(
+        QuantumStateBase* state, double angle);  // both-style
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
 
 protected:
     PauliOperator* _pauli;

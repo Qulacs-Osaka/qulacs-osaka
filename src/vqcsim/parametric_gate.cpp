@@ -30,7 +30,7 @@ void QuantumGate_SingleParameter::set_parameter_id(
             "QuantumGate_SingleParameter::set_parameter_id(const "
             "ParameterId&): "
             "this is a new-style function. You cannot use this function "
-            "with an old-style parametric_gate whose parameter_id is -2");
+            "with an old-style parametric_gate whose parameter_id is -1");
     }
     _parameter_id = parameter_id;
 }
