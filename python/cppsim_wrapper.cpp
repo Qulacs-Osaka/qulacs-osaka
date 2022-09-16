@@ -631,7 +631,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_gate", py::overload_cast<const QuantumGateBase*, UINT>(&ParametricQuantumCircuit::add_gate_copy), py::arg("gate"), py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
         
-        .def("merge", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"), py::arg("share_parameter_id"))
+        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"), py::arg("share_parameter_id"))
 
         .def("add_parametric_gate", py::overload_cast<const QuantumGate_SingleParameter*>(&ParametricQuantumCircuit::add_parametric_gate_copy), "Add parametric gate", py::arg("gate"))
         .def("add_parametric_gate", py::overload_cast<const QuantumGate_SingleParameter*, UINT>(&ParametricQuantumCircuit::add_parametric_gate_copy), py::arg("gate"), py::arg("index"))

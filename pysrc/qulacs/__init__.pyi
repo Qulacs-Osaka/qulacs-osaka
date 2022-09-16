@@ -611,7 +611,7 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         If the parameter is old-style
         """
-    def merge(self, circuit: ParametricQuantumCircuit, share_parameter_id: typing.Dict[int, int]) -> None: 
+    def merge_circuit(self, circuit: ParametricQuantumCircuit, share_parameter_id: typing.Dict[int, int]) -> None: 
         """
         Merge another ParametricQuantumCircuit
         """
