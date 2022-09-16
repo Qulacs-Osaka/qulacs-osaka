@@ -32,7 +32,6 @@
 		// CAVEAT: you need to restart after building qulacs-osaka to take effect.
 		"C_Cpp.default.includePath": [
 			"include",
-			"/usr/local/include/python3.9"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.
