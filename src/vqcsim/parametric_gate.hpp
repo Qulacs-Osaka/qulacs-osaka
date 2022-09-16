@@ -71,6 +71,10 @@ public:
  */
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
+private:
+    void _update_quantum_state(
+        QuantumStateBase* state, double angle);  // both-style
+
 protected:
     typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
     typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
@@ -81,8 +85,6 @@ protected:
     QuantumGate_SingleParameterOneQubitRotation(double angle);  // old-style
     QuantumGate_SingleParameterOneQubitRotation(const ParameterId& parameter_id,
         double parameter_coef = 1.);  // new-style
-    void _update_quantum_state(
-        QuantumStateBase* state, double angle);  // both-style
 
 public:
     virtual void update_quantum_state(QuantumStateBase* state);  // old-style
@@ -151,11 +153,13 @@ public:
 };
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
-protected:
-    PauliOperator* _pauli;
+private:
     void _update_quantum_state(
         QuantumStateBase* state, double angle);                   // both-style
     void _set_matrix(ComplexMatrix& matrix, double angle) const;  // both-style
+
+protected:
+    PauliOperator* _pauli;
 
 public:
     ClsParametricPauliRotationGate(
