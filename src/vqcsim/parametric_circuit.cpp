@@ -176,25 +176,6 @@ double ParametricQuantumCircuit::get_parameter_new_style(
     }
     return _parameter_list[parameter_id];
 }
-double ParametricQuantumCircuit::get_angle(UINT gate_index) const {
-    if (gate_index >= this->_gate_list.size()) {
-        throw GateIndexOutOfRangeException(
-            "ParametricQuantumCircuit::get_angle(UINT): "
-            "gate index is out of range");
-    }
-    if (!this->_gate_list[gate_index]->is_parametric()) {
-        throw NotImplementedException(
-            "Error: "
-            "ParametricQuantumCircuit::get_angle(UINT gate_index) const: "
-            "specified gate is not parametric.");
-    }
-    auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(
-        this->_gate_list[gate_index]);
-    if (pgate->is_old_style()) return pgate->get_angle();
-    if (pgate->is_new_style()) return pgate->get_angle(_parameter_list);
-    assert(false);
-    return 0.;
-}
 void ParametricQuantumCircuit::set_parameter(
     UINT parameter_index, double value) {
     if (!this->is_old_style()) {
@@ -232,6 +213,25 @@ void ParametricQuantumCircuit::set_parameter_new_style(
             std::to_string(parameter_id) + "\" is not found");
     }
     _parameter_list[parameter_id] = value;
+}
+double ParametricQuantumCircuit::get_angle(UINT gate_index) const {
+    if (gate_index >= this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "ParametricQuantumCircuit::get_angle(UINT): "
+            "gate index is out of range");
+    }
+    if (!this->_gate_list[gate_index]->is_parametric()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_angle(UINT gate_index) const: "
+            "specified gate is not parametric.");
+    }
+    auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(
+        this->_gate_list[gate_index]);
+    if (pgate->is_old_style()) return pgate->get_angle();
+    if (pgate->is_new_style()) return pgate->get_angle(_parameter_list);
+    assert(false);
+    return 0.;
 }
 std::vector<double> ParametricQuantumCircuit::get_parameter_list() const {
     if (!this->is_new_style()) {
@@ -403,7 +403,7 @@ ParameterId ParametricQuantumCircuit::add_parametric_gate(
     return gate->get_parameter_id();
 }
 ParameterId ParametricQuantumCircuit::add_parametric_gate_copy(
-    QuantumGate_SingleParameter* gate) {
+    const QuantumGate_SingleParameter* gate) {
     if (!this->is_old_style() && gate->is_old_style()) {
         throw NotImplementedException(
             "Error: "
@@ -425,7 +425,7 @@ ParameterId ParametricQuantumCircuit::add_parametric_gate_copy(
     return gate->get_parameter_id();
 };
 ParameterId ParametricQuantumCircuit::add_parametric_gate_copy(
-    QuantumGate_SingleParameter* gate, UINT index) {
+    const QuantumGate_SingleParameter* gate, UINT index) {
     if (!this->is_old_style() && gate->is_old_style()) {
         throw NotImplementedException(
             "Error: "

@@ -37,16 +37,6 @@ void QuantumGate_SingleParameter::set_parameter_id(
 double QuantumGate_SingleParameter::get_parameter_coef() const {
     return _parameter_coef;
 }
-void QuantumGate_SingleParameter::set_parameter_value(double value) {
-    if (!this->is_old_style()) {
-        throw NotImplementedException(
-            "Error: "
-            "QuantumGate_SingleParameter::set_parameter_value(double): "
-            "this is an old-style function. You cannot use this function "
-            "with a new-style parametric_gate whose parameter_id is not -2");
-    }
-    _angle = value;
-}
 double QuantumGate_SingleParameter::get_parameter_value() const {
     if (!this->is_old_style()) {
         throw NotImplementedException(
@@ -56,6 +46,16 @@ double QuantumGate_SingleParameter::get_parameter_value() const {
             "with a new-style parametric_gate whose parameter_id is not -2");
     }
     return _angle;
+}
+void QuantumGate_SingleParameter::set_parameter_value(double value) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "QuantumGate_SingleParameter::set_parameter_value(double): "
+            "this is an old-style function. You cannot use this function "
+            "with a new-style parametric_gate whose parameter_id is not -2");
+    }
+    _angle = value;
 }
 double QuantumGate_SingleParameter::get_angle() const {
     if (!this->is_old_style()) {

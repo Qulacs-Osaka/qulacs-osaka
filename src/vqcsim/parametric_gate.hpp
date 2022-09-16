@@ -53,8 +53,8 @@ public:
     virtual void set_parameter_id(
         const ParameterId& parameter_id);            // new-style
     virtual double get_parameter_coef() const;       // both-style
-    virtual void set_parameter_value(double value);  // old-style
     virtual double get_parameter_value() const;      // old-style
+    virtual void set_parameter_value(double value);  // old-style
     virtual double get_angle() const;                // old-style
     virtual double get_angle(
         const std::vector<double> parameter_list) const;  // new-style

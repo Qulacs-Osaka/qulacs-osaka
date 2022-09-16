@@ -34,11 +34,11 @@ public:
     virtual double get_parameter(UINT parameter_index) const;  // old-style
     virtual double get_parameter_new_style(const ParameterId& parameter_id)
         const;  // new-style (いつかget_parameter()をこっちにしたい)
-    virtual double get_angle(UINT gate_index) const;  // both-style
     virtual void set_parameter(
         UINT parameter_index, double value);  // old-style
     virtual void set_parameter_new_style(const ParameterId& parameter_id,
         double value);  // new-style (いつかset_parameter()をこっちにしたい)
+    virtual double get_angle(UINT gate_index) const;         // both-style
     virtual std::vector<double> get_parameter_list() const;  // new-style
     virtual void set_parameter_list(
         const std::vector<double>& parameter_list);  // new-style
@@ -82,11 +82,12 @@ public:
         UINT
             index);  // both-style
                      // (new-styleで新規パラメータにしたいならcreate_parameter()を先に呼ぶ)
-    virtual ParameterId add_parametric_gate_copy(QuantumGate_SingleParameter*
+    virtual ParameterId add_parametric_gate_copy(
+        const QuantumGate_SingleParameter*
             gate);  // both-style
                     // (newで新規パラメータにしたいならcreate_parameter()を先に呼ぶ)
     virtual ParameterId add_parametric_gate_copy(
-        QuantumGate_SingleParameter* gate,
+        const QuantumGate_SingleParameter* gate,
         UINT
             index);  // both-style
                      // (new-styleで新規パラメータにしたいならcreate_parameter()を先に呼ぶ)
