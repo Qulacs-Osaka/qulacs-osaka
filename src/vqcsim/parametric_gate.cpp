@@ -53,7 +53,7 @@ void QuantumGate_SingleParameter::set_parameter_value(double value) {
             "Error: "
             "QuantumGate_SingleParameter::set_parameter_value(double): "
             "this is an old-style function. You cannot use this function "
-            "with a new-style parametric_gate whose parameter_id is not -2");
+            "with a new-style parametric_gate whose parameter_id is not -1");
     }
     _angle = value;
 }
