@@ -207,9 +207,8 @@ void ClsParametricRXGate::set_matrix(
             "this is a new-style function. You should use the function "
             "without passing parameter_list");
     }
-    
-    _set_matrix(matrix, this->get_angle(parameter_list));
 
+    _set_matrix(matrix, this->get_angle(parameter_list));
 }
 QuantumGate_SingleParameter* ClsParametricRXGate::copy() const {
     return new ClsParametricRXGate(*this);
@@ -264,9 +263,8 @@ void ClsParametricRYGate::set_matrix(
             "this is a new-style function. You should use the function "
             "without passing parameter_list");
     }
- 
-    _set_matrix(matrix, this->get_angle(parameter_list));
 
+    _set_matrix(matrix, this->get_angle(parameter_list));
 }
 QuantumGate_SingleParameter* ClsParametricRYGate::copy() const {
     return new ClsParametricRYGate(*this);
@@ -324,7 +322,6 @@ void ClsParametricRZGate::set_matrix(
     }
 
     this->_set_matrix(matrix, this->get_angle(parameter_list));
-
 }
 QuantumGate_SingleParameter* ClsParametricRZGate::copy() const {
     return new ClsParametricRZGate(*this);

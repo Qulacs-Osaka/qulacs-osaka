@@ -897,7 +897,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product_new_style(
 
             ComplexMatrix mat;
             pgate->set_matrix(mat, this->_parameter_list);
-            
+
             ComplexMatrix amat = mat.adjoint();
             auto ptar = pgate->target_qubit_list;
             auto pcon = pgate->control_qubit_list;
@@ -913,7 +913,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product_new_style(
             delete Agate;
         }
     }
-    
+
     delete Astate;
     delete state;
     return ans;
