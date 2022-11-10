@@ -705,10 +705,9 @@ void ParametricQuantumCircuit::update_quantum_state(
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     QuantumState* bistate) {
     if (!this->is_old_style()) {
-        throw NotImplementedException(
-            "backprop for new-style ParametricQuantumCircuit is not "
-            "implemented.");
+        throw NotImplementedException("backprop_inner_product is old-style.");
     }
+
     // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
     // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
@@ -790,9 +789,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
     if (!this->is_old_style()) {
-        throw NotImplementedException(
-            "backprop for new-style ParametricQuantumCircuit is not "
-            "implemented.");
+        throw NotImplementedException("backprop is old style");
     }
     //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
     //上側から来た変動量 * 下側の対応する微分値 =
@@ -816,6 +813,140 @@ std::vector<double> ParametricQuantumCircuit::backprop(
 
     //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
     auto ans = backprop_inner_product(bistate);
+    delete bistate;
+    delete state;
+    delete Astate;
+    return ans;
+
+}  // CPP
+
+std::vector<double> ParametricQuantumCircuit::backprop_inner_product_new_style(
+    QuantumState* bistate) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "backprop_inner_product_new_style is new style function.");
+    }
+
+    // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
+    // bistateはノルムが1のやつでなくてもよい
+    int n = this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    //これは、ゲートを前から適用したときの状態を示す
+    state->set_zero_state();
+    this->update_quantum_state(state);  //一度最後までする
+
+    int num_gates = this->gate_list.size();
+
+    std::vector<double> ans(this->get_parameter_id_count());
+
+    /*
+    現在、2番のゲートを見ているとする
+    ゲート 0 1 2 3 4 5
+         state | bistate
+    前から2番までのゲートを適用した状態がstate
+    最後の微分値から逆算して3番までgateの逆行列を掛けたのがbistate
+
+    1番まで掛けて、YのΘ微分した行列を掛けたやつと、bistateの内積の実数部分をとれば答えが出ることが知られている(知られてないかも)
+
+    ParametricR? の微分値を計算した行列は、Θに180°を足した行列/2 と等しい
+
+    だから、2番まで掛けて、 R?(π) を掛けたやつと、bistateの内積を取る
+
+    さらに、見るゲートは逆順である。
+    だから、最初にstateを最後までやって、ゲートを進めるたびにstateに逆行列を掛けている
+    さらに、bistateが複素共役になっていることを忘れると、bistateに転置行列を掛ける必要がある。
+    しかしこのプログラムではbistateはずっと複素共役なので、転置して共役な行列を掛ける必要がある。
+    ユニタリ性より、転置して共役な行列 = 逆行列
+    なので、両社にadjoint_gateを掛けている
+    */
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+    for (int i = num_gates - 1; i >= 0; i--) {
+        QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
+        if (this->_gate_list[i]->is_parametric()) {
+            Astate->load(state);
+            QuantumGateBase* RcPI;
+            if (gate_now->get_name() == "ParametricRX") {
+                RcPI = gate::RX(gate_now->get_target_index_list()[0], M_PI);
+            } else if (gate_now->get_name() == "ParametricRY") {
+                RcPI = gate::RY(gate_now->get_target_index_list()[0], M_PI);
+            } else if (gate_now->get_name() == "ParametricRZ") {
+                RcPI = gate::RZ(gate_now->get_target_index_list()[0], M_PI);
+                // 本当はここで2で割りたいけど、行列を割るのは実装が面倒
+            } else if (gate_now->get_name() == "ParametricPauliRotation") {
+                ClsParametricPauliRotationGate* pauli_gate_now =
+                    (ClsParametricPauliRotationGate*)gate_now;
+                RcPI =
+                    gate::PauliRotation(pauli_gate_now->get_target_index_list(),
+                        pauli_gate_now->get_pauli()->get_pauli_id_list(), M_PI);
+            } else {
+                std::stringstream error_message_stream;
+                error_message_stream
+                    << "Error: " << gate_now->get_name()
+                    << " does not support backprop in parametric";
+                throw NotImplementedException(error_message_stream.str());
+            }
+
+            RcPI->update_quantum_state(Astate);
+            auto pgate =
+                dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[i]);
+            ans[pgate->get_parameter_id()] +=
+                state::inner_product(bistate, Astate).real() /
+                2.0;  //だからここで2で割る
+
+            delete RcPI;
+
+            ComplexMatrix mat;
+            pgate->set_matrix(mat, this->_parameter_list);
+            
+            ComplexMatrix amat = mat.adjoint();
+            auto ptar = pgate->target_qubit_list;
+            auto pcon = pgate->control_qubit_list;
+            auto Agate = new QuantumGateMatrix(ptar, &amat, pcon);
+            Agate->update_quantum_state(bistate);
+            Agate->update_quantum_state(state);
+            delete Agate;
+
+        } else {
+            auto Agate = gate::get_adjoint_gate(gate_now);
+            Agate->update_quantum_state(bistate);
+            Agate->update_quantum_state(state);
+            delete Agate;
+        }
+    }
+    
+    delete Astate;
+    delete state;
+    return ans;
+}  // CPP
+
+std::vector<double> ParametricQuantumCircuit::backprop_new_style(
+    GeneralQuantumOperator* obs) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "backprop_new_style is new style function");
+    }
+    //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
+    //上側から来た変動量 * 下側の対応する微分値 =
+    //最終的な変動量になるようにする。
+
+    int n = this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    state->set_zero_state();
+    this->update_quantum_state(state);  //一度最後までする
+    QuantumState* bistate = new QuantumState(n);
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+
+    obs->apply_to_state(Astate, *state, bistate);
+    bistate->multiply_coef(2);
+    /*一度stateを最後まで求めてから、さらにapply_to_state している。
+    なぜなら、量子のオブザーバブルは普通の機械学習と違って、二乗した値の絶対値が観測値になる。
+    二乗の絶対値を微分したやつと、値の複素共役*2は等しい
+
+    オブザーバブルよくわからないけど、テストしたらできてた
+    */
+
+    //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
+    auto ans = backprop_inner_product_new_style(bistate);
     delete bistate;
     delete state;
     delete Astate;

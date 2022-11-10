@@ -136,4 +136,8 @@ public:
         GeneralQuantumOperator* obs);  // old-style
     virtual std::vector<double> backprop_inner_product(
         QuantumState* bistate);  // old-style
+    virtual std::vector<double> backprop_new_style(
+        GeneralQuantumOperator* obs);  // old-style
+    virtual std::vector<double> backprop_inner_product_new_style(
+        QuantumState* bistate);  // new-style
 };

@@ -64,6 +64,8 @@ public:
         QuantumStateBase* state) override = 0;  // old-style
     virtual void update_quantum_state(QuantumStateBase* state,
         const std::vector<double>& parameter_list) = 0;  // new-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const = 0;  // new-style
 };
 
 /**

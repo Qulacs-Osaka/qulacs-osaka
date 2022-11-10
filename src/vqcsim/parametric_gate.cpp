@@ -207,7 +207,9 @@ void ClsParametricRXGate::set_matrix(
             "this is a new-style function. You should use the function "
             "without passing parameter_list");
     }
+    
     _set_matrix(matrix, this->get_angle(parameter_list));
+
 }
 QuantumGate_SingleParameter* ClsParametricRXGate::copy() const {
     return new ClsParametricRXGate(*this);
@@ -241,8 +243,7 @@ ClsParametricRYGate::ClsParametricRYGate(UINT target_qubit_index,
 void ClsParametricRYGate::_set_matrix(
     ComplexMatrix& matrix, double angle) const {
     matrix = ComplexMatrix::Zero(2, 2);
-    matrix << cos(_angle / 2), sin(_angle / 2), -sin(_angle / 2),
-        cos(_angle / 2);
+    matrix << cos(angle / 2), sin(angle / 2), -sin(angle / 2), cos(angle / 2);
 }
 void ClsParametricRYGate::set_matrix(ComplexMatrix& matrix) const {
     if (!this->is_old_style()) {
@@ -263,7 +264,9 @@ void ClsParametricRYGate::set_matrix(
             "this is a new-style function. You should use the function "
             "without passing parameter_list");
     }
+ 
     _set_matrix(matrix, this->get_angle(parameter_list));
+
 }
 QuantumGate_SingleParameter* ClsParametricRYGate::copy() const {
     return new ClsParametricRYGate(*this);
@@ -297,8 +300,8 @@ ClsParametricRZGate::ClsParametricRZGate(UINT target_qubit_index,
 void ClsParametricRZGate::_set_matrix(
     ComplexMatrix& matrix, double angle) const {
     matrix = ComplexMatrix::Zero(2, 2);
-    matrix << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
-        cos(_angle / 2) - 1.i * sin(_angle / 2);
+    matrix << cos(angle / 2) + 1.i * sin(angle / 2), 0, 0,
+        cos(angle / 2) - 1.i * sin(angle / 2);
 }
 void ClsParametricRZGate::set_matrix(ComplexMatrix& matrix) const {
     if (!this->is_old_style()) {
@@ -319,7 +322,9 @@ void ClsParametricRZGate::set_matrix(
             "this is a new-style function. You should use the function "
             "without passing parameter_list");
     }
+
     this->_set_matrix(matrix, this->get_angle(parameter_list));
+
 }
 QuantumGate_SingleParameter* ClsParametricRZGate::copy() const {
     return new ClsParametricRZGate(*this);
