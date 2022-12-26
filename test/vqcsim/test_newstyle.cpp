@@ -63,14 +63,12 @@ TEST(ParametricCircuit, GateApplyNew) {
     ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
     Random random;
     for (UINT d = 0; d < depth; ++d) {
-        std::string d_str = std::to_string(d);
         for (UINT i = 0; i < n; ++i) {
             circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RY_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
         }
         for (UINT i = d % 2; i + 1 < n; i += 2) {
-            std::string i_str = std::to_string(i);
             circuit->add_parametric_multi_Pauli_rotation_gate_new_parameter(
                 {i, i + 1}, {3, 3}, random.uniform());
         }
@@ -94,9 +92,7 @@ TEST(ParametricCircuit, GateApplyDMNew) {
     ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
     Random random;
     for (UINT d = 0; d < depth; ++d) {
-        std::string d_str = std::to_string(d);
         for (UINT i = 0; i < n; ++i) {
-            std::string i_str = std::to_string(i);
             circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RY_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
