@@ -93,7 +93,6 @@ TEST(ParametricCircuit, GateApplyDMNew) {
     Random random;
     for (UINT d = 0; d < depth; ++d) {
         for (UINT i = 0; i < n; ++i) {
-            std::string i_str = std::to_string(i);
             circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RY_gate_new_parameter(i, random.uniform());
             circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
