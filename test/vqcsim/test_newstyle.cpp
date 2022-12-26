@@ -92,7 +92,6 @@ TEST(ParametricCircuit, GateApplyDMNew) {
     ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
     Random random;
     for (UINT d = 0; d < depth; ++d) {
-        std::string d_str = std::to_string(d);
         for (UINT i = 0; i < n; ++i) {
             std::string i_str = std::to_string(i);
             circuit->add_parametric_RX_gate_new_parameter(i, random.uniform());
