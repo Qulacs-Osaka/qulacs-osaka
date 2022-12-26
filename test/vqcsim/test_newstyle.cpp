@@ -70,7 +70,6 @@ TEST(ParametricCircuit, GateApplyNew) {
             circuit->add_parametric_RZ_gate_new_parameter(i, random.uniform());
         }
         for (UINT i = d % 2; i + 1 < n; i += 2) {
-            std::string i_str = std::to_string(i);
             circuit->add_parametric_multi_Pauli_rotation_gate_new_parameter(
                 {i, i + 1}, {3, 3}, random.uniform());
         }
