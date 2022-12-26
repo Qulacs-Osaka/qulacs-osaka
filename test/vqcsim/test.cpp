@@ -21,6 +21,8 @@ public:
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index));
     }
     virtual void set_matrix(ComplexMatrix& matrix) const override {}
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const override {}
     virtual QuantumGate_SingleParameter* copy() const override {
         return new ClsParametricNullUpdateGate(*this);
     };

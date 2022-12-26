@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <cppsim/exception.hpp>
@@ -13,204 +12,175 @@
 #include <gpusim/update_ops_cuda.h>
 #endif
 
+#include "parameter.hpp"
+
+/**
+ * \~japanese-en 1つの実数パラメータを持った量子ゲートのクラス
+ *
+ * parametricな量子ゲートを管理するクラス。
+ * _parameter_idが0以上のとき、パラメータはQuantumParametricCircuitが管理していて、id
+ * -> パラメータの変換表を操作時に渡す(new-style)
+ * _parameter_idが-1のとき、パラメータは_angleに直接格納される(old-style)
+ */
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:
+    ParameterId _parameter_id;
+    double _parameter_coef;
     double _angle;
-    UINT _parameter_type;
 
 public:
-    QuantumGate_SingleParameter(double angle) : _angle(angle) {
-        _gate_property |= FLAG_PARAMETRIC;
-        _parameter_type = 0;
-    }
-    virtual void set_parameter_value(double value) { _angle = value; }
-    virtual double get_parameter_value() const { return _angle; }
-    virtual QuantumGate_SingleParameter* copy() const override = 0;
+    /**
+     * \~japanese-en old-styleのコンストラクタ
+     *
+     * @param[in] angle パラメータの値
+     * @return 生成されたインスタンス
+     */
+    explicit QuantumGate_SingleParameter(double angle);  // old-style
+    /**
+     * \~japanese-en new-styleのコンストラクタ
+     *
+     * @param[in] parameter_id パラメータのId
+     * @param[in] parameter_coef パラメータの倍率
+     * @return 生成されたインスタンス
+     */
+    explicit QuantumGate_SingleParameter(const ParameterId& parameter_id,
+        double parameter_coef = 1.);  // new-style
+
+    virtual bool is_old_style() const;  // both-style
+    virtual bool is_new_style() const;  // both-style
+
+    virtual ParameterId get_parameter_id() const;  // both-style
+    virtual void set_parameter_id(
+        const ParameterId& parameter_id);            // new-style
+    virtual double get_parameter_coef() const;       // both-style
+    virtual double get_parameter_value() const;      // old-style
+    virtual void set_parameter_value(double value);  // old-style
+    virtual double get_angle() const;                // old-style
+    virtual double get_angle(
+        const std::vector<double> parameter_list) const;  // new-style
+    virtual QuantumGate_SingleParameter* copy()
+        const override = 0;  // both-style
+    virtual void update_quantum_state(
+        QuantumStateBase* state) override = 0;  // old-style
+    virtual void update_quantum_state(QuantumStateBase* state,
+        const std::vector<double>& parameter_list) = 0;  // new-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const = 0;  // new-style
 };
 
+/**
+ * \~japanese-en
+ * 1つの実数パラメータを持ち、1つの量子ビットに作用する量子ゲートのクラス
+ */
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
+private:
+    virtual void _update_quantum_state(
+        QuantumStateBase* state, double angle);  // both-style
+
 protected:
     typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
     typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func = NULL;
-    T_UPDATE_FUNC* _update_func_dm = NULL;
-    T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
+    T_UPDATE_FUNC* _update_func = nullptr;
+    T_UPDATE_FUNC* _update_func_dm = nullptr;
+    T_GPU_UPDATE_FUNC* _update_func_gpu = nullptr;
 
-    QuantumGate_SingleParameterOneQubitRotation(double angle)
-        : QuantumGate_SingleParameter(angle) {}
+    QuantumGate_SingleParameterOneQubitRotation(double angle);  // old-style
+    QuantumGate_SingleParameterOneQubitRotation(const ParameterId& parameter_id,
+        double parameter_coef = 1.);  // new-style
 
 public:
-    virtual void update_quantum_state(QuantumStateBase* state) override {
-        if (state->is_state_vector()) {
-#ifdef _USE_GPU
-            if (state->get_device_name() == "gpu") {
-                if (_update_func_gpu == NULL) {
-                    throw UndefinedUpdateFuncException(
-                        "Error: "
-                        "QuantumGate_SingleParameterOneQubitRotation::update_"
-                        "quantum_state(QuantumStateBase) : update function is "
-                        "undefined");
-                }
-                _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
-                    state->data(), state->dim, state->get_cuda_stream(),
-                    state->device_number);
-                return;
-            }
-#endif
-            if (_update_func == NULL) {
-                throw UndefinedUpdateFuncException(
-                    "Error: "
-                    "QuantumGate_SingleParameterOneQubitRotation::update_"
-                    "quantum_state(QuantumStateBase) : update function is "
-                    "undefined");
-            }
-            _update_func(this->_target_qubit_list[0].index(), _angle,
-                state->data_c(), state->dim);
-        } else {
-            if (_update_func_dm == NULL) {
-                throw UndefinedUpdateFuncException(
-                    "Error: "
-                    "QuantumGate_SingleParameterOneQubitRotation::update_"
-                    "quantum_state(QuantumStateBase) : update function is "
-                    "undefined");
-            }
-            _update_func_dm(this->_target_qubit_list[0].index(), _angle,
-                state->data_c(), state->dim);
-        }
-    }
+    virtual void update_quantum_state(QuantumStateBase* state);  // old-style
+    virtual void update_quantum_state(QuantumStateBase* state,
+        const std::vector<double>& parameter_list);  // new-style
 };
 
+/**
+ * \~japanese-en
+ * ParametricRXゲートのクラス
+ */
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
+private:
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
+
 public:
-    ClsParametricRXGate(UINT target_qubit_index, double angle)
-        : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_name = "ParametricRX";
-        this->_update_func = RX_gate;
-        this->_update_func_dm = dm_RX_gate;
-#ifdef _USE_GPU
-        this->_update_func_gpu = RX_gate_host;
-#endif
-        this->_target_qubit_list.push_back(
-            TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
-    }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        matrix = ComplexMatrix::Zero(2, 2);
-        matrix << cos(_angle / 2), sin(_angle / 2) * 1.i, sin(_angle / 2) * 1.i,
-            cos(_angle / 2);
-    }
-    virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRXGate(*this);
-    };
+    ClsParametricRXGate(UINT target_qubit_index, double angle);  // old-style
+    ClsParametricRXGate(UINT target_qubit_index,
+        const ParameterId& parameter_id,
+        double parameter_coef = 1.);  // new-style
+
+    virtual void set_matrix(ComplexMatrix& matrix) const;  // old-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const;        // new-style
+    virtual QuantumGate_SingleParameter* copy() const override;  // both-style
 };
 
+/**
+ * \~japanese-en
+ * ParametricRYゲートのクラス
+ */
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
+private:
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
+
 public:
-    ClsParametricRYGate(UINT target_qubit_index, double angle)
-        : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_name = "ParametricRY";
-        this->_update_func = RY_gate;
-        this->_update_func_dm = dm_RY_gate;
-#ifdef _USE_GPU
-        this->_update_func_gpu = RY_gate_host;
-#endif
-        this->_target_qubit_list.push_back(
-            TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
-    }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        matrix = ComplexMatrix::Zero(2, 2);
-        matrix << cos(_angle / 2), sin(_angle / 2), -sin(_angle / 2),
-            cos(_angle / 2);
-    }
-    virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRYGate(*this);
-    };
+    ClsParametricRYGate(UINT target_qubit_index, double angle);  // old-style
+    ClsParametricRYGate(UINT target_qubit_index,
+        const ParameterId& parameter_id,
+        double parameter_coef = 1.);  // new-style
+
+    virtual void set_matrix(ComplexMatrix& matrix) const;  // old-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const;        // new-style
+    virtual QuantumGate_SingleParameter* copy() const override;  // both-style
 };
 
+/**
+ * \~japanese-en
+ * ParametricRZゲートのクラス
+ */
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
+private:
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
+
 public:
-    ClsParametricRZGate(UINT target_qubit_index, double angle)
-        : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_name = "ParametricRZ";
-        this->_update_func = RZ_gate;
-        this->_update_func_dm = dm_RZ_gate;
-#ifdef _USE_GPU
-        this->_update_func_gpu = RZ_gate_host;
-#endif
-        this->_target_qubit_list.push_back(
-            TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
-    }
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        matrix = ComplexMatrix::Zero(2, 2);
-        matrix << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
-            cos(_angle / 2) - 1.i * sin(_angle / 2);
-    }
-    virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricRZGate(*this);
-    };
+    ClsParametricRZGate(UINT target_qubit_index, double angle);  // old-style
+    ClsParametricRZGate(UINT target_qubit_index,
+        const ParameterId& parameter_id,
+        double parameter_coef = 1.);  // new-style
+
+    virtual void set_matrix(ComplexMatrix& matrix) const;  // old-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const;        // new-style
+    virtual QuantumGate_SingleParameter* copy() const override;  // both-style
 };
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
+private:
+    virtual void _update_quantum_state(
+        QuantumStateBase* state, double angle);  // both-style
+    virtual void _set_matrix(
+        ComplexMatrix& matrix, double angle) const;  // both-style
+
 protected:
     PauliOperator* _pauli;
 
 public:
-    ClsParametricPauliRotationGate(double angle, PauliOperator* pauli)
-        : QuantumGate_SingleParameter(angle) {
-        _pauli = pauli;
-        this->_name = "ParametricPauliRotation";
-        auto target_index_list = _pauli->get_index_list();
-        auto pauli_id_list = _pauli->get_pauli_id_list();
-        for (UINT index = 0; index < target_index_list.size(); ++index) {
-            UINT commutation_relation = 0;
-            if (pauli_id_list[index] == 1)
-                commutation_relation = FLAG_X_COMMUTE;
-            else if (pauli_id_list[index] == 2)
-                commutation_relation = FLAG_Y_COMMUTE;
-            else if (pauli_id_list[index] == 3)
-                commutation_relation = FLAG_Z_COMMUTE;
-            this->_target_qubit_list.push_back(TargetQubitInfo(
-                target_index_list[index], commutation_relation));
-        }
-    };
-    virtual ~ClsParametricPauliRotationGate() { delete _pauli; }
-    virtual void update_quantum_state(QuantumStateBase* state) override {
-        auto target_index_list = _pauli->get_index_list();
-        auto pauli_id_list = _pauli->get_pauli_id_list();
-        if (state->is_state_vector()) {
-#ifdef _USE_GPU
-            if (state->get_device_name() == "gpu") {
-                multi_qubit_Pauli_rotation_gate_partial_list_host(
-                    target_index_list.data(), pauli_id_list.data(),
-                    (UINT)target_index_list.size(), _angle, state->data(),
-                    state->dim, state->get_cuda_stream(), state->device_number);
-            } else {
-                multi_qubit_Pauli_rotation_gate_partial_list(
-                    target_index_list.data(), pauli_id_list.data(),
-                    (UINT)target_index_list.size(), _angle, state->data_c(),
-                    state->dim);
-            }
-#else
-            multi_qubit_Pauli_rotation_gate_partial_list(
-                target_index_list.data(), pauli_id_list.data(),
-                (UINT)target_index_list.size(), _angle, state->data_c(),
-                state->dim);
-#endif
-        } else {
-            dm_multi_qubit_Pauli_rotation_gate_partial_list(
-                target_index_list.data(), pauli_id_list.data(),
-                (UINT)target_index_list.size(), _angle, state->data_c(),
-                state->dim);
-        }
-    };
-    virtual QuantumGate_SingleParameter* copy() const override {
-        return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
-    };
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
-        matrix = cos(_angle / 2) *
-                     ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
-                 1.i * sin(_angle / 2) * matrix;
-    };
-    virtual PauliOperator* get_pauli() const { return _pauli; };
+    ClsParametricPauliRotationGate(
+        double angle, PauliOperator* pauli);  // old-style
+    ClsParametricPauliRotationGate(PauliOperator* pauli,
+        const ParameterId& parameter_id,
+        double parameter_coef = 1.);                             // new-style
+    virtual ~ClsParametricPauliRotationGate();                   // both-style
+    virtual void update_quantum_state(QuantumStateBase* state);  // old-style
+    virtual void update_quantum_state(QuantumStateBase* state,
+        const std::vector<double>& parameter_list);              // new-style
+    virtual QuantumGate_SingleParameter* copy() const override;  // both-style
+    virtual void set_matrix(ComplexMatrix& matrix) const;        // old-style
+    virtual void set_matrix(ComplexMatrix& matrix,
+        const std::vector<double>& parameter_list) const;  // new-style
+    virtual PauliOperator* get_pauli() const;              // both-style
 };

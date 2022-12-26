@@ -480,10 +480,13 @@ class PauliOperator():
         """
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
-    def __init__(self, qubit_count: int) -> None: 
+    @typing.overload
+    def __init__(self, qubit_count: int, parameter_list: typing.List[float]) -> None: 
         """
         Constructor
         """
+    @typing.overload
+    def __init__(self, qubit_count: int, style: str = 'undefined') -> None: ...
     def __repr__(self) -> str: ...
     @typing.overload
     def add_gate(self, gate: QuantumGateBase) -> None: 
@@ -491,29 +494,61 @@ class ParametricQuantumCircuit(QuantumCircuit):
         Add gate
         """
     @typing.overload
-    def add_gate(self, gate: QuantumGateBase, position: int) -> None: ...
-    def add_parametric_RX_gate(self, index: int, angle: float) -> None: 
+    def add_gate(self, gate: QuantumGateBase, index: int) -> None: ...
+    def add_parametric_RX_gate(self, target_index: int, angle: float) -> int: 
         """
-        Add parametric Pauli-X rotation gate
+        Add parametric Pauli-X rotation gate (only old-style)
         """
-    def add_parametric_RY_gate(self, index: int, angle: float) -> None: 
+    def add_parametric_RX_gate_existing_parameter(self, target_index: int, parameter_id: int, parameter_coef: float = 1.0) -> int: 
         """
-        Add parametric Pauli-Y rotation gate
+        Add parametric Pauli-X rotation gate with existing parameter (only new-style)
         """
-    def add_parametric_RZ_gate(self, index: int, angle: float) -> None: 
+    def add_parametric_RX_gate_new_parameter(self, target_index: int, value: float, parameter_coef: float = 1.0) -> int: 
         """
-        Add parametric Pauli-Z rotation gate
+        Add parametric Pauli-X rotation gate with new parameter (only new-style)
+        """
+    def add_parametric_RY_gate(self, target_index: int, angle: float) -> int: 
+        """
+        Add parametric Pauli-Y rotation gate (only old-style)
+        """
+    def add_parametric_RY_gate_existing_parameter(self, target_index: int, parameter_id: int, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric Pauli-Y rotation gate with existing parameter (only new-style)
+        """
+    def add_parametric_RY_gate_new_parameter(self, target_index: int, value: float, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric Pauli-Y rotation gate with new parameter (only new-style)
+        """
+    def add_parametric_RZ_gate(self, target_index: int, angle: float) -> int: 
+        """
+        Add parametric Pauli-Z rotation gate (only old-style)
+        """
+    def add_parametric_RZ_gate_existing_parameter(self, target_index: int, parameter_id: int, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric Pauli-Z rotation gate with existing parameter (only new-style)
+        """
+    def add_parametric_RZ_gate_new_parameter(self, target_index: int, value: float, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric Pauli-Z rotation gate with new parameter (only new-style)
         """
     @typing.overload
-    def add_parametric_gate(self, gate: QuantumGate_SingleParameter) -> None: 
+    def add_parametric_gate(self, gate: QuantumGate_SingleParameter) -> int: 
         """
         Add parametric gate
         """
     @typing.overload
-    def add_parametric_gate(self, gate: QuantumGate_SingleParameter, position: int) -> None: ...
-    def add_parametric_multi_Pauli_rotation_gate(self, index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> None: 
+    def add_parametric_gate(self, gate: QuantumGate_SingleParameter, index: int) -> int: ...
+    def add_parametric_multi_Pauli_rotation_gate(self, index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> int: 
         """
-        Add parametric multi-qubit Pauli rotation gate
+        Add parametric multi-qubit Pauli rotation gate (only old-style)
+        """
+    def add_parametric_multi_Pauli_rotation_gate_existing_parameter(self, index_list: typing.List[int], pauli_ids: typing.List[int], parameter_id: int, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric multi-qubit Pauli rotation gate with old parameter (only old-style
+        """
+    def add_parametric_multi_Pauli_rotation_gate_new_parameter(self, index_list: typing.List[int], pauli_ids: typing.List[int], parameter_id: float, parameter_coef: float = 1.0) -> int: 
+        """
+        Add parametric multi-qubit Pauli rotation gate with new parameter (only old-style
         """
     def backprop(self, obs: GeneralQuantumOperator) -> typing.List[float]: 
         """
@@ -523,23 +558,59 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         do backprop with innder product
         """
+    def contains_parameter(self, parameter_id: int) -> bool: 
+        """
+        If the parameter is existing (only new-style)
+        """
     def copy(self) -> ParametricQuantumCircuit: 
         """
         Create copied instance
         """
-    def get_parameter(self, index: int) -> float: 
+    def create_parameter(self, initial_parameter: float) -> int: 
         """
-        Get parameter
+        Create a new parameter (only new-style)
+        """
+    def get_angle(self, gate_index: int) -> float: 
+        """
+        Get angle of specified gate_index(Warning: not parameter_index)
+        """
+    def get_parameter(self, parameter_index: int) -> float: 
+        """
+        Get parameter (only new-style)
         """
     def get_parameter_count(self) -> int: 
         """
-        Get parameter count
+        Get parameter count (only old-style)
+        """
+    def get_parameter_id_count(self) -> int: 
+        """
+        Get parameter-id count (only new-style)
+        """
+    def get_parameter_new_style(self, parameter_id: int) -> float: 
+        """
+        Get parameter (only new-style)
+        """
+    def get_parameter_set(self) -> typing.List[float]: 
+        """
+        Get current parameter list
+        """
+    def get_parametric_gate_count(self) -> int: 
+        """
+        Get parametric gate count (only new-style)
         """
     def get_parametric_gate_position(self, index: int) -> int: 
         """
         Get parametric gate position
         """
-    def merge_circuit(self, circuit: ParametricQuantumCircuit) -> None: 
+    def is_new_style(self) -> bool: 
+        """
+        If the parameter is new-style
+        """
+    def is_old_style(self) -> bool: 
+        """
+        If the parameter is old-style
+        """
+    def merge_circuit(self, circuit: ParametricQuantumCircuit, share_parameter_id: typing.Dict[int, int]) -> None: 
         """
         Merge another ParametricQuantumCircuit
         """
@@ -547,9 +618,14 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         Remove gate
         """
-    def set_parameter(self, index: int, parameter: float) -> None: 
+    def set_parameter(self, parameter_index: int, value: float) -> None: 
         """
-        Set parameter
+        Set parameter (only old-style)
+        """
+    def set_parameter_new_style(self, parameter_id: int, value: float) -> None: ...
+    def set_parameter_set(self, parameter_list: typing.List[float]) -> None: 
+        """
+        Replace current parameter list with given one
         """
     pass
 class QuantumCircuitSimulator():
@@ -691,13 +767,42 @@ class QuantumGate_SingleParameter(QuantumGateBase):
         """
         Create copied instance
         """
+    @typing.overload
+    def get_angle(self) -> float: 
+        """
+        Get angle (only old-style)
+
+        Get angle (only old-style)
+        """
+    @typing.overload
+    def get_angle(self, parameter_list: typing.List[float]) -> float: ...
+    def get_parameter_coef(self) -> float: 
+        """
+        Get parameter coef
+        """
+    def get_parameter_id(self) -> int: 
+        """
+        Get parameter id (-1 if old-style)
+        """
     def get_parameter_value(self) -> float: 
         """
-        Get parameter value
+        Get parameter value (only old-style)
+        """
+    def is_new_style(self) -> bool: 
+        """
+        If the parameter is new-style
+        """
+    def is_old_style(self) -> bool: 
+        """
+        If the parameter is old-style
+        """
+    def set_parameter_id(self, arg0: int) -> None: 
+        """
+        Set parameter id (only new-style)
         """
     def set_parameter_value(self, value: float) -> None: 
         """
-        Set parameter value
+        Set parameter value (only old-style)
         """
     pass
 class QuantumState(QuantumStateBase):

@@ -106,6 +106,22 @@ public:
 };
 
 /**
+ * \~japanese-en ParametricQuantumCircuitのスタイルオプションが不正
+ */
+class InvalidParametricQuantumCircuitStyleOptionException
+    : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidParametricQuantumCircuitStyleOptionException(
+        const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * hermitianにしか使えない演算にhermitianでないOperatorやObservableを渡した例外
  */
@@ -187,6 +203,34 @@ public:
      * @param message エラーメッセージ
      */
     UndefinedUpdateFuncException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en parameter_idが見つからないという例外
+ */
+class ParameterIdNotFoundException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdNotFoundException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en parameter_idがすでに存在しているという例外
+ */
+class ParameterIdDuplicatedException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIdDuplicatedException(const std::string& message)
         : std::logic_error(message) {}
 };
 

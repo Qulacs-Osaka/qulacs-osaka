@@ -29,9 +29,13 @@ __all__ = [
     "P0",
     "P1",
     "ParametricPauliRotation",
+    "ParametricPauliRotation_existing_parameter",
     "ParametricRX",
+    "ParametricRX_existing_parameter",
     "ParametricRY",
+    "ParametricRY_existing_parameter",
     "ParametricRZ",
+    "ParametricRZ_existing_parameter",
     "Pauli",
     "PauliRotation",
     "Probabilistic",
@@ -158,21 +162,37 @@ def P1(index: int) -> qulacs_core.QuantumGateBase:
     """
     Create projection gate to |1> subspace
     """
-def ParametricPauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+def ParametricPauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float = 0.0) -> QuantumGate_SingleParameter:
     """
-    Create parametric multi-qubit Pauli rotation gate
+    Create parametric multi-qubit Pauli rotation gate (old-style)
     """
-def ParametricRX(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+def ParametricPauliRotation_existing_parameter(index_list: typing.List[int], pauli_ids: typing.List[int], parameter_id: int, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
     """
-    Create parametric Pauli-X rotation gate
+    Create parametric multi-qubit Pauli rotation gate (new-style)
     """
-def ParametricRY(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+def ParametricRX(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
     """
-    Create parametric Pauli-Y rotation gate
+    Create parametric Pauli-X rotation gate (old-style)
     """
-def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SingleParameter:
+def ParametricRX_existing_parameter(index: int, parameter_id: int, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
     """
-    Create parametric Pauli-Z rotation gate
+    Create parametric Pauli-X rotation gate (new-style)
+    """
+def ParametricRY(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
+    """
+    Create parametric Pauli-Y rotation gate (old-style)
+    """
+def ParametricRY_existing_parameter(index: int, parameter_id: int, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    """
+    Create parametric Pauli-Y rotation gate (new-style)
+    """
+def ParametricRZ(index: int, angle: float = 0.0) -> QuantumGate_SingleParameter:
+    """
+    Create parametric Pauli-Z rotation gate (old-style)
+    """
+def ParametricRZ_existing_parameter(index: int, parameter_id: int, parameter_coef: float = 1.0) -> QuantumGate_SingleParameter:
+    """
+    Create parametric Pauli-Z rotation gate (new-style)
     """
 def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.QuantumGateBase:
     """

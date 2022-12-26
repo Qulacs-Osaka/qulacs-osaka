@@ -137,3 +137,63 @@ TEST(Backprop, BackpropPauliRotationCircuit) {
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
 }
+
+TEST(Backprop, BackpropCircuitNewStyle) {
+    ParametricQuantumCircuit kairo(3, "new");
+    kairo.add_parametric_RX_gate_new_parameter(0, 2.2);
+    kairo.add_parametric_RY_gate_new_parameter(1, 0);
+    kairo.add_gate(gate::CNOT(0, 2));
+    kairo.add_parametric_RZ_gate_new_parameter(2, 1.4);
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RY_gate_new_parameter(0, 1);
+    kairo.add_gate(gate::CNOT(1, 0));
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RZ_gate_new_parameter(1, -1);
+    kairo.add_gate(gate::H(0));
+    kairo.add_gate(gate::CNOT(2, 0));
+    kairo.add_parametric_RX_gate_new_parameter(2, 1);
+    kairo.add_gate(gate::CNOT(1, 0));
+    kairo.add_parametric_RZ_gate_new_parameter(0, 1);
+    kairo.add_gate(gate::CNOT(0, 1));
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RX_gate_new_parameter(1, -1);
+
+    kairo.add_parametric_RY_gate_existing_parameter(2, 3, 1.0);
+
+    Observable observable(3);
+    observable.add_operator(1, "X 0 Z 2");
+    observable.add_operator(1.2, "Y 1");
+    observable.add_operator(1.5, "Z 2");
+
+    vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
+
+    ParametricQuantumCircuit kairoA(3);
+    kairoA.add_parametric_RX_gate(0, 2.2);
+    kairoA.add_parametric_RY_gate(1, 0);
+    kairoA.add_gate(gate::CNOT(0, 2));
+    kairoA.add_parametric_RZ_gate(2, 1.4);
+    kairoA.add_gate(gate::H(1));
+    kairoA.add_parametric_RY_gate(0, 1);
+    kairoA.add_gate(gate::CNOT(1, 0));
+    kairoA.add_gate(gate::H(1));
+    kairoA.add_parametric_RZ_gate(1, -1);
+    kairoA.add_gate(gate::H(0));
+    kairoA.add_gate(gate::CNOT(2, 0));
+    kairoA.add_parametric_RX_gate(2, 1);
+    kairoA.add_gate(gate::CNOT(1, 0));
+    kairoA.add_parametric_RZ_gate(0, 1);
+    kairoA.add_gate(gate::CNOT(0, 1));
+    kairoA.add_gate(gate::H(1));
+    kairoA.add_parametric_RX_gate(1, -1);
+    kairoA.add_parametric_RY_gate(2, 1);
+    GradCalculator wrakln;
+    auto bibun = wrakln.calculate_grad(kairoA, observable, kaku);
+    bibun[3] += bibun[8];
+
+    auto bk = kairo.backprop_new_style(&observable);
+
+    for (int i = 0; i < 8; i++) {
+        cerr << bk[i] << " " << bibun[i].real() << endl;
+        ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
+    }
+}

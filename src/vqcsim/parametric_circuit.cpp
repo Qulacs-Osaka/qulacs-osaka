@@ -12,81 +12,260 @@
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 
-ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
-    : QuantumCircuit(qubit_count_){};
+ParametricQuantumCircuit::ParametricQuantumCircuit(
+    UINT qubit_count_, std::string style)
+    : QuantumCircuit(qubit_count_) {
+    if (style == "undefined") {
+        _specified_old = false;
+        _specified_new = false;
+    } else if (style == "old") {
+        _specified_old = true;
+        _specified_new = false;
+    } else if (style == "new") {
+        _specified_old = false;
+        _specified_new = true;
+    } else if (style ==
+               "I_understand_that_mixing_ParameterType_is_very_dangerous_but_I_"
+               "still_want_to_do_that") {
+        _specified_old = true;
+        _specified_new = true;
+    } else {
+        throw InvalidParametricQuantumCircuitStyleOptionException(
+            "Error: "
+            "ParametricQuantumCircuit::ParametricQuantumCircuit(UINT, "
+            "std::string): "
+            "unknown style option: " +
+            style);
+    }
+}
+ParametricQuantumCircuit::ParametricQuantumCircuit(
+    UINT qubit_count_, const std::vector<double>& parameter_list)
+    : QuantumCircuit(qubit_count_), _parameter_list(parameter_list) {
+    _specified_old = false;
+    _specified_new = true;
+}
+
+bool ParametricQuantumCircuit::is_old_style() const {
+    if (_specified_old) return true;
+    if (_specified_new) return false;
+    if (!_parameter_list.empty()) return false;
+    if (_parametric_gate_list.size() == 0) return true;
+    if (_parametric_gate_list[0]->is_old_style()) return true;
+    return false;
+}
+bool ParametricQuantumCircuit::is_new_style() const {
+    if (_specified_new) return true;
+    if (_specified_old) return false;
+    if (_parameter_list.empty()) return true;
+    if (_parametric_gate_list.size() == 0) return true;
+    if (_parametric_gate_list[0]->is_new_style()) return true;
+    return false;
+}
 
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
         new ParametricQuantumCircuit(this->qubit_count);
+    new_circuit->_specified_old = this->_specified_old;
+    new_circuit->_specified_new = this->_specified_new;
+    new_circuit->_parameter_list = this->_parameter_list;
+    new_circuit->_parametric_gate_position = this->_parametric_gate_position;
     for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        auto pos = std::find(this->_parametric_gate_position.begin(),
-            this->_parametric_gate_position.end(), gate_pos);
-        bool is_parametric = (pos != this->_parametric_gate_position.end());
-
-        if (is_parametric) {
-            new_circuit->add_parametric_gate(
-                (QuantumGate_SingleParameter*)this->gate_list[gate_pos]
-                    ->copy());
-        } else {
-            new_circuit->add_gate(this->gate_list[gate_pos]->copy());
-        }
+        new_circuit->add_gate(this->gate_list[gate_pos]->copy());
+    }
+    for (UINT gate_pos : this->_parametric_gate_position) {
+        new_circuit->_parametric_gate_list.push_back(
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                new_circuit->gate_list[gate_pos]));
     }
     return new_circuit;
 }
 
-void ParametricQuantumCircuit::add_parametric_gate(
-    QuantumGate_SingleParameter* gate) {
-    this->add_gate(gate);
-    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
-    _parametric_gate_list.push_back(gate);
-};
-void ParametricQuantumCircuit::add_parametric_gate(
-    QuantumGate_SingleParameter* gate, UINT index) {
-    this->add_gate(gate, index);
-    _parametric_gate_position.push_back(index);
-    _parametric_gate_list.push_back(gate);
+ParameterId ParametricQuantumCircuit::create_parameter(
+    double initial_parameter) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::create_parameter(double) : "
+            "this is a new-style function. If you want to use this, do not add "
+            "gate with an old-style parameteric_gate whose parameter is "
+            "inside.");
+    }
+    _parameter_list.push_back(initial_parameter);
+    return (ParameterId)_parameter_list.size() - 1;
 }
-void ParametricQuantumCircuit::add_parametric_gate_copy(
-    QuantumGate_SingleParameter* gate) {
-    QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate);
-    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
-    _parametric_gate_list.push_back(copied_gate);
-};
-void ParametricQuantumCircuit::add_parametric_gate_copy(
-    QuantumGate_SingleParameter* gate, UINT index) {
-    QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate, index);
-    _parametric_gate_position.push_back(index);
-    _parametric_gate_list.push_back(copied_gate);
+bool ParametricQuantumCircuit::contains_parameter(
+    const ParameterId& parameter_id) const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::contains_paramter(const ParameterId&) "
+            "const: "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    return parameter_id < (ParameterId)_parameter_list.size();
 }
 UINT ParametricQuantumCircuit::get_parameter_count() const {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_paramter_count() const: "
+            "this is an old-style function. If you want to use this, do not "
+            "add gate with a new-style parametric_gate which has string "
+            "parameter_id.");
+    }
     return (UINT)_parametric_gate_list.size();
 }
-double ParametricQuantumCircuit::get_parameter(UINT index) const {
-    if (index >= this->_parametric_gate_list.size()) {
-        throw ParameterIndexOutOfRangeException(
-            "Error: ParametricQuantumCircuit::get_parameter(UINT): parameter "
-            "index is out of range");
+UINT ParametricQuantumCircuit::get_parametric_gate_count() const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parametric_gate_count() const: "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
     }
-
-    return _parametric_gate_list[index]->get_parameter_value();
+    return (UINT)_parametric_gate_list.size();
 }
-void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
-    if (index >= this->_parametric_gate_list.size()) {
+UINT ParametricQuantumCircuit::get_parameter_id_count() const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parameter_id_count() const: "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    return (UINT)_parameter_list.size();
+}
+double ParametricQuantumCircuit::get_parameter(UINT parameter_index) const {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parameter(UINT) const: "
+            "this is an old-style function. If you want to use this, do not "
+            "add gate with a new-style parametric_gate which has string "
+            "parameter_id.");
+    }
+    if (parameter_index >= this->_parametric_gate_list.size()) {
+        throw ParameterIndexOutOfRangeException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parameter(UINT): "
+            "parameter index is out of range");
+    }
+    return _parametric_gate_list[parameter_index]->get_parameter_value();
+}
+double ParametricQuantumCircuit::get_parameter_new_style(
+    const ParameterId& parameter_id) const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_paramter_new_style(const "
+            "ParameterId&) const: "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parameter_new_style(const "
+            "ParameterId&): parameter_id \"" +
+            std::to_string(parameter_id) + "\" is not found");
+    }
+    return _parameter_list[parameter_id];
+}
+void ParametricQuantumCircuit::set_parameter(
+    UINT parameter_index, double value) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::set_parameter(UINT, double): "
+            "this is an old-style function. If you want to use this, do not "
+            "add gate with a new-style parametric_gate which has string "
+            "parameter_id.");
+    }
+    if (parameter_index >= this->_parametric_gate_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
             "parameter index is out of range");
     }
-
-    _parametric_gate_list[index]->set_parameter_value(value);
+    _parametric_gate_list[parameter_index]->set_parameter_value(value);
+}
+void ParametricQuantumCircuit::set_parameter_new_style(
+    const ParameterId& parameter_id, double value) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::set_parameter_new_style(const "
+            "ParameterId&, "
+            "double): "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::set_parameter_new_style(const "
+            "ParameterId&): parameter_id \"" +
+            std::to_string(parameter_id) + "\" is not found");
+    }
+    _parameter_list[parameter_id] = value;
+}
+double ParametricQuantumCircuit::get_angle(UINT gate_index) const {
+    if (gate_index >= this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "ParametricQuantumCircuit::get_angle(UINT): "
+            "gate index is out of range");
+    }
+    if (!this->_gate_list[gate_index]->is_parametric()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_angle(UINT gate_index) const: "
+            "specified gate is not parametric.");
+    }
+    auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(
+        this->_gate_list[gate_index]);
+    if (pgate->is_old_style()) return pgate->get_angle();
+    if (pgate->is_new_style()) return pgate->get_angle(_parameter_list);
+    assert(false);
+    return 0.;
+}
+std::vector<double> ParametricQuantumCircuit::get_parameter_list() const {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parameter_list(): "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    return _parameter_list;
+}
+void ParametricQuantumCircuit::set_parameter_list(
+    const std::vector<double>& parameter_list) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::set_parameter_list(): "
+            "this is a new-style function. If you want to use "
+            "this, do not add gate with an old-style parameteric_gate whose "
+            "parameter is inside.");
+    }
+    _parameter_list = parameter_list;
 }
 
 std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
     os << QuantumCircuit::to_string();
     os << "*** Parameter Info ***" << std::endl;
-    os << "# of parameter: " << this->get_parameter_count() << std::endl;
+    if (this->is_old_style()) {
+        os << "# of parameter: " << this->get_parameter_count() << std::endl;
+    } else {
+        os << "# of parameter: " << this->get_parameter_id_count() << std::endl;
+    }
     return os.str();
 }
 
@@ -101,15 +280,16 @@ std::ostream& operator<<(
     return stream;
 }
 
-UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
-    if (index >= this->_parametric_gate_list.size()) {
+UINT ParametricQuantumCircuit::get_parametric_gate_position(
+    UINT parameter_index) const {
+    if (parameter_index >= this->_parametric_gate_list.size()) {
         throw ParameterIndexOutOfRangeException(
             "Error: "
             "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
             "parameter index is out of range");
     }
 
-    return _parametric_gate_position[index];
+    return _parametric_gate_position[parameter_index];
 }
 void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate) {
     QuantumCircuit::add_gate(gate);
@@ -131,7 +311,7 @@ void ParametricQuantumCircuit::add_gate_copy(
 
 void ParametricQuantumCircuit::remove_gate(UINT index) {
     auto ite = std::find(_parametric_gate_position.begin(),
-        _parametric_gate_position.end(), (unsigned int)index);
+        _parametric_gate_position.end(), index);
     if (ite != _parametric_gate_position.end()) {
         UINT dist = (UINT)std::distance(_parametric_gate_position.begin(), ite);
         _parametric_gate_position.erase(
@@ -143,42 +323,391 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
         if (val >= index) val--;
 }
 void ParametricQuantumCircuit::merge_circuit(
-    const ParametricQuantumCircuit* circuit) {
+    const ParametricQuantumCircuit* circuit,
+    const std::map<ParameterId, ParameterId>& share_parameter_id) {
+    if ((!this->is_old_style() && !circuit->is_new_style()) ||
+        (!this->is_new_style() && !circuit->is_old_style())) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::merge_circuit(const "
+            "ParametricQuantumCircuit*): "
+            "cannot merge circuit which have different style");
+    }
     UINT gate_count = this->gate_list.size();
     for (auto gate : circuit->gate_list) {
         this->add_gate_copy(gate);
     }
+    std::map<ParameterId, ParameterId> parameter_conversion(
+        share_parameter_id.begin(), share_parameter_id.end());
+    for (ParameterId parameter_id = 0;
+         parameter_id < circuit->_parameter_list.size(); parameter_id++) {
+        if (!share_parameter_id.count(parameter_id)) {
+            parameter_conversion[parameter_id] =
+                this->create_parameter(circuit->_parameter_list[parameter_id]);
+        }
+    }
     for (auto gate_position : circuit->_parametric_gate_position) {
         UINT new_gate_position = gate_position + gate_count;
         this->_parametric_gate_position.push_back(new_gate_position);
-        this->_parametric_gate_list.push_back(
-            dynamic_cast<QuantumGate_SingleParameter*>(
-                this->gate_list[new_gate_position]));
+        auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(
+            this->gate_list[new_gate_position]);
+        this->_parametric_gate_list.push_back(pgate);
+        if (pgate->is_new_style()) {
+            pgate->set_parameter_id(
+                parameter_conversion[pgate->get_parameter_id()]);
+        }
     }
     return;
 }
-void ParametricQuantumCircuit::add_parametric_RX_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
+
+ParameterId ParametricQuantumCircuit::add_parametric_gate(
+    QuantumGate_SingleParameter* gate) {
+    if (!this->is_old_style() && gate->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate(QuantumGate_"
+            "SingleParameter*): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    if (!this->is_new_style() && gate->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate(QuantumGate_"
+            "SingleParameter*): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    this->add_gate(gate);
+    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
+    _parametric_gate_list.push_back(gate);
+    return gate->get_parameter_id();
+};
+ParameterId ParametricQuantumCircuit::add_parametric_gate(
+    QuantumGate_SingleParameter* gate, UINT index) {
+    if (!this->is_old_style() && gate->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate(QuantumGate_"
+            "SingleParameter*, UINT): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    if (!this->is_new_style() && gate->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate(QuantumGate_"
+            "SingleParameter*, UINT): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    this->add_gate(gate, index);
+    _parametric_gate_position.push_back(index);
+    _parametric_gate_list.push_back(gate);
+    return gate->get_parameter_id();
 }
-void ParametricQuantumCircuit::add_parametric_RY_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRY(target_index, initial_angle));
-}
-void ParametricQuantumCircuit::add_parametric_RZ_gate(
-    UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRZ(target_index, initial_angle));
+ParameterId ParametricQuantumCircuit::add_parametric_gate_copy(
+    const QuantumGate_SingleParameter* gate) {
+    if (!this->is_old_style() && gate->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_"
+            "SingleParameter*): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    if (!this->is_new_style() && gate->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_"
+            "SingleParameter*): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    QuantumGate_SingleParameter* copied_gate = gate->copy();
+    this->add_gate(copied_gate);
+    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
+    _parametric_gate_list.push_back(copied_gate);
+    return gate->get_parameter_id();
+};
+ParameterId ParametricQuantumCircuit::add_parametric_gate_copy(
+    const QuantumGate_SingleParameter* gate, UINT index) {
+    if (!this->is_old_style() && gate->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_"
+            "SingleParameter*, UINT): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    if (!this->is_new_style() && gate->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_"
+            "SingleParameter*, UINT): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    QuantumGate_SingleParameter* copied_gate = gate->copy();
+    this->add_gate(copied_gate, index);
+    _parametric_gate_position.push_back(index);
+    _parametric_gate_list.push_back(copied_gate);
+    return gate->get_parameter_id();
 }
 
-void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
+ParameterId ParametricQuantumCircuit::add_parametric_RX_gate(
+    UINT target_index, double initial_angle) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RX_gate(UINT, double): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
+    return OLD_STYLE_PARAMETER;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RX_gate_existing_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RX_gate_existing_"
+            "parameter(UINT, const "
+            "ParameterId&, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RX_gate(UINT, const "
+            "ParameterId&, double): "
+            "parameter_id \"" +
+            std::to_string(parameter_id) + "\" does not exists.");
+    }
+    this->add_parametric_gate(gate::ParametricRX_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter(
+    UINT target_index, double value, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RX_gate_new_parameter("
+            "UINT, double, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    ParameterId parameter_id = this->create_parameter(value);
+    this->add_parametric_gate(gate::ParametricRX_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RY_gate(
+    UINT target_index, double initial_angle) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RY_gate(UINT, double): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    this->add_parametric_gate(gate::ParametricRY(target_index, initial_angle));
+    return OLD_STYLE_PARAMETER;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RY_gate_existing_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RY_gate_existing_"
+            "parameter(UINT, const "
+            "ParameterId&, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RY_gate(UINT, const "
+            "ParameterId&, double): "
+            "parameter_id \"" +
+            std::to_string(parameter_id) + "\" does not exists.");
+    }
+    this->add_parametric_gate(gate::ParametricRY_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter(
+    UINT target_index, double value, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RY_gate_new_parameter("
+            "UINT, double, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    ParameterId parameter_id = this->create_parameter(value);
+    this->add_parametric_gate(gate::ParametricRY_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RZ_gate(
+    UINT target_index, double initial_angle) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RZ_gate(UINT, double): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
+    this->add_parametric_gate(gate::ParametricRZ(target_index, initial_angle));
+    return OLD_STYLE_PARAMETER;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RZ_gate_existing_parameter(
+    UINT target_index, const ParameterId& parameter_id, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RZ_gate_existing_"
+            "parameter(UINT, const "
+            "ParameterId&, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RZ_gate(UINT, const "
+            "ParameterId&, double): "
+            "parameter_id \"" +
+            std::to_string(parameter_id) + "\" does not exists.");
+    }
+    this->add_parametric_gate(gate::ParametricRZ_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter(
+    UINT target_index, double value, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_RZ_gate_new_parameter("
+            "UINT, double, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    ParameterId parameter_id = this->create_parameter(value);
+    this->add_parametric_gate(gate::ParametricRZ_existing_parameter(
+        target_index, parameter_id, parameter_coef));
+    return parameter_id;
+}
+
+ParameterId ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
     std::vector<UINT> target, std::vector<UINT> pauli_id,
     double initial_angle) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_"
+            "gate(std::vector<UINT>, std::vector<UINT>, double): "
+            "cannot add an old-style gate on a new-style parametric circuit");
+    }
     this->add_parametric_gate(
         gate::ParametricPauliRotation(target, pauli_id, initial_angle));
+    return OLD_STYLE_PARAMETER;
+}
+ParameterId ParametricQuantumCircuit::
+    add_parametric_multi_Pauli_rotation_gate_existing_parameter(
+        std::vector<UINT> target, std::vector<UINT> pauli_id,
+        const ParameterId& parameter_id, double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_"
+            "gate_existing_parameter(std::vector<UINT>, std::vector<UINT>, "
+            "const ParameterId&, "
+            "double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    if (!this->contains_parameter(parameter_id)) {
+        throw ParameterIdNotFoundException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_"
+            "gate(std::"
+            "vector<UINT>, std::vector<UINT>, const ParameterId&, double): "
+            "parameter_id \"" +
+            std::to_string(parameter_id) + "\" does not exists.");
+    }
+    this->add_parametric_gate(gate::ParametricPauliRotation_existing_parameter(
+        target, pauli_id, parameter_id, parameter_coef));
+    return parameter_id;
+}
+ParameterId ParametricQuantumCircuit::
+    add_parametric_multi_Pauli_rotation_gate_new_parameter(
+        std::vector<UINT> target, std::vector<UINT> pauli_id, double value,
+        double parameter_coef) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "Error: "
+            "ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_"
+            "gate_new_parameter("
+            "std::vector<UINT>, std::vector<UINT>, double, double): "
+            "cannot add a new-style gate on an old-style parametric circuit");
+    }
+    ParameterId parameter_id = this->create_parameter(value);
+    this->add_parametric_gate(gate::ParametricPauliRotation_existing_parameter(
+        target, pauli_id, parameter_id, parameter_coef));
+    return parameter_id;
+}
+
+void ParametricQuantumCircuit::update_quantum_state(QuantumStateBase* state) {
+    if (state->qubit_count != this->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase) : "
+            "invalid qubit count");
+    }
+
+    for (const auto& gate : this->_gate_list) {
+        if (gate->is_parametric()) {
+            auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(gate);
+            if (pgate->is_old_style())
+                pgate->update_quantum_state(state);
+            else
+                pgate->update_quantum_state(state, _parameter_list);
+        } else {
+            gate->update_quantum_state(state);
+        }
+    }
+}
+
+void ParametricQuantumCircuit::update_quantum_state(
+    QuantumStateBase* state, UINT start, UINT end) {
+    if (state->qubit_count != this->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : invalid qubit count");
+    }
+    if (start > end) {
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : start must be smaller than or equal to end");
+    }
+    if (end > this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : end must be smaller than or equal to gate_count");
+    }
+    for (UINT cursor = start; cursor < end; ++cursor) {
+        auto gate = this->_gate_list[cursor];
+        if (gate->is_parametric()) {
+            auto pgate = dynamic_cast<QuantumGate_SingleParameter*>(gate);
+            if (pgate->is_old_style())
+                pgate->update_quantum_state(state);
+            else
+                pgate->update_quantum_state(state, _parameter_list);
+        } else {
+            gate->update_quantum_state(state);
+        }
+    }
 }
 
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     QuantumState* bistate) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException("backprop_inner_product is old-style.");
+    }
+
     // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
     // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
@@ -259,6 +788,9 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
+    if (!this->is_old_style()) {
+        throw NotImplementedException("backprop is old style");
+    }
     //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
     //上側から来た変動量 * 下側の対応する微分値 =
     //最終的な変動量になるようにする。
@@ -281,6 +813,140 @@ std::vector<double> ParametricQuantumCircuit::backprop(
 
     //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
     auto ans = backprop_inner_product(bistate);
+    delete bistate;
+    delete state;
+    delete Astate;
+    return ans;
+
+}  // CPP
+
+std::vector<double> ParametricQuantumCircuit::backprop_inner_product_new_style(
+    QuantumState* bistate) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "backprop_inner_product_new_style is new style function.");
+    }
+
+    // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
+    // bistateはノルムが1のやつでなくてもよい
+    int n = this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    //これは、ゲートを前から適用したときの状態を示す
+    state->set_zero_state();
+    this->update_quantum_state(state);  //一度最後までする
+
+    int num_gates = this->gate_list.size();
+
+    std::vector<double> ans(this->get_parameter_id_count());
+
+    /*
+    現在、2番のゲートを見ているとする
+    ゲート 0 1 2 3 4 5
+         state | bistate
+    前から2番までのゲートを適用した状態がstate
+    最後の微分値から逆算して3番までgateの逆行列を掛けたのがbistate
+
+    1番まで掛けて、YのΘ微分した行列を掛けたやつと、bistateの内積の実数部分をとれば答えが出ることが知られている(知られてないかも)
+
+    ParametricR? の微分値を計算した行列は、Θに180°を足した行列/2 と等しい
+
+    だから、2番まで掛けて、 R?(π) を掛けたやつと、bistateの内積を取る
+
+    さらに、見るゲートは逆順である。
+    だから、最初にstateを最後までやって、ゲートを進めるたびにstateに逆行列を掛けている
+    さらに、bistateが複素共役になっていることを忘れると、bistateに転置行列を掛ける必要がある。
+    しかしこのプログラムではbistateはずっと複素共役なので、転置して共役な行列を掛ける必要がある。
+    ユニタリ性より、転置して共役な行列 = 逆行列
+    なので、両社にadjoint_gateを掛けている
+    */
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+    for (int i = num_gates - 1; i >= 0; i--) {
+        QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
+        if (this->_gate_list[i]->is_parametric()) {
+            Astate->load(state);
+            QuantumGateBase* RcPI;
+            if (gate_now->get_name() == "ParametricRX") {
+                RcPI = gate::RX(gate_now->get_target_index_list()[0], M_PI);
+            } else if (gate_now->get_name() == "ParametricRY") {
+                RcPI = gate::RY(gate_now->get_target_index_list()[0], M_PI);
+            } else if (gate_now->get_name() == "ParametricRZ") {
+                RcPI = gate::RZ(gate_now->get_target_index_list()[0], M_PI);
+                // 本当はここで2で割りたいけど、行列を割るのは実装が面倒
+            } else if (gate_now->get_name() == "ParametricPauliRotation") {
+                ClsParametricPauliRotationGate* pauli_gate_now =
+                    (ClsParametricPauliRotationGate*)gate_now;
+                RcPI =
+                    gate::PauliRotation(pauli_gate_now->get_target_index_list(),
+                        pauli_gate_now->get_pauli()->get_pauli_id_list(), M_PI);
+            } else {
+                std::stringstream error_message_stream;
+                error_message_stream
+                    << "Error: " << gate_now->get_name()
+                    << " does not support backprop in parametric";
+                throw NotImplementedException(error_message_stream.str());
+            }
+
+            RcPI->update_quantum_state(Astate);
+            auto pgate =
+                dynamic_cast<QuantumGate_SingleParameter*>(this->_gate_list[i]);
+            ans[pgate->get_parameter_id()] +=
+                state::inner_product(bistate, Astate).real() /
+                2.0;  //だからここで2で割る
+
+            delete RcPI;
+
+            ComplexMatrix mat;
+            pgate->set_matrix(mat, this->_parameter_list);
+
+            ComplexMatrix amat = mat.adjoint();
+            auto ptar = pgate->target_qubit_list;
+            auto pcon = pgate->control_qubit_list;
+            auto Agate = new QuantumGateMatrix(ptar, &amat, pcon);
+            Agate->update_quantum_state(bistate);
+            Agate->update_quantum_state(state);
+            delete Agate;
+
+        } else {
+            auto Agate = gate::get_adjoint_gate(gate_now);
+            Agate->update_quantum_state(bistate);
+            Agate->update_quantum_state(state);
+            delete Agate;
+        }
+    }
+
+    delete Astate;
+    delete state;
+    return ans;
+}  // CPP
+
+std::vector<double> ParametricQuantumCircuit::backprop_new_style(
+    GeneralQuantumOperator* obs) {
+    if (!this->is_new_style()) {
+        throw NotImplementedException(
+            "backprop_new_style is new style function");
+    }
+    //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
+    //上側から来た変動量 * 下側の対応する微分値 =
+    //最終的な変動量になるようにする。
+
+    int n = this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    state->set_zero_state();
+    this->update_quantum_state(state);  //一度最後までする
+    QuantumState* bistate = new QuantumState(n);
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+
+    obs->apply_to_state(Astate, *state, bistate);
+    bistate->multiply_coef(2);
+    /*一度stateを最後まで求めてから、さらにapply_to_state している。
+    なぜなら、量子のオブザーバブルは普通の機械学習と違って、二乗した値の絶対値が観測値になる。
+    二乗の絶対値を微分したやつと、値の複素共役*2は等しい
+
+    オブザーバブルよくわからないけど、テストしたらできてた
+    */
+
+    //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
+    auto ans = backprop_inner_product_new_style(bistate);
     delete bistate;
     delete state;
     delete Astate;
